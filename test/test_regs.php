@@ -43,6 +43,14 @@ $oProcessor = new class extends Processor\Base {
     public function getAddrRegs(): array {
         return $this->aAddrRegs;
     }
+
+    public function readLongA0PostIncrement(): int {
+        return $this->readLongIndPostInc($this->iRegA0);
+    }
+
+    public function readWordA0PreDecrement(): int {
+        return $this->readWordIndPreDec($this->iRegA0);
+    }
 };
 
 // Test the enumerated data register masks (lower) map to the specific registers
@@ -137,3 +145,5 @@ assert(
     $oProcessor->getMemory()->readLong(0) === 0xABADCAFE,
     new LogicException('Invalid Soft Reset')
 );
+
+echo "Register tests passed\n";

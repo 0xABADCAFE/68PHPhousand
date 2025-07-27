@@ -47,6 +47,8 @@ abstract class Base implements IDevice {
     protected array $aDataRegs = [];
     protected array $aAddrRegs = [];
 
+    use TAddressUnit;
+
     public function __construct(Device\IBus $oOutside) {
         $this->oOutside  = $oOutside;
         $this->initRegIndexes();

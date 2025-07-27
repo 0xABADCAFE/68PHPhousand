@@ -77,4 +77,5 @@ $oMemory->hardReset();
 
 assert('00000000000000000000000000000000' === $oMemory->getDump(0, 16),  new LogicException('Failed asserting hard reset state'));
 assert($oMemory->readLong(4) === 0, new LogicException('Failed asserting readLong() value'));
-echo "All Tests passed\n";
+
+echo "Memory Tests passed\n";

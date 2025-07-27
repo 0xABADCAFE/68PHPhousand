@@ -1,0 +1,70 @@
+<?php
+
+/**
+ *       _/_/_/    _/_/    _/_/_/   _/    _/  _/_/_/   _/                                                            _/
+ *     _/       _/    _/  _/    _/ _/    _/  _/    _/ _/_/_/     _/_/   _/    _/   _/_/_/    _/_/_/  _/_/_/     _/_/_/
+ *    _/_/_/     _/_/    _/_/_/   _/_/_/_/  _/_/_/   _/    _/ _/    _/ _/    _/ _/_/      _/    _/  _/    _/ _/    _/
+ *   _/    _/ _/    _/  _/       _/    _/  _/       _/    _/ _/    _/ _/    _/     _/_/  _/    _/  _/    _/ _/    _/
+ *    _/_/     _/_/    _/       _/    _/  _/       _/    _/   _/_/    _/_/_/  _/_/_/      _/_/_/  _/    _/   _/_/_/
+ *
+ *   >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Damn you, linkedin, what have you started ? <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+ */
+
+declare(strict_types=1);
+
+namespace ABadCafe\G8PHPhousand\Test;
+
+use ABadCafe\G8PHPhousand\Processor;
+use ABadCafe\G8PHPhousand\Device;
+
+use LogicException;
+
+require 'bootstrap.php';
+
+$oProcessor = new class extends Processor\Base {
+    public function __construct() {
+        parent::__construct(new Device\Memory(64, 0));
+    }
+
+    public function getName(): string {
+        return 'Test CPU';
+    }
+
+    public function getMemory(): Device\Memory {
+        return $this->oOutside;
+    }
+
+    /** Expose the indexed data regs for testing */
+    public function getDataRegs(): array {
+        return $this->aDataRegs;
+    }
+
+    /** Expose the indexed addr regs for testing */
+    public function getAddrRegs(): array {
+        return $this->aAddrRegs;
+    }
+
+    public function readLongA0PostIncrement(): int {
+        return $this->readLongIndPostInc($this->iRegA0);
+    }
+
+    public function readWordA0PreDecrement(): int {
+        return $this->readWordIndPreDec($this->iRegA0);
+    }
+};
+
+$oProcessor->getMemory()->writeLong(0, 0xABADCAFE);
+
+assert(
+    $oProcessor->readLongA0PostIncrement() === 0xABADCAFE &&
+    $oProcessor->getA0() === 4,
+    new LogicException('Invalid Pre Decrement Read')
+);
+
+assert(
+    $oProcessor->readWordA0PreDecrement() === 0xCAFE &&
+    $oProcessor->getA0() === 2,
+    new LogicException('Invalid Pre Decrement Read')
+);
+
+echo "EA Mode Tests Passed\n";
