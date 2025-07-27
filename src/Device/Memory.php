@@ -23,7 +23,7 @@ use function str_repeat;
 /**
  * Root interface for write accessible devices. All accesses are considered unsigned.
  */
-class Memory implements IDevice, IReadable, IWriteable {
+class Memory implements IBus {
 
     public  const MIN_ALIGNMENT = 4;
 

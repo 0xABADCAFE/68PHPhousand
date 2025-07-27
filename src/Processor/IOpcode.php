@@ -19,7 +19,7 @@ namespace ABadCafe\G8PHPhousand\Processor;
  */
 interface IOpcode {
     const MASK_OP_LINE     = 0b1111000000000000; // Instruction line type
-    const MASK_CC_TYPE     = 0b0000111100000000; // Condtion type for Bcc/Scc/DBcc
+    const MASK_CC_TYPE     = 0b0000111100000000; // Condition type for Bcc/Scc/DBcc
     const MASK_EA_REG      = 0b0000000000000111; // Register operand for most EA
     const MASK_REG_UPPER   = 0b0000111000000000; // Register operand various operations
     const MASK_IMM_SMALL   = 0b0000111000000000; // Small immediate for addq/subq
@@ -40,6 +40,53 @@ interface IOpcode {
     const MASK_BXW_MODE    = 0b1000000000000000; // direction
     const MASK_BXW_REG     = 0b0111000000000000; // register
     const MASK_BXW_DISP    = 0b0000000011111111; // displacement
+
+    const REG_0 = 0;
+    const REG_1 = 1;
+    const REG_2 = 2;
+    const REG_3 = 3;
+    const REG_4 = 4;
+    const REG_5 = 5;
+    const REG_6 = 6;
+    const REG_7 = 7;
+
+    const REG_EA_D0 = self::REG_0;
+    const REG_EA_D1 = self::REG_1;
+    const REG_EA_D2 = self::REG_2;
+    const REG_EA_D3 = self::REG_3;
+    const REG_EA_D4 = self::REG_4;
+    const REG_EA_D5 = self::REG_5;
+    const REG_EA_D6 = self::REG_6;
+    const REG_EA_D7 = self::REG_7;
+
+    const REG_EA_A0 = self::REG_0;
+    const REG_EA_A1 = self::REG_1;
+    const REG_EA_A2 = self::REG_2;
+    const REG_EA_A3 = self::REG_3;
+    const REG_EA_A4 = self::REG_4;
+    const REG_EA_A5 = self::REG_5;
+    const REG_EA_A6 = self::REG_6;
+    const REG_EA_A7 = self::REG_7;
+
+    // Values for registers encoded in bits 9-11
+    const REG_UP_SHIFT = 9;
+    const REG_UP_D0 = self::REG_0 << self::REG_UP_SHIFT;
+    const REG_UP_D1 = self::REG_1 << self::REG_UP_SHIFT;
+    const REG_UP_D2 = self::REG_2 << self::REG_UP_SHIFT;
+    const REG_UP_D3 = self::REG_3 << self::REG_UP_SHIFT;
+    const REG_UP_D4 = self::REG_4 << self::REG_UP_SHIFT;
+    const REG_UP_D5 = self::REG_5 << self::REG_UP_SHIFT;
+    const REG_UP_D6 = self::REG_6 << self::REG_UP_SHIFT;
+    const REG_UP_D7 = self::REG_7 << self::REG_UP_SHIFT;
+
+    const REG_UP_A0 = self::REG_0 << self::REG_UP_SHIFT;
+    const REG_UP_A1 = self::REG_1 << self::REG_UP_SHIFT;
+    const REG_UP_A2 = self::REG_2 << self::REG_UP_SHIFT;
+    const REG_UP_A3 = self::REG_3 << self::REG_UP_SHIFT;
+    const REG_UP_A4 = self::REG_4 << self::REG_UP_SHIFT;
+    const REG_UP_A5 = self::REG_5 << self::REG_UP_SHIFT;
+    const REG_UP_A6 = self::REG_6 << self::REG_UP_SHIFT;
+    const REG_UP_A7 = self::REG_7 << self::REG_UP_SHIFT;
 
     // EA modes
     //             =   ----------xxx---
@@ -75,6 +122,7 @@ interface IOpcode {
     const CC_MI = 0b0000101100000000; // Minus
     const CC_GE = 0b0000110000000000; // Greater or Equal
     const CC_LT = 0b0000110100000000; // Less Than
-    const CC_GT = 0b0000111000000000; // Greater THan
+    const CC_GT = 0b0000111000000000; // Greater Than
     const CC_LE = 0b0000111100000000; // Less or Equal
 }
+

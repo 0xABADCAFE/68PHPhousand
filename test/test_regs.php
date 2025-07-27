@@ -1,0 +1,139 @@
+<?php
+
+/**
+ *       _/_/_/    _/_/    _/_/_/   _/    _/  _/_/_/   _/                                                            _/
+ *     _/       _/    _/  _/    _/ _/    _/  _/    _/ _/_/_/     _/_/   _/    _/   _/_/_/    _/_/_/  _/_/_/     _/_/_/
+ *    _/_/_/     _/_/    _/_/_/   _/_/_/_/  _/_/_/   _/    _/ _/    _/ _/    _/ _/_/      _/    _/  _/    _/ _/    _/
+ *   _/    _/ _/    _/  _/       _/    _/  _/       _/    _/ _/    _/ _/    _/     _/_/  _/    _/  _/    _/ _/    _/
+ *    _/_/     _/_/    _/       _/    _/  _/       _/    _/   _/_/    _/_/_/  _/_/_/      _/_/_/  _/    _/   _/_/_/
+ *
+ *   >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Damn you, linkedin, what have you started ? <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+ */
+
+declare(strict_types=1);
+
+namespace ABadCafe\G8PHPhousand\Test;
+
+use ABadCafe\G8PHPhousand\Processor;
+use ABadCafe\G8PHPhousand\Device;
+
+use LogicException;
+
+require 'bootstrap.php';
+
+$oProcessor = new class extends Processor\Base {
+    public function __construct() {
+        parent::__construct(new Device\Memory(64, 0));
+    }
+
+    public function getName(): string {
+        return 'Test CPU';
+    }
+
+    public function getMemory(): Device\Memory {
+        return $this->oOutside;
+    }
+
+    /** Expose the indexed data regs for testing */
+    public function getDataRegs(): array {
+        return $this->aDataRegs;
+    }
+
+    /** Expose the indexed addr regs for testing */
+    public function getAddrRegs(): array {
+        return $this->aAddrRegs;
+    }
+};
+
+// Test the enumerated data register masks (lower) map to the specific registers
+$oProcessor->getDataRegs()[Processor\IOpcode::REG_EA_D0] = 0x10000000;
+$oProcessor->getDataRegs()[Processor\IOpcode::REG_EA_D1] = 0x02000000;
+$oProcessor->getDataRegs()[Processor\IOpcode::REG_EA_D2] = 0x00300000;
+$oProcessor->getDataRegs()[Processor\IOpcode::REG_EA_D3] = 0x00040000;
+$oProcessor->getDataRegs()[Processor\IOpcode::REG_EA_D4] = 0x00005000;
+$oProcessor->getDataRegs()[Processor\IOpcode::REG_EA_D5] = 0x00000600;
+$oProcessor->getDataRegs()[Processor\IOpcode::REG_EA_D6] = 0x00000070;
+$oProcessor->getDataRegs()[Processor\IOpcode::REG_EA_D7] = 0x00000008;
+
+// Test the enumerated data register masks (upper) map to the specific registers
+$oProcessor->getDataRegs()[Processor\IOpcode::REG_UP_D0] += 0x10000000;
+$oProcessor->getDataRegs()[Processor\IOpcode::REG_UP_D1] += 0x01000000;
+$oProcessor->getDataRegs()[Processor\IOpcode::REG_UP_D2] += 0x00100000;
+$oProcessor->getDataRegs()[Processor\IOpcode::REG_UP_D3] += 0x00010000;
+$oProcessor->getDataRegs()[Processor\IOpcode::REG_UP_D4] += 0x00001000;
+$oProcessor->getDataRegs()[Processor\IOpcode::REG_UP_D5] += 0x00000100;
+$oProcessor->getDataRegs()[Processor\IOpcode::REG_UP_D6] += 0x00000010;
+$oProcessor->getDataRegs()[Processor\IOpcode::REG_UP_D7] += 0x00000001;
+
+
+// Test the enumerated address register masks (lower) map to the specific registers
+$oProcessor->getAddrRegs()[Processor\IOpcode::REG_EA_A0] = 0x10000000;
+$oProcessor->getAddrRegs()[Processor\IOpcode::REG_EA_A1] = 0x02000000;
+$oProcessor->getAddrRegs()[Processor\IOpcode::REG_EA_A2] = 0x00300000;
+$oProcessor->getAddrRegs()[Processor\IOpcode::REG_EA_A3] = 0x00040000;
+$oProcessor->getAddrRegs()[Processor\IOpcode::REG_EA_A4] = 0x00005000;
+$oProcessor->getAddrRegs()[Processor\IOpcode::REG_EA_A5] = 0x00000600;
+$oProcessor->getAddrRegs()[Processor\IOpcode::REG_EA_A6] = 0x00000070;
+$oProcessor->getAddrRegs()[Processor\IOpcode::REG_EA_A7] = 0x00000008;
+
+// Test the enumerated data register masks (upper) map to the specific registers
+$oProcessor->getAddrRegs()[Processor\IOpcode::REG_UP_A0] += 0x20000000;
+$oProcessor->getAddrRegs()[Processor\IOpcode::REG_UP_A1] += 0x02000000;
+$oProcessor->getAddrRegs()[Processor\IOpcode::REG_UP_A2] += 0x00200000;
+$oProcessor->getAddrRegs()[Processor\IOpcode::REG_UP_A3] += 0x00020000;
+$oProcessor->getAddrRegs()[Processor\IOpcode::REG_UP_A4] += 0x00002000;
+$oProcessor->getAddrRegs()[Processor\IOpcode::REG_UP_A5] += 0x00000200;
+$oProcessor->getAddrRegs()[Processor\IOpcode::REG_UP_A6] += 0x00000020;
+$oProcessor->getAddrRegs()[Processor\IOpcode::REG_UP_A7] += 0x00000002;
+
+// If there were any mistakes in the upper or lower mappings, these assertions will fail
+assert(
+    $oProcessor->getD0() |
+    $oProcessor->getD1() |
+    $oProcessor->getD2() |
+    $oProcessor->getD3() |
+    $oProcessor->getD4() |
+    $oProcessor->getD5() |
+    $oProcessor->getD6() |
+    $oProcessor->getD7() === 0x23456789,
+    new LogicException('Invalid Data Register Mapping')
+);
+
+// If there were any mistakes in the upper or lower mappings, these assertions will fail
+assert(
+    $oProcessor->getA0() |
+    $oProcessor->getA1() |
+    $oProcessor->getA2() |
+    $oProcessor->getA3() |
+    $oProcessor->getA4() |
+    $oProcessor->getA5() |
+    $oProcessor->getA6() |
+    $oProcessor->getA7() === 0x3456789A,
+    new LogicException('Invalid Address Register Mapping')
+);
+
+$oProcessor->getMemory()->writeLong(0, 0xABADCAFE);
+
+$oProcessor->softReset();
+
+// If there were any mistakes in the upper or lower mappings, these assertions will fail
+assert(
+    $oProcessor->getD0() |
+    $oProcessor->getD1() |
+    $oProcessor->getD2() |
+    $oProcessor->getD3() |
+    $oProcessor->getD4() |
+    $oProcessor->getD5() |
+    $oProcessor->getD6() |
+    $oProcessor->getD7() |
+    $oProcessor->getA0() |
+    $oProcessor->getA1() |
+    $oProcessor->getA2() |
+    $oProcessor->getA3() |
+    $oProcessor->getA4() |
+    $oProcessor->getA5() |
+    $oProcessor->getA6() |
+    $oProcessor->getA7() === 0 &&
+    $oProcessor->getMemory()->readLong(0) === 0xABADCAFE,
+    new LogicException('Invalid Soft Reset')
+);
