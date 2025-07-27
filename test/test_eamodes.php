@@ -45,11 +45,11 @@ $oProcessor = new class extends Processor\Base {
     }
 
     public function readLongA0PostIncrement(): int {
-        return $this->readLongIndPostInc($this->iRegA0);
+        return $this->oOutside->readLong(self::generateLongPostInc($this->iRegA0));
     }
 
     public function readWordA0PreDecrement(): int {
-        return $this->readWordIndPreDec($this->iRegA0);
+        return $this->oOutside->readWord(self::generateWordPreDec($this->iRegA0));
     }
 };
 
@@ -57,13 +57,13 @@ $oProcessor->getMemory()->writeLong(0, 0xABADCAFE);
 
 assert(
     $oProcessor->readLongA0PostIncrement() === 0xABADCAFE &&
-    $oProcessor->getA0() === 4,
+    $oProcessor->getAddrName('a0') === 4,
     new LogicException('Invalid Pre Decrement Read')
 );
 
 assert(
     $oProcessor->readWordA0PreDecrement() === 0xCAFE &&
-    $oProcessor->getA0() === 2,
+    $oProcessor->getAddrName('a0') === 2,
     new LogicException('Invalid Pre Decrement Read')
 );
 

@@ -96,27 +96,27 @@ $oProcessor->getAddrRegs()[Processor\IOpcode::REG_UP_A7] += 0x00000002;
 
 // If there were any mistakes in the upper or lower mappings, these assertions will fail
 assert(
-    $oProcessor->getD0() |
-    $oProcessor->getD1() |
-    $oProcessor->getD2() |
-    $oProcessor->getD3() |
-    $oProcessor->getD4() |
-    $oProcessor->getD5() |
-    $oProcessor->getD6() |
-    $oProcessor->getD7() === 0x23456789,
+    $oProcessor->getDataName('d0') |
+    $oProcessor->getDataName('d1') |
+    $oProcessor->getDataName('d2') |
+    $oProcessor->getDataName('d3') |
+    $oProcessor->getDataName('d4') |
+    $oProcessor->getDataName('d5') |
+    $oProcessor->getDataName('d6') |
+    $oProcessor->getDataName('d7') === 0x23456789,
     new LogicException('Invalid Data Register Mapping')
 );
 
 // If there were any mistakes in the upper or lower mappings, these assertions will fail
 assert(
-    $oProcessor->getA0() |
-    $oProcessor->getA1() |
-    $oProcessor->getA2() |
-    $oProcessor->getA3() |
-    $oProcessor->getA4() |
-    $oProcessor->getA5() |
-    $oProcessor->getA6() |
-    $oProcessor->getA7() === 0x3456789A,
+    $oProcessor->getAddrName('a0') |
+    $oProcessor->getAddrName('a1') |
+    $oProcessor->getAddrName('a2') |
+    $oProcessor->getAddrName('a3') |
+    $oProcessor->getAddrName('a4') |
+    $oProcessor->getAddrName('a5') |
+    $oProcessor->getAddrName('a6') |
+    $oProcessor->getAddrName('a7') === 0x3456789A,
     new LogicException('Invalid Address Register Mapping')
 );
 
@@ -126,22 +126,22 @@ $oProcessor->softReset();
 
 // If there were any mistakes in the upper or lower mappings, these assertions will fail
 assert(
-    $oProcessor->getD0() |
-    $oProcessor->getD1() |
-    $oProcessor->getD2() |
-    $oProcessor->getD3() |
-    $oProcessor->getD4() |
-    $oProcessor->getD5() |
-    $oProcessor->getD6() |
-    $oProcessor->getD7() |
-    $oProcessor->getA0() |
-    $oProcessor->getA1() |
-    $oProcessor->getA2() |
-    $oProcessor->getA3() |
-    $oProcessor->getA4() |
-    $oProcessor->getA5() |
-    $oProcessor->getA6() |
-    $oProcessor->getA7() === 0 &&
+    $oProcessor->getDataName('d0') |
+    $oProcessor->getDataName('d1') |
+    $oProcessor->getDataName('d2') |
+    $oProcessor->getDataName('d3') |
+    $oProcessor->getDataName('d4') |
+    $oProcessor->getDataName('d5') |
+    $oProcessor->getDataName('d6') |
+    $oProcessor->getDataName('d7') |
+    $oProcessor->getAddrName('a0') |
+    $oProcessor->getAddrName('a1') |
+    $oProcessor->getAddrName('a2') |
+    $oProcessor->getAddrName('a3') |
+    $oProcessor->getAddrName('a4') |
+    $oProcessor->getAddrName('a5') |
+    $oProcessor->getAddrName('a6') |
+    $oProcessor->getAddrName('a7') === 0 &&
     $oProcessor->getMemory()->readLong(0) === 0xABADCAFE,
     new LogicException('Invalid Soft Reset')
 );

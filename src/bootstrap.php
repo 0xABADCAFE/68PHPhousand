@@ -28,6 +28,7 @@ const CLASS_MAP = [
   'ABadCafe\\G8PHPhousand\\Device\\IBus'       => '/Device/IBus.php',
   'ABadCafe\\G8PHPhousand\\Device\\Memory'     => '/Device/Memory.php',
   'ABadCafe\\G8PHPhousand\\Device\\IByteConv'  => '/Device/IByteConv.php',
+  'ABadCafe\\G8PHPhousand\\I68KProcessor'      => '/I68KProcessor.php',
   'ABadCafe\\G8PHPhousand\\Processor\\IOpcode' => '/Processor/IOpcode.php',
   'ABadCafe\\G8PHPhousand\\Processor\\Base'    => '/Processor/Base.php',
   'ABadCafe\\G8PHPhousand\\Processor\\TRegisterUnit'    => '/Processor/TRegisterUnit.php',

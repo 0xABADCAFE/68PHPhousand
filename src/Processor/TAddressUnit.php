@@ -21,41 +21,42 @@ use LogicException;
  */
 trait TAddressUnit {
 
-    protected function readByteIndPostInc(int& $iAddress): int {
-        $iResult = $this->oOutside->readByte($iAddress);
+    protected static function generateDisplacement(int $iAddress, int $iDisplacement): int {
+        return ($iAddress + $iDisplacement) & 0xFFFFFFFF;
+    }
+
+    protected static function generateBytePostInc(int& $iAddress): int {
+        $iResult = $iAddress;
         $iAddress = ($iAddress + 1) & 0xFFFFFFFF;
         return $iResult;
     }
 
-    protected function readWordIndPostInc(int& $iAddress): int {
-        assert(0 == ($iAddress & 1), new LogicException('Misaligned word access'));
-        $iResult = $this->oOutside->readWord($iAddress);
+    protected static function generateWordPostInc(int& $iAddress): int {
+        $iResult = $iAddress;
         $iAddress = ($iAddress + 2) & 0xFFFFFFFF;
         return $iResult;
     }
 
-    protected function readLongIndPostInc(int& $iAddress): int {
-        assert(0 == ($iAddress & 1), new LogicException('Misaligned long access'));
-        $iResult = $this->oOutside->readLong($iAddress);
+    protected static function generateLongPostInc(int& $iAddress): int {
+        $iResult = $iAddress;
         $iAddress = ($iAddress + 4) & 0xFFFFFFFF;
         return $iResult;
     }
 
-    protected function readByteIndPreDec(int& $iAddress): int {
+    protected static function generateBytePreDec(int& $iAddress): int {
         $iAddress = ($iAddress - 1) & 0xFFFFFFFF;
-        return $this->oOutside->readByte($iAddress);
+        return $iAddress;
     }
 
-    protected function readWordIndPreDec(int& $iAddress): int {
-        assert(0 == ($iAddress & 1), new LogicException('Misaligned word access'));
+    protected static function generateWordPreDec(int& $iAddress): int {
         $iAddress = ($iAddress - 2) & 0xFFFFFFFF;
-        return $this->oOutside->readWord($iAddress);
+        return $iAddress;
     }
 
-    protected function readLongIndPreDec(int& $iAddress): int {
-        assert(0 == ($iAddress & 1), new LogicException('Misaligned long access'));
+    protected static function generateLongPreDec(int& $iAddress): int {
         $iAddress = ($iAddress - 4) & 0xFFFFFFFF;
-        return $this->oOutside->readLong($iAddress);
+        return $iAddress;
     }
+
 
 }

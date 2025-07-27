@@ -12,39 +12,31 @@
 
 declare(strict_types=1);
 
-namespace ABadCafe\G8PHPhousand\Processor;
-
-use ABadCafe\G8PHPhousand\I68KProcessor;
-
-use ABadCafe\G8PHPhousand\Device;
+namespace ABadCafe\G8PHPhousand;
 
 /**
- * Base class implementation
+ * Root interface for processor
  */
-abstract class Base implements I68KProcessor {
+interface I68KProcessor extends IDevice {
 
-    protected Device\IBus $oOutside;
+    public const DATA_NAMES = [
+        'd0', 'd1', 'd2', 'd3', 'd4', 'd5', 'd6', 'd7'
+    ];
 
-    use TRegisterUnit;
-    use TAddressUnit;
+    public const ADDR_NAMES = [
+        'a0', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'a7'
+    ];
 
-    public function __construct(Device\IBus $oOutside) {
-        $this->oOutside  = $oOutside;
-        $this->initRegIndexes();
-        $this->softReset();
-    }
 
-    public function softReset(): self {
-        $this->registerReset();
-        $this->oOutside->softReset();
-        return $this;
-    }
+    public function setPC(int $iAddress): self;
+    public function getPC(): int;
 
-    public function hardReset(): self {
-        $this->registerReset();
-        $this->oOutside->hardReset();
-        return $this;
-    }
+    // These values set and get full 32-bit register contents
+    public function getDataName(string $sRegName): int;
+    public function setDataName(string $sRegName, int $iValue): self;
 
+    public function getAddrName(string $sRegName): int;
+    public function setAddrName(string $sRegName, int $iAddress): self;
 
 }
+

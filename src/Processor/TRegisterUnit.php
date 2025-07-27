@@ -14,6 +14,8 @@ declare(strict_types=1);
 
 namespace ABadCafe\G8PHPhousand\Processor;
 
+use ValueError;
+
 /**
  * Trait for the main register set. Registers are explicitly named members
  * which allows us to enforce types for them.
@@ -49,69 +51,34 @@ trait TRegisterUnit {
         return $this->iProgramCounter;
     }
 
-    public function getD0(): int {
-        return $this->iRegD0;
+    public function setPC(int $iAddress): self {
+        assert(0 === ($iAddress & 1), new LogicException('Misaligned PC'));
+        $this->iProgramCounter = $iAddress & 0xFFFFFFFF;
+        return $this;
     }
 
-    public function getD1(): int {
-        return $this->iRegD1;
+    public function getDataName(string $sRegName): int {
+        assert(isset($this->aDataRegs[$sRegName]), new ValueError('Illegal register name'));
+        return $this->aDataRegs[$sRegName];
     }
 
-    public function getD2(): int {
-        return $this->iRegD2;
+    public function setDataName(string $sRegName, int $iValue): self {
+        assert(isset($this->aDataRegs[$sRegName]), new ValueError('Illegal register name'));
+        $this->aDataRegs[$sRegName] = $iValue & 0xFFFFFFFF;
+        return $this;
     }
 
-    public function getD3(): int {
-        return $this->iRegD3;
+    public function getAddrName(string $sRegName): int {
+        assert(isset($this->aAddrRegs[$sRegName]), new ValueError('Illegal register name'));
+        return $this->aAddrRegs[$sRegName];
     }
 
-    public function getD4(): int {
-        return $this->iRegD4;
+    public function setAddrName(string $sRegName, int $iValue): self {
+        assert(isset($this->aAddrRegs[$sRegName]), new ValueError('Illegal register name'));
+        $this->aAddrRegs[$sRegName] = $iValue & 0xFFFFFFFF;
+        return $this;
     }
 
-    public function getD5(): int {
-        return $this->iRegD5;
-    }
-
-    public function getD6(): int {
-        return $this->iRegD6;
-    }
-
-    public function getD7(): int {
-        return $this->iRegD7;
-    }
-
-    public function getA0(): int {
-        return $this->iRegA0;
-    }
-
-    public function getA1(): int {
-        return $this->iRegA1;
-    }
-
-    public function getA2(): int {
-        return $this->iRegA2;
-    }
-
-    public function getA3(): int {
-        return $this->iRegA3;
-    }
-
-    public function getA4(): int {
-        return $this->iRegA4;
-    }
-
-    public function getA5(): int {
-        return $this->iRegA5;
-    }
-
-    public function getA6(): int {
-        return $this->iRegA6;
-    }
-
-    public function getA7(): int {
-        return $this->iRegA7;
-    }
 
     protected function initRegIndexes(): void {
         $this->aDataRegs = [
@@ -123,7 +90,6 @@ trait TRegisterUnit {
             IOpcode::REG_5 => &$this->iRegD5,
             IOpcode::REG_5 => &$this->iRegD6,
             IOpcode::REG_7 => &$this->iRegD7,
-
             IOpcode::REG_UP_D0 => &$this->iRegD0,
             IOpcode::REG_UP_D1 => &$this->iRegD1,
             IOpcode::REG_UP_D2 => &$this->iRegD2,
@@ -132,7 +98,14 @@ trait TRegisterUnit {
             IOpcode::REG_UP_D5 => &$this->iRegD5,
             IOpcode::REG_UP_D6 => &$this->iRegD6,
             IOpcode::REG_UP_D7 => &$this->iRegD7,
-
+            'd0' => &$this->iRegD0,
+            'd1' => &$this->iRegD1,
+            'd2' => &$this->iRegD2,
+            'd3' => &$this->iRegD3,
+            'd4' => &$this->iRegD4,
+            'd5' => &$this->iRegD5,
+            'd6' => &$this->iRegD6,
+            'd7' => &$this->iRegD7,
         ];
         $this->aAddrRegs = [
             IOpcode::REG_0 => &$this->iRegA0,
@@ -143,7 +116,6 @@ trait TRegisterUnit {
             IOpcode::REG_5 => &$this->iRegA5,
             IOpcode::REG_6 => &$this->iRegA6,
             IOpcode::REG_7 => &$this->iRegA7,
-
             IOpcode::REG_UP_A0 => &$this->iRegA0,
             IOpcode::REG_UP_A1 => &$this->iRegA1,
             IOpcode::REG_UP_A2 => &$this->iRegA2,
@@ -152,6 +124,14 @@ trait TRegisterUnit {
             IOpcode::REG_UP_A5 => &$this->iRegA5,
             IOpcode::REG_UP_A6 => &$this->iRegA6,
             IOpcode::REG_UP_A7 => &$this->iRegA7,
+            'a0' => &$this->iRegA0,
+            'a1' => &$this->iRegA1,
+            'a2' => &$this->iRegA2,
+            'a3' => &$this->iRegA3,
+            'a4' => &$this->iRegA4,
+            'a5' => &$this->iRegA5,
+            'a6' => &$this->iRegA6,
+            'a7' => &$this->iRegA7,
         ];
     }
 
