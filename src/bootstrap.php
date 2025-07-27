@@ -30,6 +30,7 @@ const CLASS_MAP = [
   'ABadCafe\\G8PHPhousand\\Device\\IByteConv'  => '/Device/IByteConv.php',
   'ABadCafe\\G8PHPhousand\\Processor\\IOpcode' => '/Processor/IOpcode.php',
   'ABadCafe\\G8PHPhousand\\Processor\\Base'    => '/Processor/Base.php',
+  'ABadCafe\\G8PHPhousand\\Processor\\TRegisterUnit'    => '/Processor/TRegisterUnit.php',
   'ABadCafe\\G8PHPhousand\\Processor\\TAddressUnit'    => '/Processor/TAddressUnit.php',
 ];
 

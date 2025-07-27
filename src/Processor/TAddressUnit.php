@@ -16,6 +16,9 @@ namespace ABadCafe\G8PHPhousand\Processor;
 
 use LogicException;
 
+/**
+ * Trait for effective address calculations
+ */
 trait TAddressUnit {
 
     protected function readByteIndPostInc(int& $iAddress): int {
