@@ -120,6 +120,7 @@ class Memory implements IDevice, IReadable, IWriteable {
      */
     public function writeByte(int $iAddress, int $iValue): void {
         assert($iAddress >= $this->iBaseAddress && $iAddress <= $this->iTopAddress, new DomainException('Write byte out of range'));
+        assert(0 == ($iValue & ~0xFF), new ValueError('Illegal byte value'));
         $this->sData[$iAddress - $this->iBaseAddress] = IByteConv::ACHR[$iValue];
     }
 
@@ -129,6 +130,7 @@ class Memory implements IDevice, IReadable, IWriteable {
     public function writeWord(int $iAddress, int $iValue): void {
         $iOffset = $iAddress - $this->iBaseAddress;
         assert($iOffset >= 0 && $iOffset <= $this->iLength - 2, new DomainException('Write word out of range'));
+        assert(0 == ($iValue & ~0xFFFF), new ValueError('Illegal word value'));
         $this->sData[$iOffset]     = IByteConv::ACHR[($iValue >> 8) & 0xFF];
         $this->sData[$iOffset + 1] = IByteConv::ACHR[$iValue        & 0xFF];
     }
@@ -139,6 +141,7 @@ class Memory implements IDevice, IReadable, IWriteable {
     public function writeLong(int $iAddress, int $iValue): void {
         $iOffset = $iAddress - $this->iBaseAddress;
         assert($iOffset >= 0 && $iOffset <= $this->iLength - 4, new DomainException('Write long out of range'));
+        assert(0 == ($iValue & ~0xFFFFFFFF), new ValueError('Illegal long value'));
         $this->sData[$iOffset] = IByteConv::ACHR[($iValue >> 24)     & 0xFF];
         $this->sData[$iOffset + 1] = IByteConv::ACHR[($iValue >> 16) & 0xFF];
         $this->sData[$iOffset + 2] = IByteConv::ACHR[($iValue >> 8)  & 0xFF];
