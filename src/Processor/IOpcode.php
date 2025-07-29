@@ -124,5 +124,6 @@ interface IOpcode {
     const CC_LT = 0b0000110100000000; // Less Than
     const CC_GT = 0b0000111000000000; // Greater Than
     const CC_LE = 0b0000111100000000; // Less or Equal
+
 }
 
