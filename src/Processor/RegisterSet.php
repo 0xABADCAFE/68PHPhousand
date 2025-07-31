@@ -13,6 +13,8 @@ declare(strict_types=1);
 
 namespace ABadCafe\G8PHPhousand\Processor;
 
+use ValueError;
+
 /**
  * Basic set of 8 integer regs, for use as either a0-a7 or d0-d7
  *

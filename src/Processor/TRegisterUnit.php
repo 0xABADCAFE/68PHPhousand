@@ -20,8 +20,9 @@ use ValueError;
  */
 trait TRegisterUnit {
 
-    protected int $iProgramCounter = 0;
-    protected int $iStatusRegister = 0;
+    protected int $iProgramCounter    = 0;
+    protected int $iStatusRegister    = 0;
+    protected int $iConditionRegister = 0;
 
     protected RegisterSet $oAddressRegisters;
     protected RegisterSet $oDataRegisters;
@@ -62,6 +63,9 @@ trait TRegisterUnit {
     {
         $this->oAddressRegisters = new RegisterSet();
         $this->oDataRegisters    = new RegisterSet();
+        $this->aRegisterNames[IRegister::PC_NAME]  = &$this->iProgramCounter;
+        $this->aRegisterNames[IRegister::SR_NAME]  = &$this->iStatusRegister;
+        $this->aRegisterNames[IRegister::CCR_NAME] = &$this->iConditionRegister;
         foreach (IRegister::ADDR_NAMES as $iIndex => $sName) {
             $this->aRegisterNames[$sName] = &$this->oAddressRegisters->aIndex[$iIndex];
         }

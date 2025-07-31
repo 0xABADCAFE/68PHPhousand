@@ -19,14 +19,7 @@ namespace ABadCafe\G8PHPhousand\Processor;
  */
 interface IRegister {
 
-    public const DATA_NAMES = [
-        'd0', 'd1', 'd2', 'd3', 'd4', 'd5', 'd6', 'd7'
-    ];
-
-    public const ADDR_NAMES = [
-        'a0', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'a7'
-    ];
-
+    // General enumerations
     public const X0 = 0;
     public const X1 = 1;
     public const X2 = 2;
@@ -54,5 +47,31 @@ interface IRegister {
     public const D5 = self::X5;
     public const D6 = self::X6;
     public const D7 = self::X7;
+
+    // CCR Bits (lower byte of SR)
+    public const CCR_MASK_C = 0b00000001;
+    public const CCR_MASK_V = 0b00000010;
+    public const CCR_MASK_Z = 0b00000100;
+    public const CCR_MASK_N = 0b00001000;
+    public const CCR_MASK_X = 0b00010000;
+
+    // SR Bits (upper byte of SR)
+    public const SR_MASK_INT_MASK = 0b00000111;
+    public const SR_MASK_SUPER    = 0b00100000;
+    public const SR_MASK_TRACE    = 0b10000000;
+
+
+    // Names
+    public const DATA_NAMES = [
+        'd0', 'd1', 'd2', 'd3', 'd4', 'd5', 'd6', 'd7'
+    ];
+
+    public const ADDR_NAMES = [
+        'a0', 'a1', 'a2', 'a3', 'a4', 'a5', 'a6', 'a7'
+    ];
+
+    public const PC_NAME  = 'pc';
+    public const SR_NAME  = 'sr';
+    public const CCR_NAME = 'ccr';
 }
 
