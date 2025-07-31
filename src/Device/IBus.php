@@ -19,7 +19,8 @@ use ABadCafe\G8PHPhousand\IDevice;
 /**
  * Union interface for read/write
  */
-interface IBus extends IDevice, IReadable, IWriteable {
+interface IBus extends IDevice, IReadable, IWriteable
+{
 
 }
 

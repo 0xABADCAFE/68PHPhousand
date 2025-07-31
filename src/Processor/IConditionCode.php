@@ -12,19 +12,28 @@
 
 declare(strict_types=1);
 
-namespace ABadCafe\G8PHPhousand;
+namespace ABadCafe\G8PHPhousand\Processor;
 
 /**
- * Root interface for processor
+ * Basic CC enumerations
  */
-interface I68KProcessor extends IDevice {
+interface IConditionCode {
 
-    public function setPC(int $iAddress): self;
-    public function getPC(): int;
-
-    // These values set and get full 32-bit register contents
-    public function getRegister(string $sRegName): int;
-    public function setRegister(string $sRegName, int $iValue): self;
-
+    const T  =  0; // True
+    const F  =  1; // False
+    const HI =  2; // High
+    const LS =  3; // Low or Same
+    const CC =  4; // Carry Clear
+    const CS =  5; // Carry Set
+    const NE =  6; // Not Equal
+    const EQ =  7; // Equal
+    const VC =  8; // Overflow Clear
+    const VS =  9; // Overflow Set
+    const PL = 10; // Plus
+    const MI = 11; // Minus
+    const GE = 12; // Greater or Equal
+    const LT = 13; // Less Than
+    const GT = 14; // Greater Than
+    const LE = 15; // Less or Equal
 }
 

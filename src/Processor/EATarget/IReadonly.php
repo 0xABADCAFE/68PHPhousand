@@ -12,19 +12,22 @@
 
 declare(strict_types=1);
 
-namespace ABadCafe\G8PHPhousand;
+namespace ABadCafe\G8PHPhousand\Processor\EATarget;
 
-/**
- * Root interface for processor
- */
-interface I68KProcessor extends IDevice {
+interface IReadOnly
+{
+    /**
+     * @return int<0,255>
+     */
+    public function readByte(): int;
 
-    public function setPC(int $iAddress): self;
-    public function getPC(): int;
+    /**
+     * @return int<0,65535>
+     */
+    public function readWord(): int;
 
-    // These values set and get full 32-bit register contents
-    public function getRegister(string $sRegName): int;
-    public function setRegister(string $sRegName, int $iValue): self;
-
+    /**
+     * @return int<0,4294967295>
+     */
+    public function readLong(): int;
 }
-

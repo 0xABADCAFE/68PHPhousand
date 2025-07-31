@@ -46,5 +46,23 @@ abstract class Base implements I68KProcessor {
         return $this;
     }
 
+    protected function decodeStandardIndirectEAMode(int $iOpcode): int {
+        $iMode      = $iOpcode & IOpcode::MASK_EA_MODE;
+        $iModeParam = $iOpcode & IOpocde::MASK_EA_REG;
+
+        // Expecting indirect modes only.
+        switch ($iMode) {
+            case IOpcode::LSB_EA_AI:
+                return $this->aAddrRegs[$iModeParam];
+
+            case IOpcode::LSB_EA_AIPI:
+            case IOpcode::LSB_EA_AIPD:
+            case IOpcode::LSB_EA_AID:
+            case IOpcode::LSB_EA_AII:
+            case IOpcode::LSB_EA_D:
+
+
+        }
+    }
 
 }
