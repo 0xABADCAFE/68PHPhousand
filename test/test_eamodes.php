@@ -98,4 +98,11 @@ assert(
     new LogicException('Invalid EA address register result')
 );
 
+assertThrown(
+    'Address Register byte write',
+    function() use ($oEATargetAddr) {
+        $oEATargetAddr->writeByte(0);
+    },
+    LogicException::class
+);
 echo "EA Mode Tests Passed\n";
