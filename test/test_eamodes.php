@@ -105,4 +105,25 @@ assertThrown(
     },
     LogicException::class
 );
+
+$oEATargetBus = new Processor\EATarget\Bus($oProcessor->getMemory());
+
+$oEATargetBus->bind(4); // Address
+
+// Note big endian memory
+$oEATargetBus->writeLong(0x11111111);
+$oEATargetBus->writeWord(0x2222);
+$oEATargetBus->writeByte(0x33);
+
+assert(
+    '33221111' === $oProcessor->getMemory()->getDump(4, 4),
+    new LogicException('Memory contents incorrect after EA write')
+);
+
+assert(
+    0x33221111 === $oEATargetBus->readLong(),
+    new LogicException('EA memory read incorrect')
+);
+
+
 echo "EA Mode Tests Passed\n";

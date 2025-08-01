@@ -39,6 +39,7 @@ const CLASS_MAP = [
   'ABadCafe\\G8PHPhousand\\Processor\\TRegisterUnit' => '/Processor/TRegisterUnit.php',
   'ABadCafe\\G8PHPhousand\\Processor\\EATarget\\Register' => '/Processor/EATarget/Register.php',
   'ABadCafe\\G8PHPhousand\\Processor\\EATarget\\DataRegister' => '/Processor/EATarget/DataRegister.php',
+  'ABadCafe\\G8PHPhousand\\Processor\\EATarget\\Bus' => '/Processor/EATarget/Bus.php',
   'ABadCafe\\G8PHPhousand\\Processor\\EATarget\\IReadOnly' => '/Processor/EATarget/IReadOnly.php',
   'ABadCafe\\G8PHPhousand\\Processor\\EATarget\\IReadWrite' => '/Processor/EATarget/IReadWrite.php',
   'ABadCafe\\G8PHPhousand\\Processor\\EATarget\\AddressRegister' => '/Processor/EATarget/AddressRegister.php',

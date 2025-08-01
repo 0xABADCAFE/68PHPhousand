@@ -13,33 +13,27 @@ declare(strict_types=1);
 
 namespace ABadCafe\G8PHPhousand\Processor\EATarget;
 
-use ABadCafe\G8PHPhousand\Processor;
+use ABadCafe\G8PHPhousand\Device;
 
 use ValueError;
 
 /**
- * Effective Address Result for the Register File
+ * Effective Address Result for the outside (whatever is on the bus)
  */
-abstract class Register implements IReadWrite
+class Bus implements IReadWrite
 {
-    protected int $iRegister = 0;
+    protected int $iAddress = 0;
 
-    private array $aRegisterIndex;
+    protected Device\IBus $oOutside;
 
-    public function __construct(Processor\RegisterSet $oRegisters)
+    public function __construct(Device\IBus $oOutside)
     {
-        $this->aRegisterIndex = &$oRegisters->aIndex;
+        $this->oOutside = $oOutside;
     }
 
-    public function bind(int $iIndex): void
+    public function bind(int $iAddress): void
     {
-        assert(
-            isset($this->aRegisterIndex[$iIndex]),
-            new ValueError()
-        );
-
-        // Bind
-        $this->iRegister = &$this->aRegisterIndex[$iIndex];
+        $this->iAddress = $iAddress & 0xFFFFFFFF;
     }
 
     /**
@@ -47,7 +41,7 @@ abstract class Register implements IReadWrite
      */
     public function readByte(): int
     {
-        return $this->iRegister & 0xFF;
+        return $this->oOutside->readByte($this->iAddress);
     }
 
     /**
@@ -55,7 +49,7 @@ abstract class Register implements IReadWrite
      */
     public function readWord(): int
     {
-        return $this->iRegister & 0xFFFF;
+        return $this->oOutside->readWord($this->iAddress);
     }
 
     /**
@@ -63,6 +57,30 @@ abstract class Register implements IReadWrite
      */
     public function readLong(): int
     {
-        return $this->iRegister & 0xFFFFFFFF;
+        return $this->oOutside->readLong($this->iAddress);
+    }
+
+    /**
+     * @param int<0,255> $iValue
+     */
+    public function writeByte(int $iValue): void
+    {
+        $this->oOutside->writeByte($this->iAddress, $iValue);
+    }
+
+    /**
+     * @param int<0,65535> $iValue
+     */
+    public function writeWord(int $iValue): void
+    {
+        $this->oOutside->writeWord($this->iAddress, $iValue);
+    }
+
+    /**
+     * @param int<0,4294967295> $iValue
+     */
+    public function writeLong(int $iValue): void
+    {
+        $this->oOutside->writeLong($this->iAddress, $iValue);
     }
 }
