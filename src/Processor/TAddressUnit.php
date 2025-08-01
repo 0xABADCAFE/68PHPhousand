@@ -21,7 +21,7 @@ use LogicException;
  */
 trait TAddressUnit {
 
-
+    use TRegisterUnit;
 
     protected static function generateDisplacement(int $iAddress, int $iDisplacement): int {
         return ($iAddress + $iDisplacement) & 0xFFFFFFFF;

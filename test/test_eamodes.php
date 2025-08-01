@@ -35,13 +35,13 @@ $oProcessor = new class extends Processor\Base {
     }
 
     /** Expose the indexed data regs for testing */
-    public function getDataRegs(): array {
-        return $this->oDataRegisters->aIndex;
+    public function getDataRegs(): Processor\RegisterSet {
+        return $this->oDataRegisters;
     }
 
     /** Expose the indexed addr regs for testing */
-    public function getAddrRegs(): array {
-        return $this->aAddressRegisters->aIndex;
+    public function getAddrRegs(): Processor\RegisterSet {
+        return $this->oAddressRegisters;
     }
 
     public function readLongA0PostIncrement(): int {
@@ -65,6 +65,37 @@ assert(
     $oProcessor->readWordA0PreDecrement() === 0xCAFE &&
     $oProcessor->getRegister('a0') === 2,
     new LogicException('Invalid Pre Decrement Read')
+);
+
+$oEATargetData = new Processor\EATarget\DataRegister($oProcessor->getDataRegs());
+
+$oEATargetData->bind(0);
+$oEATargetData->writeLong(0x11111111);
+$oEATargetData->writeWord(0x2222);
+$oEATargetData->writeByte(0x33);
+assert(
+    0x11112233 === $oEATargetData->readLong(),
+    new LogicException('Invalid EA data register result')
+);
+
+$oEATargetAddr = new Processor\EATarget\AddressRegister($oProcessor->getAddrRegs());
+$oEATargetAddr->bind(1);
+$oEATargetAddr->writeLong(0x12345678);
+assert(
+    0x12345678 === $oEATargetAddr->readLong(),
+    new LogicException('Invalid EA address register result')
+);
+
+$oEATargetAddr->writeWord(0x4321);
+assert(
+    0x00004321 === $oEATargetAddr->readLong(),
+    new LogicException('Invalid EA address register result')
+);
+
+$oEATargetAddr->writeWord(0xFFFE);
+assert(
+    0xFFFFFFFE === $oEATargetAddr->readLong(),
+    new LogicException('Invalid EA address register result')
 );
 
 echo "EA Mode Tests Passed\n";
