@@ -23,8 +23,8 @@ use function str_repeat;
 /**
  * Root interface for write accessible devices. All accesses are considered unsigned.
  */
-class Memory implements IBus {
-
+class Memory implements IBus
+{
     public  const MIN_ALIGNMENT = 4;
 
     private const ALIGN_MASK    = (self::MIN_ALIGNMENT - 1);
@@ -34,7 +34,8 @@ class Memory implements IBus {
     private int    $iLength      = 0;
     private string $sData        = '';
 
-    public function __construct(int $iLength, int $iBaseAddress = 0) {
+    public function __construct(int $iLength, int $iBaseAddress = 0)
+    {
         assert(
             $iLength >= self::MIN_ALIGNMENT &&
             0 == ($iLength & self::ALIGN_MASK),
@@ -51,32 +52,37 @@ class Memory implements IBus {
         $this->hardReset();
     }
 
-    public function getBaseAddress(): int {
+    public function getBaseAddress(): int
+    {
         return $this->iBaseAddress;
     }
 
-    public function getLength(): int {
+    public function getLength(): int
+    {
         return $this->iLength;
     }
 
     /**
      * @inheritDoc
      */
-    public function getName(): string {
+    public function getName(): string
+    {
         return 'RAM';
     }
 
     /**
      * @inheritDoc
      */
-    public function softReset(): self {
+    public function softReset(): self
+    {
         return $this;
     }
 
     /**
      * @inheritDoc
      */
-    public function hardReset(): self {
+    public function hardReset(): self
+    {
         $this->sData = str_repeat("\0", $this->iLength);
         return $this;
     }
@@ -84,7 +90,8 @@ class Memory implements IBus {
     /**
      * @inheritDoc
      */
-    public function readByte(int $iAddress): int {
+    public function readByte(int $iAddress): int
+    {
         assert($iAddress >= $this->iBaseAddress && $iAddress <= $this->iTopAddress, new DomainException('Read byte out of range'));
         return IByteConv::AORD[$this->sData[$iAddress - $this->iBaseAddress]];
     }
@@ -92,7 +99,8 @@ class Memory implements IBus {
     /**
      * @inheritDoc
      */
-    public function readWord(int $iAddress): int {
+    public function readWord(int $iAddress): int
+    {
         $iOffset = $iAddress - $this->iBaseAddress;
         assert($iOffset >= 0 && $iOffset <= $this->iLength - 2, new DomainException('Read word out of range'));
         return
@@ -104,7 +112,8 @@ class Memory implements IBus {
     /**
      * @inheritDoc
      */
-    public function readLong(int $iAddress): int {
+    public function readLong(int $iAddress): int
+    {
         $iOffset = $iAddress - $this->iBaseAddress;
         assert($iOffset >= 0 && $iOffset <= $this->iLength - 4, new DomainException('Read long out of range'));
         return
@@ -118,7 +127,8 @@ class Memory implements IBus {
     /**
      * @inheritDoc
      */
-    public function writeByte(int $iAddress, int $iValue): void {
+    public function writeByte(int $iAddress, int $iValue): void
+    {
         assert($iAddress >= $this->iBaseAddress && $iAddress <= $this->iTopAddress, new DomainException('Write byte out of range'));
         assert(0 == ($iValue & ~0xFF), new ValueError('Illegal byte value'));
         $this->sData[$iAddress - $this->iBaseAddress] = IByteConv::ACHR[$iValue];
@@ -127,7 +137,8 @@ class Memory implements IBus {
     /**
      * @inheritDoc
      */
-    public function writeWord(int $iAddress, int $iValue): void {
+    public function writeWord(int $iAddress, int $iValue): void
+    {
         $iOffset = $iAddress - $this->iBaseAddress;
         assert($iOffset >= 0 && $iOffset <= $this->iLength - 2, new DomainException('Write word out of range'));
         assert(0 == ($iValue & ~0xFFFF), new ValueError('Illegal word value'));
@@ -138,7 +149,8 @@ class Memory implements IBus {
     /**
      * @inheritDoc
      */
-    public function writeLong(int $iAddress, int $iValue): void {
+    public function writeLong(int $iAddress, int $iValue): void
+    {
         $iOffset = $iAddress - $this->iBaseAddress;
         assert($iOffset >= 0 && $iOffset <= $this->iLength - 4, new DomainException('Write long out of range'));
         assert(0 == ($iValue & ~0xFFFFFFFF), new ValueError('Illegal long value'));
@@ -148,7 +160,8 @@ class Memory implements IBus {
         $this->sData[$iOffset + 3] = IByteConv::ACHR[$iValue         & 0xFF];
     }
 
-    public function getDump($iAddress, $iLength): string {
+    public function getDump($iAddress, $iLength): string
+    {
         assert(
             $iAddress >= $this->iBaseAddress &&
             $iLength > 0 &&
@@ -158,4 +171,3 @@ class Memory implements IBus {
         return bin2hex(substr($this->sData, $iAddress - $this->iBaseAddress, $iLength));
     }
 }
-

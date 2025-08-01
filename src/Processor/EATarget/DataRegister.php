@@ -1,5 +1,4 @@
 <?php
-
 /**
  *       _/_/_/    _/_/    _/_/_/   _/    _/  _/_/_/   _/                                                            _/
  *     _/       _/    _/  _/    _/ _/    _/  _/    _/ _/_/_/     _/_/   _/    _/   _/_/_/    _/_/_/  _/_/_/     _/_/_/
@@ -12,19 +11,38 @@
 
 declare(strict_types=1);
 
-namespace ABadCafe\G8PHPhousand;
+namespace ABadCafe\G8PHPhousand\Processor\EATarget;
+
+use LogicException;
 
 /**
- * Root interface for processor
+ * Effective Address Result for the Register File
  */
-interface I68KProcessor extends IDevice {
+class DataRegister extends Register
+{
+    /**
+     * @param int<0,255> $iValue
+     */
+    public function writeByte(int $iValue): void
+    {
+        $this->iRegister &= 0xFFFFFF00;
+        $this->iRegister |= ($iValue & 0xFF);
+    }
 
-    public function setPC(int $iAddress): self;
-    public function getPC(): int;
+    /**
+     * @param int<0,65535> $iValue
+     */
+    public function writeWord(int $iValue): void
+    {
+        $this->iRegister &= 0xFFFF0000;
+        $this->iRegister |= ($iValue & 0xFFFF);
+    }
 
-    // These values set and get full 32-bit register contents
-    public function getRegister(string $sRegName): int;
-    public function setRegister(string $sRegName, int $iValue): self;
-
+    /**
+     * @param int<0,4294967295> $iValue
+     */
+    public function writeLong(int $iValue): void
+    {
+        $this->iRegister = $iValue & 0xFFFFFFFF;
+    }
 }
-

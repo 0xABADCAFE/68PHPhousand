@@ -1,6 +1,6 @@
 <?php
 
-/**                                                                                                                                          
+/**
  *       _/_/_/    _/_/    _/_/_/   _/    _/  _/_/_/   _/                                                            _/
  *     _/       _/    _/  _/    _/ _/    _/  _/    _/ _/_/_/     _/_/   _/    _/   _/_/_/    _/_/_/  _/_/_/     _/_/_/
  *    _/_/_/     _/_/    _/_/_/   _/_/_/_/  _/_/_/   _/    _/ _/    _/ _/    _/ _/_/      _/    _/  _/    _/ _/    _/
@@ -17,8 +17,8 @@ namespace ABadCafe\G8PHPhousand\Device;
 /**
  * Root interface for read accessible devices. All accesses are considered unsigned.
  */
-interface IReadable {
-
+interface IReadable
+{
     /**
      * @param int<0,4294967295> $iAddress
      * @return int<0,255>

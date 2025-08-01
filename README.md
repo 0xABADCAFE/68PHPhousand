@@ -37,9 +37,26 @@ Defines an entity that can be written to as byte, word (16-bit) or long (32-bit)
 
 Union inteface of IDevice, Device\IReadable and Device\IWriteable
 
+## Processor\IRegister
+
+Enumerates general purpose (data/address) registers.
+
+## Processor\IConditionCode
+
+Enumerates the 16 standard condition codes used by branching/conditional set.
+
 ## Processor\IOpcode
 
 Various masks and other enumerated values needed for decoding instruction words.
+
+## Processor\EATarget\IReadOnly
+
+Read-only interface for an Effective Address target, such as a specific register or memory location.
+
+## Processor\EATarget\IReadWrite
+
+Writeable extension of Processor\EATarget\IReadOnly
+
 
 # Classes/Traits
 
@@ -51,10 +68,27 @@ Implementation of `Device\IBus` that manages a block of memory of a given length
 
 Abstract base implementation of the CPU, defining the main state and the basic IDevice requirements.
 
+## Processor\RegisterSet
+
+Simple structure type that manages a set of 8 explicit integer values and an index array to allow them to be selected by register number and various masked values from within opcodes.
+
 ## Processor\TRegisterUnit
 
-Implementation of the key register set. These are explicitly named integer members with array indexes to allow indexed selection during interpretation.
+Implementation logic for maintaining the data RegisterSet, address RegisterSet, Program Counter, Condition Code and Status Registers.
 
 ## Processor\TAddressUnit
 
 Implementation logic for addressing modes.
+
+## Processor\EATarget\DataRegister
+
+Implementation of Processor\EATarget\IReadWrite for an Data Register target. Allows reading and writing as byte, word and long. Writes smaller than 32 bits overwrite the corresponding lower order bits of the register only.
+
+## Processor\EATarget\AddressRegister
+
+Implementation of Processor\EATarget\IReadWrite for an Address Register target. Allows reading as byte, word and long and writes as word and long. Attempts to write as byte will result in an exception. Word writes are sign extended to 32 bits.
+
+## Processor\EATarget\Bus
+
+Implementation of Processor\EATarget\IReadWrite that delegates to Device\IBus which is intended for all Effective Address targets that route to external memory.
+

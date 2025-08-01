@@ -41,62 +41,56 @@ interface IOpcode {
     const MASK_BXW_REG     = 0b0111000000000000; // register
     const MASK_BXW_DISP    = 0b0000000011111111; // displacement
 
-    const REG_0 = 0;
-    const REG_1 = 1;
-    const REG_2 = 2;
-    const REG_3 = 3;
-    const REG_4 = 4;
-    const REG_5 = 5;
-    const REG_6 = 6;
-    const REG_7 = 7;
+    const REG_EA_D0 = IRegister::D0;
+    const REG_EA_D1 = IRegister::D1;
+    const REG_EA_D2 = IRegister::D2;
+    const REG_EA_D3 = IRegister::D3;
+    const REG_EA_D4 = IRegister::D4;
+    const REG_EA_D5 = IRegister::D5;
+    const REG_EA_D6 = IRegister::D6;
+    const REG_EA_D7 = IRegister::D7;
 
-    const REG_EA_D0 = self::REG_0;
-    const REG_EA_D1 = self::REG_1;
-    const REG_EA_D2 = self::REG_2;
-    const REG_EA_D3 = self::REG_3;
-    const REG_EA_D4 = self::REG_4;
-    const REG_EA_D5 = self::REG_5;
-    const REG_EA_D6 = self::REG_6;
-    const REG_EA_D7 = self::REG_7;
-
-    const REG_EA_A0 = self::REG_0;
-    const REG_EA_A1 = self::REG_1;
-    const REG_EA_A2 = self::REG_2;
-    const REG_EA_A3 = self::REG_3;
-    const REG_EA_A4 = self::REG_4;
-    const REG_EA_A5 = self::REG_5;
-    const REG_EA_A6 = self::REG_6;
-    const REG_EA_A7 = self::REG_7;
+    const REG_EA_A0 = IRegister::A0;
+    const REG_EA_A1 = IRegister::A1;
+    const REG_EA_A2 = IRegister::A2;
+    const REG_EA_A3 = IRegister::A3;
+    const REG_EA_A4 = IRegister::A4;
+    const REG_EA_A5 = IRegister::A5;
+    const REG_EA_A6 = IRegister::A6;
+    const REG_EA_A7 = IRegister::A7;
 
     // Values for registers encoded in bits 9-11
     const REG_UP_SHIFT = 9;
-    const REG_UP_D0 = self::REG_0 << self::REG_UP_SHIFT;
-    const REG_UP_D1 = self::REG_1 << self::REG_UP_SHIFT;
-    const REG_UP_D2 = self::REG_2 << self::REG_UP_SHIFT;
-    const REG_UP_D3 = self::REG_3 << self::REG_UP_SHIFT;
-    const REG_UP_D4 = self::REG_4 << self::REG_UP_SHIFT;
-    const REG_UP_D5 = self::REG_5 << self::REG_UP_SHIFT;
-    const REG_UP_D6 = self::REG_6 << self::REG_UP_SHIFT;
-    const REG_UP_D7 = self::REG_7 << self::REG_UP_SHIFT;
+    const REG_UP_D0 = IRegister::D0 << self::REG_UP_SHIFT;
+    const REG_UP_D1 = IRegister::D1 << self::REG_UP_SHIFT;
+    const REG_UP_D2 = IRegister::D2 << self::REG_UP_SHIFT;
+    const REG_UP_D3 = IRegister::D3 << self::REG_UP_SHIFT;
+    const REG_UP_D4 = IRegister::D4 << self::REG_UP_SHIFT;
+    const REG_UP_D5 = IRegister::D5 << self::REG_UP_SHIFT;
+    const REG_UP_D6 = IRegister::D6 << self::REG_UP_SHIFT;
+    const REG_UP_D7 = IRegister::D7 << self::REG_UP_SHIFT;
 
-    const REG_UP_A0 = self::REG_0 << self::REG_UP_SHIFT;
-    const REG_UP_A1 = self::REG_1 << self::REG_UP_SHIFT;
-    const REG_UP_A2 = self::REG_2 << self::REG_UP_SHIFT;
-    const REG_UP_A3 = self::REG_3 << self::REG_UP_SHIFT;
-    const REG_UP_A4 = self::REG_4 << self::REG_UP_SHIFT;
-    const REG_UP_A5 = self::REG_5 << self::REG_UP_SHIFT;
-    const REG_UP_A6 = self::REG_6 << self::REG_UP_SHIFT;
-    const REG_UP_A7 = self::REG_7 << self::REG_UP_SHIFT;
+    const REG_UP_A0 = IRegister::A0 << self::REG_UP_SHIFT;
+    const REG_UP_A1 = IRegister::A1 << self::REG_UP_SHIFT;
+    const REG_UP_A2 = IRegister::A2 << self::REG_UP_SHIFT;
+    const REG_UP_A3 = IRegister::A3 << self::REG_UP_SHIFT;
+    const REG_UP_A4 = IRegister::A4 << self::REG_UP_SHIFT;
+    const REG_UP_A5 = IRegister::A5 << self::REG_UP_SHIFT;
+    const REG_UP_A6 = IRegister::A6 << self::REG_UP_SHIFT;
+    const REG_UP_A7 = IRegister::A7 << self::REG_UP_SHIFT;
 
-    // EA modes
+    // EA modes with register params
     //             =   ----------xxx---
-    const EA_DREG  = 0b0000000000000000; // Data register dN
-    const EA_AREG  = 0b0000000000001000; // Address register aN
-    const EA_ADDR  = 0b0000000000010000; // Address (aN)
-    const EA_ADPI  = 0b0000000000011000; // Address Post Increment (aN)+
-    const EA_ADPD  = 0b0000000000100000; // Address Pre Decrement -(aN)
-    const EA_AD_D  = 0b0000000000101000; // Address with Displacement (d16, aN)
-    const EA_AD_X  = 0b0000000000110000; // Address with Index (d8, An, Xn)
+    const LSB_EA_MODE_SHIFT = 3;
+    const LSB_EA_D     = IEffectiveAddress::MODE_D    << self::LSB_EA_MODE_SHIFT; // Data register dN
+    const LSB_EA_A     = IEffectiveAddress::MODE_A    << self::LSB_EA_MODE_SHIFT; // Address register aN
+    const LSB_EA_AI    = IEffectiveAddress::MODE_AI   << self::LSB_EA_MODE_SHIFT; // Address (aN)
+    const LSB_EA_AIPI  = IEffectiveAddress::MODE_AIPI << self::LSB_EA_MODE_SHIFT; // Address Post Increment (aN)+
+    const LSB_EA_AIPD  = IEffectiveAddress::MODE_AIPD << self::LSB_EA_MODE_SHIFT; // Address Pre Decrement -(aN)
+    const LSB_EA_AD    = IEffectiveAddress::MODE_AID  << self::LSB_EA_MODE_SHIFT; // Address with Displacement (d16, aN)
+    const LSB_EA_AII   = IEffectiveAddress::MODE_AII  << self::LSB_EA_MODE_SHIFT; // Address with Index (d8, An, Xn)
+
+    const LSB_EA_X     = IEffectiveAddress::MODE_X    << self::LSB_EA_MODE_SHIFT; // Special cases
 
     // Special EA cases
     //             =   ----------xxxxxx
@@ -107,22 +101,23 @@ interface IOpcode {
     const EA_IMM   = 0b0000000000111100; // Immediate #imm
 
     // Specific condition code requirenents for MASK_CC_TYPE
-    //          =   ----xxxx--------
-    const CC_T  = 0b0000000000000000; // True
-    const CC_F  = 0b0000000100000000; // False
-    const CC_HI = 0b0000001000000000; // High
-    const CC_LS = 0b0000001100000000; // Low or Same
-    const CC_CC = 0b0000010000000000; // Carry Clear
-    const CC_CS = 0b0000010100000000; // Carry Set
-    const CC_NE = 0b0000011000000000; // Not Equal
-    const CC_EQ = 0b0000011100000000; // Equal
-    const CC_VC = 0b0000100000000000; // Overflow Clear
-    const CC_VS = 0b0000100100000000; // Overflow Set
-    const CC_PL = 0b0000101000000000; // Plus
-    const CC_MI = 0b0000101100000000; // Minus
-    const CC_GE = 0b0000110000000000; // Greater or Equal
-    const CC_LT = 0b0000110100000000; // Less Than
-    const CC_GT = 0b0000111000000000; // Greater Than
-    const CC_LE = 0b0000111100000000; // Less or Equal
+    const CC_SHIFT = 8;
+    const CC_T     = IConditionCode::T  << self::CC_SHIFT; // True
+    const CC_F     = IConditionCode::F  << self::CC_SHIFT; // False
+    const CC_HI    = IConditionCode::HI << self::CC_SHIFT; // High
+    const CC_LS    = IConditionCode::LS << self::CC_SHIFT; // Low or Same
+    const CC_CC    = IConditionCode::CC << self::CC_SHIFT; // Carry Clear
+    const CC_CS    = IConditionCode::CS << self::CC_SHIFT; // Carry Set
+    const CC_NE    = IConditionCode::NE << self::CC_SHIFT; // Not Equal
+    const CC_EQ    = IConditionCode::EQ << self::CC_SHIFT; // Equal
+    const CC_VC    = IConditionCode::VC << self::CC_SHIFT; // Overflow Clear
+    const CC_VS    = IConditionCode::VS << self::CC_SHIFT; // Overflow Set
+    const CC_PL    = IConditionCode::PL << self::CC_SHIFT; // Plus
+    const CC_MI    = IConditionCode::HI << self::CC_SHIFT; // Minus
+    const CC_GE    = IConditionCode::GE << self::CC_SHIFT; // Greater or Equal
+    const CC_LT    = IConditionCode::LT << self::CC_SHIFT; // Less Than
+    const CC_GT    = IConditionCode::GT << self::CC_SHIFT; // Greater Than
+    const CC_LE    = IConditionCode::LE << self::CC_SHIFT; // Less or Equal
+
 }
 

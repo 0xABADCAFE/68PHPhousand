@@ -21,34 +21,42 @@ use LogicException;
 
 require 'bootstrap.php';
 
-$oProcessor = new class extends Processor\Base {
-    public function __construct() {
+$oProcessor = new class extends Processor\Base
+{
+    public function __construct()
+    {
         parent::__construct(new Device\Memory(64, 0));
     }
 
-    public function getName(): string {
+    public function getName(): string
+    {
         return 'Test CPU';
     }
 
-    public function getMemory(): Device\Memory {
+    public function getMemory(): Device\Memory
+    {
         return $this->oOutside;
     }
 
     /** Expose the indexed data regs for testing */
-    public function getDataRegs(): array {
-        return $this->aDataRegs;
+    public function getDataRegs(): array
+    {
+        return $this->oDataRegisters->aIndex;
     }
 
     /** Expose the indexed addr regs for testing */
-    public function getAddrRegs(): array {
-        return $this->aAddrRegs;
+    public function getAddrRegs(): array
+    {
+        return $this->oAddressRegisters->aIndex;
     }
 
-    public function readLongA0PostIncrement(): int {
+    public function readLongA0PostIncrement(): int
+    {
         return $this->readLongIndPostInc($this->iRegA0);
     }
 
-    public function readWordA0PreDecrement(): int {
+    public function readWordA0PreDecrement(): int
+    {
         return $this->readWordIndPreDec($this->iRegA0);
     }
 };
@@ -96,27 +104,27 @@ $oProcessor->getAddrRegs()[Processor\IOpcode::REG_UP_A7] += 0x00000002;
 
 // If there were any mistakes in the upper or lower mappings, these assertions will fail
 assert(
-    $oProcessor->getDataName('d0') |
-    $oProcessor->getDataName('d1') |
-    $oProcessor->getDataName('d2') |
-    $oProcessor->getDataName('d3') |
-    $oProcessor->getDataName('d4') |
-    $oProcessor->getDataName('d5') |
-    $oProcessor->getDataName('d6') |
-    $oProcessor->getDataName('d7') === 0x23456789,
+    $oProcessor->getRegister('d0') |
+    $oProcessor->getRegister('d1') |
+    $oProcessor->getRegister('d2') |
+    $oProcessor->getRegister('d3') |
+    $oProcessor->getRegister('d4') |
+    $oProcessor->getRegister('d5') |
+    $oProcessor->getRegister('d6') |
+    $oProcessor->getRegister('d7') === 0x23456789,
     new LogicException('Invalid Data Register Mapping')
 );
 
 // If there were any mistakes in the upper or lower mappings, these assertions will fail
 assert(
-    $oProcessor->getAddrName('a0') |
-    $oProcessor->getAddrName('a1') |
-    $oProcessor->getAddrName('a2') |
-    $oProcessor->getAddrName('a3') |
-    $oProcessor->getAddrName('a4') |
-    $oProcessor->getAddrName('a5') |
-    $oProcessor->getAddrName('a6') |
-    $oProcessor->getAddrName('a7') === 0x3456789A,
+    $oProcessor->getRegister('a0') |
+    $oProcessor->getRegister('a1') |
+    $oProcessor->getRegister('a2') |
+    $oProcessor->getRegister('a3') |
+    $oProcessor->getRegister('a4') |
+    $oProcessor->getRegister('a5') |
+    $oProcessor->getRegister('a6') |
+    $oProcessor->getRegister('a7') === 0x3456789A,
     new LogicException('Invalid Address Register Mapping')
 );
 
@@ -126,22 +134,22 @@ $oProcessor->softReset();
 
 // If there were any mistakes in the upper or lower mappings, these assertions will fail
 assert(
-    $oProcessor->getDataName('d0') |
-    $oProcessor->getDataName('d1') |
-    $oProcessor->getDataName('d2') |
-    $oProcessor->getDataName('d3') |
-    $oProcessor->getDataName('d4') |
-    $oProcessor->getDataName('d5') |
-    $oProcessor->getDataName('d6') |
-    $oProcessor->getDataName('d7') |
-    $oProcessor->getAddrName('a0') |
-    $oProcessor->getAddrName('a1') |
-    $oProcessor->getAddrName('a2') |
-    $oProcessor->getAddrName('a3') |
-    $oProcessor->getAddrName('a4') |
-    $oProcessor->getAddrName('a5') |
-    $oProcessor->getAddrName('a6') |
-    $oProcessor->getAddrName('a7') === 0 &&
+    $oProcessor->getRegister('d0') |
+    $oProcessor->getRegister('d1') |
+    $oProcessor->getRegister('d2') |
+    $oProcessor->getRegister('d3') |
+    $oProcessor->getRegister('d4') |
+    $oProcessor->getRegister('d5') |
+    $oProcessor->getRegister('d6') |
+    $oProcessor->getRegister('d7') |
+    $oProcessor->getRegister('a0') |
+    $oProcessor->getRegister('a1') |
+    $oProcessor->getRegister('a2') |
+    $oProcessor->getRegister('a3') |
+    $oProcessor->getRegister('a4') |
+    $oProcessor->getRegister('a5') |
+    $oProcessor->getRegister('a6') |
+    $oProcessor->getRegister('a7') === 0 &&
     $oProcessor->getMemory()->readLong(0) === 0xABADCAFE,
     new LogicException('Invalid Soft Reset')
 );

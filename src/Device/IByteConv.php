@@ -1,6 +1,6 @@
 <?php
 
-/**                                                                                                                                          
+/**
  *       _/_/_/    _/_/    _/_/_/   _/    _/  _/_/_/   _/                                                            _/
  *     _/       _/    _/  _/    _/ _/    _/  _/    _/ _/_/_/     _/_/   _/    _/   _/_/_/    _/_/_/  _/_/_/     _/_/_/
  *    _/_/_/     _/_/    _/_/_/   _/_/_/_/  _/_/_/   _/    _/ _/    _/ _/    _/ _/_/      _/    _/  _/    _/ _/    _/
@@ -17,8 +17,8 @@ namespace ABadCafe\G8PHPhousand\Device;
 /**
  * Utility interface for things that have to mess around with actual bytes.
  */
-interface IByteConv {
-
+interface IByteConv
+{
     // Maps char string to integer value (equivalent of ord())
     public const AORD = [
         "\x00" => 0x00, "\x01" => 0x01, "\x02" => 0x02, "\x03" => 0x03, "\x04" => 0x04, "\x05" => 0x05, "\x06" => 0x06, "\x07" => 0x07,
