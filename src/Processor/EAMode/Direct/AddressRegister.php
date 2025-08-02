@@ -13,10 +13,11 @@ declare(strict_types=1);
 
 namespace ABadCafe\G8PHPhousand\Processor\EAMode\Direct;
 
+use ABadCafe\G8PHPhousand\Processor\ISize;
 use LogicException;
 
 /**
- * Effective Address Result for the Register File
+ * Address Register Direct EA
  */
 class AddressRegister extends Register
 {
@@ -25,7 +26,7 @@ class AddressRegister extends Register
      */
     public function writeByte(int $iValue): void
     {
-        throw new LogicException('Cannot byte write to address register');
+        throw new LogicException('Cannot byte-size write to address register');
     }
 
     /**
@@ -33,9 +34,9 @@ class AddressRegister extends Register
      */
     public function writeWord(int $iValue): void
     {
-        // Sign extend from bit 15
-        $iValue &= 0xFFFF;
-        $this->iRegister = $iValue | ($iValue & 0x8000 ? 0xFFFF0000 : 0);
+        // Sign extend from 16 => 32 bit
+        $iValue &= ISize::MASK_WORD;
+        $this->iRegister = $iValue | ($iValue & ISize::SIGN_BIT_WORD ? ISize::MASK_INV_WORD : 0);
     }
 
     /**
@@ -43,6 +44,6 @@ class AddressRegister extends Register
      */
     public function writeLong(int $iValue): void
     {
-        $this->iRegister = $iValue & 0xFFFFFFFF;
+        $this->iRegister = $iValue & ISize::MASK_LONG;
     }
 }

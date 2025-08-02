@@ -13,10 +13,11 @@ declare(strict_types=1);
 
 namespace ABadCafe\G8PHPhousand\Processor\EAMode\Direct;
 
+use ABadCafe\G8PHPhousand\Processor\ISize;
 use LogicException;
 
 /**
- * Effective Address Result for the Register File
+ * Data Register Direct EA
  */
 class DataRegister extends Register
 {
@@ -25,8 +26,8 @@ class DataRegister extends Register
      */
     public function writeByte(int $iValue): void
     {
-        $this->iRegister &= 0xFFFFFF00;
-        $this->iRegister |= ($iValue & 0xFF);
+        $this->iRegister &= ISize::MASK_INV_BYTE;
+        $this->iRegister |= ($iValue & ISize::MASK_BYTE);
     }
 
     /**
@@ -34,8 +35,8 @@ class DataRegister extends Register
      */
     public function writeWord(int $iValue): void
     {
-        $this->iRegister &= 0xFFFF0000;
-        $this->iRegister |= ($iValue & 0xFFFF);
+        $this->iRegister &= ISize::MASK_INV_WORD;
+        $this->iRegister |= ($iValue & ISize::MASK_WORD);
     }
 
     /**
@@ -43,6 +44,6 @@ class DataRegister extends Register
      */
     public function writeLong(int $iValue): void
     {
-        $this->iRegister = $iValue & 0xFFFFFFFF;
+        $this->iRegister = $iValue & ISize::MASK_LONG;
     }
 }

@@ -106,14 +106,24 @@ assertThrown(
     LogicException::class
 );
 
-$oEAModeBus = new Processor\EAMode\Bus($oProcessor->getMemory());
+$oEAModeIndirect = new Processor\EAMode\Indirect\Basic(
+    $oProcessor->getAddrRegs(),
+    $oProcessor->getMemory()
+);
 
-$oEAModeBus->bind(4); // Address
+$oEAModeIndirect->bind(2); // Address Register
+
+$oProcessor->setRegister('a2', 4);
 
 // Note big endian memory
-$oEAModeBus->writeLong(0x11111111);
-$oEAModeBus->writeWord(0x2222);
-$oEAModeBus->writeByte(0x33);
+$oEAModeIndirect->writeLong(0x11111111);
+$oEAModeIndirect->writeWord(0x2222);
+$oEAModeIndirect->writeByte(0x33);
+
+assert(
+    4 === $oProcessor->getRegister('a2'),
+    new LogicException('Incorrect address in a2 after predecrement')
+);
 
 assert(
     '33221111' === $oProcessor->getMemory()->getDump(4, 4),
@@ -121,9 +131,41 @@ assert(
 );
 
 assert(
-    0x33221111 === $oEAModeBus->readLong(),
+    0x33221111 === $oEAModeIndirect->readLong(),
     new LogicException('EA memory read incorrect')
 );
 
+$oProcessor->getMemory()->writeLong(0, 0xABADCAFE);
 
+$oEAModeIndirectPreDecrement = new Processor\EAMode\Indirect\PreDecrement(
+    $oProcessor->getAddrRegs(),
+    $oProcessor->getMemory()
+);
+$oEAModeIndirectPreDecrement->bind(2);
+
+assert(
+    0xCAFE === $oEAModeIndirectPreDecrement->readWord(),
+    new LogicException('EA memory read incorrect')
+);
+
+assert(
+    2 === $oProcessor->getRegister('a2'),
+    new LogicException('Incorrect address in a2 after predecrement')
+);
+
+$oEAModeIndirectPreDecrement = new Processor\EAMode\Indirect\PostIncrement(
+    $oProcessor->getAddrRegs(),
+    $oProcessor->getMemory()
+);
+$oEAModeIndirectPreDecrement->bind(2);
+
+assert(
+    0xCAFE === $oEAModeIndirectPreDecrement->readWord(),
+    new LogicException('EA memory read incorrect')
+);
+
+assert(
+    4 === $oProcessor->getRegister('a2'),
+    new LogicException('Incorrect address in a2 post increment')
+);
 echo "EA Mode Tests Passed\n";
