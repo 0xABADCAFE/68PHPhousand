@@ -1,5 +1,4 @@
 <?php
-
 /**
  *       _/_/_/    _/_/    _/_/_/   _/    _/  _/_/_/   _/                                                            _/
  *     _/       _/    _/  _/    _/ _/    _/  _/    _/ _/_/_/     _/_/   _/    _/   _/_/_/    _/_/_/  _/_/_/     _/_/_/
@@ -12,22 +11,38 @@
 
 declare(strict_types=1);
 
-namespace ABadCafe\G8PHPhousand\Processor\EATarget;
+namespace ABadCafe\G8PHPhousand\Processor\EAMode\Direct;
 
-interface IReadWrite extends IReadOnly
+use LogicException;
+
+/**
+ * Effective Address Result for the Register File
+ */
+class DataRegister extends Register
 {
     /**
      * @param int<0,255> $iValue
      */
-    public function writeByte(int $iValue): void;
+    public function writeByte(int $iValue): void
+    {
+        $this->iRegister &= 0xFFFFFF00;
+        $this->iRegister |= ($iValue & 0xFF);
+    }
 
     /**
      * @param int<0,65535> $iValue
      */
-    public function writeWord(int $iValue): void;
+    public function writeWord(int $iValue): void
+    {
+        $this->iRegister &= 0xFFFF0000;
+        $this->iRegister |= ($iValue & 0xFFFF);
+    }
 
     /**
      * @param int<0,4294967295> $iValue
      */
-    public function writeLong(int $iValue): void;
+    public function writeLong(int $iValue): void
+    {
+        $this->iRegister = $iValue & 0xFFFFFFFF;
+    }
 }

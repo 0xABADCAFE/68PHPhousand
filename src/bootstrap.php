@@ -37,12 +37,12 @@ const CLASS_MAP = [
   'ABadCafe\\G8PHPhousand\\Processor\\Base' => '/Processor/Base.php',
   'ABadCafe\\G8PHPhousand\\Processor\\IConditionCode' => '/Processor/IConditionCode.php',
   'ABadCafe\\G8PHPhousand\\Processor\\TRegisterUnit' => '/Processor/TRegisterUnit.php',
-  'ABadCafe\\G8PHPhousand\\Processor\\EATarget\\Register' => '/Processor/EATarget/Register.php',
-  'ABadCafe\\G8PHPhousand\\Processor\\EATarget\\DataRegister' => '/Processor/EATarget/DataRegister.php',
-  'ABadCafe\\G8PHPhousand\\Processor\\EATarget\\Bus' => '/Processor/EATarget/Bus.php',
-  'ABadCafe\\G8PHPhousand\\Processor\\EATarget\\IReadOnly' => '/Processor/EATarget/IReadOnly.php',
-  'ABadCafe\\G8PHPhousand\\Processor\\EATarget\\IReadWrite' => '/Processor/EATarget/IReadWrite.php',
-  'ABadCafe\\G8PHPhousand\\Processor\\EATarget\\AddressRegister' => '/Processor/EATarget/AddressRegister.php',
+  'ABadCafe\\G8PHPhousand\\Processor\\EAMode\\Bus' => '/Processor/EAMode/Bus.php',
+  'ABadCafe\\G8PHPhousand\\Processor\\EAMode\\IReadOnly' => '/Processor/EAMode/IReadOnly.php',
+  'ABadCafe\\G8PHPhousand\\Processor\\EAMode\\IReadWrite' => '/Processor/EAMode/IReadWrite.php',
+  'ABadCafe\\G8PHPhousand\\Processor\\EAMode\\Direct\\Register' => '/Processor/EAMode/Direct/Register.php',
+  'ABadCafe\\G8PHPhousand\\Processor\\EAMode\\Direct\\DataRegister' => '/Processor/EAMode/Direct/DataRegister.php',
+  'ABadCafe\\G8PHPhousand\\Processor\\EAMode\\Direct\\AddressRegister' => '/Processor/EAMode/Direct/AddressRegister.php',
 ];
 
 spl_autoload_register(function(string $str_class): void {

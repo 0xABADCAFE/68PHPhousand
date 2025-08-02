@@ -11,16 +11,15 @@
 
 declare(strict_types=1);
 
-namespace ABadCafe\G8PHPhousand\Processor\EATarget;
-
+namespace ABadCafe\G8PHPhousand\Processor\EAMode\Direct;
 use ABadCafe\G8PHPhousand\Processor;
 
 use ValueError;
 
 /**
- * Effective Address Result for the Register File
+ * Common Base class for register direct effective addressing modes
  */
-abstract class Register implements IReadWrite
+abstract class Register implements Processor\EAMode\IReadWrite
 {
     protected int $iRegister = 0;
 

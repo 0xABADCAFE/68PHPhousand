@@ -11,7 +11,7 @@
 
 declare(strict_types=1);
 
-namespace ABadCafe\G8PHPhousand\Processor\EATarget;
+namespace ABadCafe\G8PHPhousand\Processor\EAMode;
 
 use ABadCafe\G8PHPhousand\Device;
 

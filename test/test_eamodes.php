@@ -67,53 +67,53 @@ assert(
     new LogicException('Invalid Pre Decrement Read')
 );
 
-$oEATargetData = new Processor\EATarget\DataRegister($oProcessor->getDataRegs());
+$oEAModeData = new Processor\EAMode\Direct\DataRegister($oProcessor->getDataRegs());
 
-$oEATargetData->bind(0);
-$oEATargetData->writeLong(0x11111111);
-$oEATargetData->writeWord(0x2222);
-$oEATargetData->writeByte(0x33);
+$oEAModeData->bind(0);
+$oEAModeData->writeLong(0x11111111);
+$oEAModeData->writeWord(0x2222);
+$oEAModeData->writeByte(0x33);
 assert(
-    0x11112233 === $oEATargetData->readLong(),
+    0x11112233 === $oEAModeData->readLong(),
     new LogicException('Invalid EA data register result')
 );
 
-$oEATargetAddr = new Processor\EATarget\AddressRegister($oProcessor->getAddrRegs());
-$oEATargetAddr->bind(1);
-$oEATargetAddr->writeLong(0x12345678);
+$oEAModeAddr = new Processor\EAMode\Direct\AddressRegister($oProcessor->getAddrRegs());
+$oEAModeAddr->bind(1);
+$oEAModeAddr->writeLong(0x12345678);
 assert(
-    0x12345678 === $oEATargetAddr->readLong(),
+    0x12345678 === $oEAModeAddr->readLong(),
     new LogicException('Invalid EA address register result')
 );
 
-$oEATargetAddr->writeWord(0x4321);
+$oEAModeAddr->writeWord(0x4321);
 assert(
-    0x00004321 === $oEATargetAddr->readLong(),
+    0x00004321 === $oEAModeAddr->readLong(),
     new LogicException('Invalid EA address register result')
 );
 
-$oEATargetAddr->writeWord(0xFFFE);
+$oEAModeAddr->writeWord(0xFFFE);
 assert(
-    0xFFFFFFFE === $oEATargetAddr->readLong(),
+    0xFFFFFFFE === $oEAModeAddr->readLong(),
     new LogicException('Invalid EA address register result')
 );
 
 assertThrown(
     'Address Register byte write',
-    function() use ($oEATargetAddr) {
-        $oEATargetAddr->writeByte(0);
+    function() use ($oEAModeAddr) {
+        $oEAModeAddr->writeByte(0);
     },
     LogicException::class
 );
 
-$oEATargetBus = new Processor\EATarget\Bus($oProcessor->getMemory());
+$oEAModeBus = new Processor\EAMode\Bus($oProcessor->getMemory());
 
-$oEATargetBus->bind(4); // Address
+$oEAModeBus->bind(4); // Address
 
 // Note big endian memory
-$oEATargetBus->writeLong(0x11111111);
-$oEATargetBus->writeWord(0x2222);
-$oEATargetBus->writeByte(0x33);
+$oEAModeBus->writeLong(0x11111111);
+$oEAModeBus->writeWord(0x2222);
+$oEAModeBus->writeByte(0x33);
 
 assert(
     '33221111' === $oProcessor->getMemory()->getDump(4, 4),
@@ -121,7 +121,7 @@ assert(
 );
 
 assert(
-    0x33221111 === $oEATargetBus->readLong(),
+    0x33221111 === $oEAModeBus->readLong(),
     new LogicException('EA memory read incorrect')
 );
 

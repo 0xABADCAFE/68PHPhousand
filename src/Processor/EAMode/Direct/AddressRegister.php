@@ -11,22 +11,21 @@
 
 declare(strict_types=1);
 
-namespace ABadCafe\G8PHPhousand\Processor\EATarget;
+namespace ABadCafe\G8PHPhousand\Processor\EAMode\Direct;
 
 use LogicException;
 
 /**
  * Effective Address Result for the Register File
  */
-class DataRegister extends Register
+class AddressRegister extends Register
 {
     /**
      * @param int<0,255> $iValue
      */
     public function writeByte(int $iValue): void
     {
-        $this->iRegister &= 0xFFFFFF00;
-        $this->iRegister |= ($iValue & 0xFF);
+        throw new LogicException('Cannot byte write to address register');
     }
 
     /**
@@ -34,8 +33,9 @@ class DataRegister extends Register
      */
     public function writeWord(int $iValue): void
     {
-        $this->iRegister &= 0xFFFF0000;
-        $this->iRegister |= ($iValue & 0xFFFF);
+        // Sign extend from bit 15
+        $iValue &= 0xFFFF;
+        $this->iRegister = $iValue | ($iValue & 0x8000 ? 0xFFFF0000 : 0);
     }
 
     /**
