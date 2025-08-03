@@ -11,24 +11,31 @@
 
 declare(strict_types=1);
 
-namespace ABadCafe\G8PHPhousand\Processor\EAMode\Indirect;
+namespace ABadCafe\G8PHPhousand\Processor\EAMode\Direct;
 use ABadCafe\G8PHPhousand\Processor\EAMode;
-use ABadCafe\G8PHPhousand\Device;
+use ABadCafe\G8PHPhousand\Processor\ISize;
 use ABadCafe\G8PHPhousand\Processor;
+use ABadCafe\G8PHPhousand\Device;
 
 use ValueError;
 
 /**
- * Address Register Indirect, no offsets, increment/decrement or indexing
+ * EA mode for immediates
  */
-class Basic extends EAMode\Direct\Register
+class Immediate implements EAMode\IReadOnly
 {
     use EAMode\TWithBusAccess;
+    use EAMode\TWithExtensionWords;
 
-    public function __construct(Processor\RegisterSet $oRegisters, Device\IBus $oOutside)
+    public function __construct(int& $iProgramCounter, Device\IBus $oOutside)
     {
-        parent::__construct($oRegisters);
+        $this->bindProgramCounter($iProgramCounter);
         $this->bindBus($oOutside);
+    }
+
+    public function bind(int $iIndex): void
+    {
+
     }
 
     /**
@@ -36,7 +43,9 @@ class Basic extends EAMode\Direct\Register
      */
     public function readByte(): int
     {
-        return $this->oOutside->readByte($this->iRegister);
+        $iValue = $this->oOutside->readByte($this->iProgramCounter + 1);
+        $this->iProgramCounter += ISize::WORD;
+        return $iValue;
     }
 
     /**
@@ -44,7 +53,9 @@ class Basic extends EAMode\Direct\Register
      */
     public function readWord(): int
     {
-        return $this->oOutside->readWord($this->iRegister);
+        $iValue = $this->oOutside->readWord($this->iProgramCounter);
+        $this->iProgramCounter += ISize::WORD;
+        return $iValue;
     }
 
     /**
@@ -52,30 +63,8 @@ class Basic extends EAMode\Direct\Register
      */
     public function readLong(): int
     {
-        return $this->oOutside->readLong($this->iRegister);
-    }
-
-    /**
-     * @param int<0,255> $iValue
-     */
-    public function writeByte(int $iValue): void
-    {
-        $this->oOutside->writeByte($this->iRegister, $iValue);
-    }
-
-    /**
-     * @param int<0,65535> $iValue
-     */
-    public function writeWord(int $iValue): void
-    {
-        $this->oOutside->writeWord($this->iRegister, $iValue);
-    }
-
-    /**
-     * @param int<0,4294967295> $iValue
-     */
-    public function writeLong(int $iValue): void
-    {
-        $this->oOutside->writeLong($this->iRegister, $iValue);
+        $iValue = $this->oOutside->readLong($this->iProgramCounter);
+        $this->iProgramCounter += ISize::LONG;
+        return $iValue;
     }
 }

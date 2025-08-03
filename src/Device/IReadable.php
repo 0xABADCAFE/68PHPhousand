@@ -16,6 +16,7 @@ namespace ABadCafe\G8PHPhousand\Device;
 
 /**
  * Root interface for read accessible devices. All accesses are considered unsigned.
+ * For signed access, the specific signed read methods will extend the signed bit.
  */
 interface IReadable
 {

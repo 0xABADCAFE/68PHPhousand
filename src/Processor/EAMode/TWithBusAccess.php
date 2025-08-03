@@ -12,31 +12,19 @@
 
 declare(strict_types=1);
 
-namespace ABadCafe\G8PHPhousand\Test;
+namespace ABadCafe\G8PHPhousand\Processor\EAMode;
 
-if (1 !== (int)ini_get('zend.assertions')) {
-    die('Assertions must be enabled for tests to run\n');
-}
+use ABadCafe\G8PHPhousand\Device;
 
-use Throwable;
-use LogicException;
+/**
+ * For all indirect and immediate modes, access to memory is required.
+ */
+trait TWithBusAccess {
+    protected Device\IBus $oOutside;
 
-error_reporting(-1);
-require  __DIR__ . '/../src/bootstrap.php';
-
-class AssertionFailureException extends LogicException { }
-
-function assertThrown(string $sCase, callable $cCall, string $sErrorClass): void
-{
-    $oThrownError = null;
-    try {
-        $cCall();
-    } catch (Throwable $oError) {
-        $oThrownError = $oError;
+    protected function bindBus(Device\IBus $oOutside)
+    {
+        $this->oOutside = $oOutside;
     }
-    assert(
-        $oThrownError instanceof $sErrorClass,
-        new AssertionFailureException($sCase)
-    );
-}
 
+}
