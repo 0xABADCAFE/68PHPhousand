@@ -29,56 +29,40 @@ trait TAddressUnit {
      * When evaluating an EA from an opcode, one of these will be returned.
      * Generally
      */
-    protected EAMode\Bus $oSrcEAMemory;
-    protected EAMode\Bus $oDstEAMemory;
-    protected EAMode\Direct\DataRegister $oSrcEADataRegister;
-    protected EAMode\Direct\DataRegister $oDstEADataRegister;
-    protected EAMode\Direct\AddressRegister $oSrcEAAddressRegister;
-    protected EAMode\Direct\AddressRegister $oDstEAAddressRegister;
+
+    protected array $aSrcEAModes = [];
+    protected array $aDstEAModes = [];
 
     protected function initEAModes(): void
     {
-        $this->oSrcEAMemory = new EAMode\Bus($this->oOutside);
-        $this->oDstEAMemory = new EAMode\Bus($this->oOutside);
-        $this->oSrcEADataRegister = new EAMode\Direct\DataRegister($this->oDataRegisters);
-        $this->oDstEADataRegister = new EAMode\Direct\DataRegister($this->oDataRegisters);
-        $this->oSrcEAAddressRegister = new EAMode\Direct\AddressRegister($this->oAddressRegisters);
-        $this->oDstEAAddressRegister = new EAMode\Direct\AddressRegister($this->oAddressRegisters);
+        $this->aSrcEAModes = [
+            IOpcode::LSB_EA_D  => new EAMode\Direct\DataRegister(
+                $this->oDataRegisters
+            ),
+            IOpcode::LSB_EA_A  => new EAMode\Direct\DataRegister(
+                $this->oAddressRegisters
+            ),
+            IOpcode::LSB_EA_AI => new EAMode\Indirect\Basic(
+                $this->oAddressRegisters,
+                $this->oOutside
+            ),
+            IOpcode::LSB_EA_AIPI => new EAMode\Indirect\PostIncrement(
+                $this->oAddressRegisters,
+                $this->oOutside
+            ),
+            IOpcode::LSB_EA_AIPD => new EAMode\Indirect\PreDecrement(
+                $this->oAddressRegisters,
+                $this->oOutside
+            ),
+
+        ];
     }
 
 
-    // TODO - Evolve EAMode into actual classes that do the complete EA decode
-    //        and just select them based on the fields. That will allow the size
-    //        of the operand to be implied by the read/write operation that is
-    //        performed on them later.
 
-    protected function decodeStandardSrcEAMode(int $iOpcode): EAMode\IReadable {
+    protected function decodeStandardSrcEAMode(int $iOpcode) {
         $iMode      = $iOpcode & IOpcode::MASK_EA_MODE;
-        $iModeParam = $iOpcode & IOpocde::MASK_EA_REG; // Register number or special
-
-        switch ($iMode) {
-
-            case IOpcode::LSB_EA_D:
-                // Data register direct
-                $this->oSrcEADataRegister->bind($iModeParam);
-                return $this->oSrcEADataRegister;
-
-            case IOpcode::LSB_EA_A:
-                // Address register direct
-                $this->oSrcEAAddressRegister->bind($iModeParam);
-                return $this->oSrcEAAddressRegister;
-
-            case IOpcode::LSB_EA_AI:
-                // Address register indirect.
-                $iAddress = $this->oAddressRegisters->aIndex[$iModeParam];
-                $this->oSrcEAMemory->bind($iAddress);
-                return $this->oSrcEAMemory;
-
-            case IOpcode::LSB_EA_AIPI:
-
-                return $this->oSrcEAMemory;
-
-        }
+        $iModeParam = $iOpcode & IOpcode::MASK_EA_REG; // Register number or special
     }
 
 //     protected function decodeStandardIndirectEAMode(int $iOpcode): int {
