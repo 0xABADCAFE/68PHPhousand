@@ -20,9 +20,8 @@ use ABadCafe\G8PHPhousand\Device;
 require 'bootstrap.php';
 
 $oDataRegisters    = new Processor\RegisterSet();
-$oAddressRegisters = new Processor\RegisterSet();
 
-//$oMemory->writeLong(4, 0xABADCAFE);
+echo "Testing Data Register Direct...";
 
 // Test Data Register Direct mode.
 $oEAModeDataRegister = new Processor\EAMode\Direct\DataRegister($oDataRegisters);
@@ -57,7 +56,13 @@ assert(
     new AssertionFailureException('Incorrect readLong() from data register')
 );
 
+echo "OK\n";
+
 /////////////////////////////////////////////////////////////////////////////////////////`
+
+echo "Testing Address Register Direct...";
+
+$oAddressRegisters = new Processor\RegisterSet();
 
 // Test Address Register Direct mode.
 $oEAModeAddressRegister = new Processor\EAMode\Direct\AddressRegister($oAddressRegisters);
@@ -93,11 +98,15 @@ assert(
     new AssertionFailureException('Incorrect readLong() from address register')
 );
 
+echo "OK\n";
+
 /////////////////////////////////////////////////////////////////////////////////////////`
 
 // Test Immediate Mode
 // After accessing the immediate by the appropriate size, the PC should advance by the
 // size of the read.
+
+echo "Testing Immediate...";
 
 $oMemory           = new Device\Memory(64, 0);
 $iProgramCounter   = 4;
@@ -134,7 +143,11 @@ assert(
     new AssertionFailureException('Incorrect PC after readLong() immediate')
 );
 
+echo "OK\n";
+
 /////////////////////////////////////////////////////////////////////////////////////////`
+
+echo "Testing Address Register Indirect...";
 
 // Basic Indirect
 $oMemory->writeLong(0x10, 0x11223344);
@@ -184,95 +197,6 @@ assert(
     new AssertionFailureException('Incorrect memory readLong() after indirect writeByte()')
 );
 
-/*
-$oEAModeAddr = new Processor\EAMode\Direct\AddressRegister($oProcessor->getAddrRegs());
-$oEAModeAddr->bind(1);
-$oEAModeAddr->writeLong(0x12345678);
-assert(
-    0x12345678 === $oEAModeAddr->readLong(),
-    new LogicException('Invalid EA address register result')
-);
+echo "OK\n";
 
-$oEAModeAddr->writeWord(0x4321);
-assert(
-    0x00004321 === $oEAModeAddr->readLong(),
-    new LogicException('Invalid EA address register result')
-);
-
-$oEAModeAddr->writeWord(0xFFFE);
-assert(
-    0xFFFFFFFE === $oEAModeAddr->readLong(),
-    new LogicException('Invalid EA address register result')
-);
-
-assertThrown(
-    'Address Register byte write',
-    function() use ($oEAModeAddr) {
-        $oEAModeAddr->writeByte(0);
-    },
-    LogicException::class
-);
-
-$oEAModeIndirect = new Processor\EAMode\Indirect\Basic(
-    $oProcessor->getAddrRegs(),
-    $oProcessor->getMemory()
-);
-
-$oEAModeIndirect->bind(2); // Address Register
-
-$oProcessor->setRegister('a2', 4);
-
-// Note big endian memory
-$oEAModeIndirect->writeLong(0x11111111);
-$oEAModeIndirect->writeWord(0x2222);
-$oEAModeIndirect->writeByte(0x33);
-
-assert(
-    4 === $oProcessor->getRegister('a2'),
-    new LogicException('Incorrect address in a2 after predecrement')
-);
-
-assert(
-    '33221111' === $oProcessor->getMemory()->getDump(4, 4),
-    new LogicException('Memory contents incorrect after EA write')
-);
-
-assert(
-    0x33221111 === $oEAModeIndirect->readLong(),
-    new LogicException('EA memory read incorrect')
-);
-
-$oProcessor->getMemory()->writeLong(0, 0xABADCAFE);
-
-$oEAModeIndirectPreDecrement = new Processor\EAMode\Indirect\PreDecrement(
-    $oProcessor->getAddrRegs(),
-    $oProcessor->getMemory()
-);
-$oEAModeIndirectPreDecrement->bind(2);
-
-assert(
-    0xCAFE === $oEAModeIndirectPreDecrement->readWord(),
-    new LogicException('EA memory read incorrect')
-);
-
-assert(
-    2 === $oProcessor->getRegister('a2'),
-    new LogicException('Incorrect address in a2 after predecrement')
-);
-
-$oEAModeIndirectPreDecrement = new Processor\EAMode\Indirect\PostIncrement(
-    $oProcessor->getAddrRegs(),
-    $oProcessor->getMemory()
-);
-$oEAModeIndirectPreDecrement->bind(2);
-
-assert(
-    0xCAFE === $oEAModeIndirectPreDecrement->readWord(),
-    new LogicException('EA memory read incorrect')
-);
-
-assert(
-    4 === $oProcessor->getRegister('a2'),
-    new LogicException('Incorrect address in a2 post increment')
-);*/
-echo "EA Mode Tests Passed\n";
+/////////////////////////////////////////////////////////////////////////////////////////`
