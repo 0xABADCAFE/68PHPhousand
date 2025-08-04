@@ -19,7 +19,7 @@ use ABadCafe\G8PHPhousand\Processor;
 use ValueError;
 
 /**
- * Address Register indirect, post increment. Increment happens on read.
+ * Address Register indirect, post increment. Increment happens on read/write.
  */
 class PostIncrement extends Basic
 {

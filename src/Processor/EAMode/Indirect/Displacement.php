@@ -20,7 +20,7 @@ use ABadCafe\G8PHPhousand\Processor\ISize;
 use ValueError;
 
 /**
- * Interim derivation for modes that have an extension word.
+ * Address register indirect with 16-bit signed displacement
  */
 class Displacement extends Basic
 {

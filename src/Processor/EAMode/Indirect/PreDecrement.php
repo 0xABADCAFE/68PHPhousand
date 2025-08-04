@@ -19,7 +19,7 @@ use ABadCafe\G8PHPhousand\Processor;
 use ValueError;
 
 /**
- * Effective Address Result for the outside (whatever is on the bus)
+ * Address Register indirect, pre decrement. Decrement happens on read/write.
  */
 class PreDecrement extends Basic
 {
