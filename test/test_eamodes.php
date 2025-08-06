@@ -281,45 +281,40 @@ assert(
 );
 
 
+$oAddressRegisters->iReg0 = 0x16;
+$iProgramCounter = 0;
 
-// assert(
-//     0x10 === $oAddressRegisters->iReg0,
-//     new AssertionFailureException('Incorrect register modification for indirect')
-// );
-// assert(
-//     0x1122 === $oEAModeIndirect->readWord(),
-//     new AssertionFailureException('Incorrect readWord() for indirect')
-// );
-// assert(
-//     0x10 === $oAddressRegisters->iReg0,
-//     new AssertionFailureException('Incorrect register modification for indirect')
-// );
-// assert(
-//     0x11 === $oEAModeIndirect->readByte(),
-//     new AssertionFailureException('Incorrect readByte() for indirect')
-// );
-// assert(
-//     0x10 === $oAddressRegisters->iReg0,
-//     new AssertionFailureException('Incorrect register modification for indirect')
-// );
-//
-// $oEAModeIndirect->writeLong(0x55667788);
-// assert(
-//     0x55667788 === $oMemory->readLong(0x10),
-//     new AssertionFailureException('Incorrect memory readLong() after indirect writeLong()')
-// );
-//
-// $oEAModeIndirect->writeWord(0x99AA);
-// assert(
-//     0x99AA7788 === $oMemory->readLong(0x10),
-//     new AssertionFailureException('Incorrect memory readLong() after indirect writeWord()')
-// );
-//
-// $oEAModeIndirect->writeByte(0xBB);
-// assert(
-//     0xBBAA7788 === $oMemory->readLong(0x10),
-//     new AssertionFailureException('Incorrect memory readLong() after indirect writeByte()')
-// );
+
+assert(
+    0x3344 === $oEAModeIndirect->readWord(),
+    new AssertionFailureException('Incorrect readWord() for indirect')
+);
+
+assert(
+    2 === $iProgramCounter,
+    new AssertionFailureException('Incorrect PC after readWord() with displacement')
+);
+
+assert(
+    0x7788 === $oEAModeIndirect->readWord(),
+    new AssertionFailureException('Incorrect readWord() for indirect')
+);
+
+assert(
+    4 === $iProgramCounter,
+    new AssertionFailureException('Incorrect PC after readWord() with displacement')
+);
+
+assert(
+    0x4321 === $oEAModeIndirect->readWord(),
+    new AssertionFailureException('Incorrect readWord() for indirect')
+);
+
+assert(
+    6 === $iProgramCounter,
+    new AssertionFailureException('Incorrect PC after readWord() with displacement')
+);
+
 
 echo "OK\n";
 
