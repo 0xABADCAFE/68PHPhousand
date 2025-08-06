@@ -12,6 +12,7 @@
 declare(strict_types=1);
 
 namespace ABadCafe\G8PHPhousand\Processor\EAMode\Indirect;
+use ABadCafe\G8PHPhousand\Processor\EAMode;
 use ABadCafe\G8PHPhousand\Processor\EAMode\Direct;
 use ABadCafe\G8PHPhousand\Device;
 use ABadCafe\G8PHPhousand\Processor;
@@ -29,8 +30,8 @@ class Displacement extends Basic
 
     public function __construct(int& $iProgramCounter, Processor\RegisterSet $oRegisters, Device\IBus $oOutside)
     {
+        parent::__construct($oRegisters, $oOutside);
         $this->bindProgramCounter($iProgramCounter);
-        $this->bindBus($oOutside);
     }
 
     private function getAddress(): int

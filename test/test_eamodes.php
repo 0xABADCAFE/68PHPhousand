@@ -200,3 +200,127 @@ assert(
 echo "OK\n";
 
 /////////////////////////////////////////////////////////////////////////////////////////`
+
+echo "Testing Address Register Indirect with displacement...";
+
+// Basic Indirect
+$oMemory->writeLong(0x10, 0x11223344);
+$oMemory->writeLong(0x14, 0x55667788);
+$oMemory->writeLong(0x18, 0x87654321);
+
+// extension words
+$oMemory->writeWord(0x0, (-4 & 0xFFFF));
+$oMemory->writeWord(0x2, 0);
+$oMemory->writeWord(0x4, 4);
+
+$oAddressRegisters->iReg0 = 0x14;
+$iProgramCounter = 0;
+$oEAModeIndirect = new Processor\EAMode\Indirect\Displacement($iProgramCounter, $oAddressRegisters, $oMemory);
+$oEAModeIndirect->bind(Processor\IRegister::A0);
+
+assert(
+    0x11223344 === $oEAModeIndirect->readLong(),
+    new AssertionFailureException('Incorrect readLong() for indirect')
+);
+
+assert(
+    2 === $iProgramCounter,
+    new AssertionFailureException('Incorrect PC after readLong() with displacement')
+);
+
+assert(
+    0x55667788 === $oEAModeIndirect->readLong(),
+    new AssertionFailureException('Incorrect readLong() for indirect')
+);
+
+assert(
+    4 === $iProgramCounter,
+    new AssertionFailureException('Incorrect PC after readLong() with displacement')
+);
+
+assert(
+    0x87654321 === $oEAModeIndirect->readLong(),
+    new AssertionFailureException('Incorrect readLong() for indirect')
+);
+
+assert(
+    6 === $iProgramCounter,
+    new AssertionFailureException('Incorrect PC after readLong() with displacement')
+);
+
+$iProgramCounter = 0;
+
+assert(
+    0x1122 === $oEAModeIndirect->readWord(),
+    new AssertionFailureException('Incorrect readWord() for indirect')
+);
+
+assert(
+    2 === $iProgramCounter,
+    new AssertionFailureException('Incorrect PC after readWord() with displacement')
+);
+
+assert(
+    0x5566 === $oEAModeIndirect->readWord(),
+    new AssertionFailureException('Incorrect readWord() for indirect')
+);
+
+assert(
+    4 === $iProgramCounter,
+    new AssertionFailureException('Incorrect PC after readWord() with displacement')
+);
+
+assert(
+    0x8765 === $oEAModeIndirect->readWord(),
+    new AssertionFailureException('Incorrect readWord() for indirect')
+);
+
+assert(
+    6 === $iProgramCounter,
+    new AssertionFailureException('Incorrect PC after readWord() with displacement')
+);
+
+
+
+// assert(
+//     0x10 === $oAddressRegisters->iReg0,
+//     new AssertionFailureException('Incorrect register modification for indirect')
+// );
+// assert(
+//     0x1122 === $oEAModeIndirect->readWord(),
+//     new AssertionFailureException('Incorrect readWord() for indirect')
+// );
+// assert(
+//     0x10 === $oAddressRegisters->iReg0,
+//     new AssertionFailureException('Incorrect register modification for indirect')
+// );
+// assert(
+//     0x11 === $oEAModeIndirect->readByte(),
+//     new AssertionFailureException('Incorrect readByte() for indirect')
+// );
+// assert(
+//     0x10 === $oAddressRegisters->iReg0,
+//     new AssertionFailureException('Incorrect register modification for indirect')
+// );
+//
+// $oEAModeIndirect->writeLong(0x55667788);
+// assert(
+//     0x55667788 === $oMemory->readLong(0x10),
+//     new AssertionFailureException('Incorrect memory readLong() after indirect writeLong()')
+// );
+//
+// $oEAModeIndirect->writeWord(0x99AA);
+// assert(
+//     0x99AA7788 === $oMemory->readLong(0x10),
+//     new AssertionFailureException('Incorrect memory readLong() after indirect writeWord()')
+// );
+//
+// $oEAModeIndirect->writeByte(0xBB);
+// assert(
+//     0xBBAA7788 === $oMemory->readLong(0x10),
+//     new AssertionFailureException('Incorrect memory readLong() after indirect writeByte()')
+// );
+
+echo "OK\n";
+
+/////////////////////////////////////////////////////////////////////////////////////////`
