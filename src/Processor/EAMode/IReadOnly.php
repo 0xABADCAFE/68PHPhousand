@@ -12,22 +12,22 @@
 
 declare(strict_types=1);
 
-namespace ABadCafe\G8PHPhousand\Processor\EATarget;
+namespace ABadCafe\G8PHPhousand\Processor\EAMode;
 
-interface IReadWrite extends IReadOnly
+interface IReadOnly
 {
     /**
-     * @param int<0,255> $iValue
+     * @return int<0,255>
      */
-    public function writeByte(int $iValue): void;
+    public function readByte(): int;
 
     /**
-     * @param int<0,65535> $iValue
+     * @return int<0,65535>
      */
-    public function writeWord(int $iValue): void;
+    public function readWord(): int;
 
     /**
-     * @param int<0,4294967295> $iValue
+     * @return int<0,4294967295>
      */
-    public function writeLong(int $iValue): void;
+    public function readLong(): int;
 }

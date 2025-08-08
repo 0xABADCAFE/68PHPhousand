@@ -119,5 +119,33 @@ interface IOpcode {
     const CC_GT    = IConditionCode::GT << self::CC_SHIFT; // Greater Than
     const CC_LE    = IConditionCode::LE << self::CC_SHIFT; // Less or Equal
 
+    // Brief Extension Word register bits m|rrr|000|dddddddd
+    // m = mode (1: address, 0: data)
+    // r = register num
+    // d = displacement
+    const BXW_REG_SHIFT = 12;
+    const BXW_DISP_MASK = 0xFF;
+    const BXW_REG_MASK  = 0x7000;
+    const BXW_REG_ADDR  = 0x8000;
+    const BXW_IDX_SIZE  = 0x0800;
+    const BXW_IDX_REG   = self::BXW_REG_MASK|self::BXW_REG_ADDR;
+    const BXW_REG_D0    = IRegister::D0 << self::BXW_REG_SHIFT;
+    const BXW_REG_D1    = IRegister::D1 << self::BXW_REG_SHIFT;
+    const BXW_REG_D2    = IRegister::D2 << self::BXW_REG_SHIFT;
+    const BXW_REG_D3    = IRegister::D3 << self::BXW_REG_SHIFT;
+    const BXW_REG_D4    = IRegister::D4 << self::BXW_REG_SHIFT;
+    const BXW_REG_D5    = IRegister::D5 << self::BXW_REG_SHIFT;
+    const BXW_REG_D6    = IRegister::D6 << self::BXW_REG_SHIFT;
+    const BXW_REG_D7    = IRegister::D7 << self::BXW_REG_SHIFT;
+
+    const BXW_REG_A0    = self::BXW_REG_ADDR | (IRegister::A0 << self::BXW_REG_SHIFT);
+    const BXW_REG_A1    = self::BXW_REG_ADDR | (IRegister::A1 << self::BXW_REG_SHIFT);
+    const BXW_REG_A2    = self::BXW_REG_ADDR | (IRegister::A2 << self::BXW_REG_SHIFT);
+    const BXW_REG_A3    = self::BXW_REG_ADDR | (IRegister::A3 << self::BXW_REG_SHIFT);
+    const BXW_REG_A4    = self::BXW_REG_ADDR | (IRegister::A4 << self::BXW_REG_SHIFT);
+    const BXW_REG_A5    = self::BXW_REG_ADDR | (IRegister::A5 << self::BXW_REG_SHIFT);
+    const BXW_REG_A6    = self::BXW_REG_ADDR | (IRegister::A6 << self::BXW_REG_SHIFT);
+    const BXW_REG_A7    = self::BXW_REG_ADDR | (IRegister::A7 << self::BXW_REG_SHIFT);
+
 }
 

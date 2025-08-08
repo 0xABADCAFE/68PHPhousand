@@ -11,29 +11,31 @@
 
 declare(strict_types=1);
 
-namespace ABadCafe\G8PHPhousand\Processor\EATarget;
-
+namespace ABadCafe\G8PHPhousand\Processor\EAMode\Direct;
+use ABadCafe\G8PHPhousand\Processor\EAMode;
+use ABadCafe\G8PHPhousand\Processor\ISize;
+use ABadCafe\G8PHPhousand\Processor;
 use ABadCafe\G8PHPhousand\Device;
 
 use ValueError;
 
 /**
- * Effective Address Result for the outside (whatever is on the bus)
+ * EA mode for immediates
  */
-class Bus implements IReadWrite
+class Immediate implements EAMode\IReadOnly
 {
-    protected int $iAddress = 0;
+    use EAMode\TWithBusAccess;
+    use EAMode\TWithExtensionWords;
 
-    protected Device\IBus $oOutside;
-
-    public function __construct(Device\IBus $oOutside)
+    public function __construct(int& $iProgramCounter, Device\IBus $oOutside)
     {
-        $this->oOutside = $oOutside;
+        $this->bindProgramCounter($iProgramCounter);
+        $this->bindBus($oOutside);
     }
 
-    public function bind(int $iAddress): void
+    public function bind(int $iIndex): void
     {
-        $this->iAddress = $iAddress & 0xFFFFFFFF;
+
     }
 
     /**
@@ -41,7 +43,9 @@ class Bus implements IReadWrite
      */
     public function readByte(): int
     {
-        return $this->oOutside->readByte($this->iAddress);
+        $iValue = $this->oOutside->readByte($this->iProgramCounter + 1);
+        $this->iProgramCounter += ISize::WORD;
+        return $iValue;
     }
 
     /**
@@ -49,7 +53,9 @@ class Bus implements IReadWrite
      */
     public function readWord(): int
     {
-        return $this->oOutside->readWord($this->iAddress);
+        $iValue = $this->oOutside->readWord($this->iProgramCounter);
+        $this->iProgramCounter += ISize::WORD;
+        return $iValue;
     }
 
     /**
@@ -57,30 +63,8 @@ class Bus implements IReadWrite
      */
     public function readLong(): int
     {
-        return $this->oOutside->readLong($this->iAddress);
-    }
-
-    /**
-     * @param int<0,255> $iValue
-     */
-    public function writeByte(int $iValue): void
-    {
-        $this->oOutside->writeByte($this->iAddress, $iValue);
-    }
-
-    /**
-     * @param int<0,65535> $iValue
-     */
-    public function writeWord(int $iValue): void
-    {
-        $this->oOutside->writeWord($this->iAddress, $iValue);
-    }
-
-    /**
-     * @param int<0,4294967295> $iValue
-     */
-    public function writeLong(int $iValue): void
-    {
-        $this->oOutside->writeLong($this->iAddress, $iValue);
+        $iValue = $this->oOutside->readLong($this->iProgramCounter);
+        $this->iProgramCounter += ISize::LONG;
+        return $iValue;
     }
 }

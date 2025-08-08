@@ -11,16 +11,16 @@
 
 declare(strict_types=1);
 
-namespace ABadCafe\G8PHPhousand\Processor\EATarget;
-
+namespace ABadCafe\G8PHPhousand\Processor\EAMode\Direct;
+use ABadCafe\G8PHPhousand\Processor\ISize;
 use ABadCafe\G8PHPhousand\Processor;
 
 use ValueError;
 
 /**
- * Effective Address Result for the Register File
+ * Common Base class for register direct modes, handles binding to a register set.
  */
-abstract class Register implements IReadWrite
+abstract class Register implements Processor\EAMode\IReadWrite
 {
     protected int $iRegister = 0;
 
@@ -47,7 +47,7 @@ abstract class Register implements IReadWrite
      */
     public function readByte(): int
     {
-        return $this->iRegister & 0xFF;
+        return $this->iRegister & ISize::MASK_BYTE;
     }
 
     /**
@@ -55,7 +55,7 @@ abstract class Register implements IReadWrite
      */
     public function readWord(): int
     {
-        return $this->iRegister & 0xFFFF;
+        return $this->iRegister & ISize::MASK_WORD;
     }
 
     /**
@@ -63,6 +63,6 @@ abstract class Register implements IReadWrite
      */
     public function readLong(): int
     {
-        return $this->iRegister & 0xFFFFFFFF;
+        return $this->iRegister & ISize::MASK_LONG;
     }
 }

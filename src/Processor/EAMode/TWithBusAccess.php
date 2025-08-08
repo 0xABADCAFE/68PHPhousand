@@ -1,4 +1,5 @@
 <?php
+
 /**
  *       _/_/_/    _/_/    _/_/_/   _/    _/  _/_/_/   _/                                                            _/
  *     _/       _/    _/  _/    _/ _/    _/  _/    _/ _/_/_/     _/_/   _/    _/   _/_/_/    _/_/_/  _/_/_/     _/_/_/
@@ -11,38 +12,19 @@
 
 declare(strict_types=1);
 
-namespace ABadCafe\G8PHPhousand\Processor\EATarget;
+namespace ABadCafe\G8PHPhousand\Processor\EAMode;
 
-use LogicException;
+use ABadCafe\G8PHPhousand\Device;
 
 /**
- * Effective Address Result for the Register File
+ * For all indirect and immediate modes, access to memory is required.
  */
-class DataRegister extends Register
-{
-    /**
-     * @param int<0,255> $iValue
-     */
-    public function writeByte(int $iValue): void
+trait TWithBusAccess {
+    protected Device\IBus $oOutside;
+
+    protected function bindBus(Device\IBus $oOutside)
     {
-        $this->iRegister &= 0xFFFFFF00;
-        $this->iRegister |= ($iValue & 0xFF);
+        $this->oOutside = $oOutside;
     }
 
-    /**
-     * @param int<0,65535> $iValue
-     */
-    public function writeWord(int $iValue): void
-    {
-        $this->iRegister &= 0xFFFF0000;
-        $this->iRegister |= ($iValue & 0xFFFF);
-    }
-
-    /**
-     * @param int<0,4294967295> $iValue
-     */
-    public function writeLong(int $iValue): void
-    {
-        $this->iRegister = $iValue & 0xFFFFFFFF;
-    }
 }

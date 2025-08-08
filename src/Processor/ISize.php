@@ -1,4 +1,5 @@
 <?php
+
 /**
  *       _/_/_/    _/_/    _/_/_/   _/    _/  _/_/_/   _/                                                            _/
  *     _/       _/    _/  _/    _/ _/    _/  _/    _/ _/_/_/     _/_/   _/    _/   _/_/_/    _/_/_/  _/_/_/     _/_/_/
@@ -11,38 +12,25 @@
 
 declare(strict_types=1);
 
-namespace ABadCafe\G8PHPhousand\Processor\EATarget;
-
-use LogicException;
+namespace ABadCafe\G8PHPhousand\Processor;
 
 /**
- * Effective Address Result for the Register File
+ * Basic register enumerations
  */
-class AddressRegister extends Register
-{
-    /**
-     * @param int<0,255> $iValue
-     */
-    public function writeByte(int $iValue): void
-    {
-        throw new LogicException('Cannot byte write to address register');
-    }
+interface ISize {
 
-    /**
-     * @param int<0,65535> $iValue
-     */
-    public function writeWord(int $iValue): void
-    {
-        // Sign extend from bit 15
-        $iValue &= 0xFFFF;
-        $this->iRegister = $iValue | ($iValue & 0x8000 ? 0xFFFF0000 : 0);
-    }
+    const BYTE = 1;
+    const WORD = 2;
+    const LONG = 4;
 
-    /**
-     * @param int<0,4294967295> $iValue
-     */
-    public function writeLong(int $iValue): void
-    {
-        $this->iRegister = $iValue & 0xFFFFFFFF;
-    }
+    const MASK_BYTE     = 0xFF;
+    const MASK_WORD     = 0xFFFF;
+    const MASK_LONG     = 0xFFFFFFFF;
+    const MASK_INV_BYTE = 0xFFFFFF00;
+    const MASK_INV_WORD = 0xFFFF0000;
+
+    const SIGN_BIT_BYTE = 0x80;
+    const SIGN_BIT_WORD = 0x8000;
+    const SIGN_BIT_LONG = 0x80000000;
 }
+

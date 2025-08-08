@@ -12,31 +12,22 @@
 
 declare(strict_types=1);
 
-namespace ABadCafe\G8PHPhousand\Test;
+namespace ABadCafe\G8PHPhousand\Processor\EAMode;
 
-if (1 !== (int)ini_get('zend.assertions')) {
-    die('Assertions must be enabled for tests to run\n');
-}
-
-use Throwable;
-use LogicException;
-
-error_reporting(-1);
-require  __DIR__ . '/../src/bootstrap.php';
-
-class AssertionFailureException extends LogicException { }
-
-function assertThrown(string $sCase, callable $cCall, string $sErrorClass): void
+interface IReadWrite extends IReadOnly
 {
-    $oThrownError = null;
-    try {
-        $cCall();
-    } catch (Throwable $oError) {
-        $oThrownError = $oError;
-    }
-    assert(
-        $oThrownError instanceof $sErrorClass,
-        new AssertionFailureException($sCase)
-    );
-}
+    /**
+     * @param int<0,255> $iValue
+     */
+    public function writeByte(int $iValue): void;
 
+    /**
+     * @param int<0,65535> $iValue
+     */
+    public function writeWord(int $iValue): void;
+
+    /**
+     * @param int<0,4294967295> $iValue
+     */
+    public function writeLong(int $iValue): void;
+}

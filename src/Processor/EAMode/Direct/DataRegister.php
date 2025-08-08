@@ -1,5 +1,4 @@
 <?php
-
 /**
  *       _/_/_/    _/_/    _/_/_/   _/    _/  _/_/_/   _/                                                            _/
  *     _/       _/    _/  _/    _/ _/    _/  _/    _/ _/_/_/     _/_/   _/    _/   _/_/_/    _/_/_/  _/_/_/     _/_/_/
@@ -12,41 +11,39 @@
 
 declare(strict_types=1);
 
-namespace ABadCafe\G8PHPhousand\Processor;
+namespace ABadCafe\G8PHPhousand\Processor\EAMode\Direct;
 
-use ABadCafe\G8PHPhousand\I68KProcessor;
-
-use ABadCafe\G8PHPhousand\Device;
+use ABadCafe\G8PHPhousand\Processor\ISize;
+use LogicException;
 
 /**
- * Base class implementation
+ * Data Register Direct EA
  */
-abstract class Base implements I68KProcessor {
-
-    protected Device\IBus $oOutside;
-
-    use TRegisterUnit;
-    use TAddressUnit;
-
-    public function __construct(Device\IBus $oOutside) {
-        $this->oOutside  = $oOutside;
-        $this->initRegIndexes();
-        $this->initEAModes();
-        $this->softReset();
+class DataRegister extends Register
+{
+    /**
+     * @param int<0,255> $iValue
+     */
+    public function writeByte(int $iValue): void
+    {
+        $this->iRegister &= ISize::MASK_INV_BYTE;
+        $this->iRegister |= ($iValue & ISize::MASK_BYTE);
     }
 
-    public function softReset(): self {
-        $this->registerReset();
-        $this->oOutside->softReset();
-        return $this;
+    /**
+     * @param int<0,65535> $iValue
+     */
+    public function writeWord(int $iValue): void
+    {
+        $this->iRegister &= ISize::MASK_INV_WORD;
+        $this->iRegister |= ($iValue & ISize::MASK_WORD);
     }
 
-    public function hardReset(): self {
-        $this->registerReset();
-        $this->oOutside->hardReset();
-        return $this;
+    /**
+     * @param int<0,4294967295> $iValue
+     */
+    public function writeLong(int $iValue): void
+    {
+        $this->iRegister = $iValue & ISize::MASK_LONG;
     }
-
-
-
 }
