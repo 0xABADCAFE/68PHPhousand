@@ -402,6 +402,33 @@ assert(
     new AssertionFailureException('Incorrect register value Pre Decrement')
 );
 
+echo "OK\n";
+
+/////////////////////////////////////////////////////////////////////////////////////////`
+
+echo "Testing Address Register Indirect Indexed...";
+
+$oEAModeIndirect = new Processor\EAMode\Indirect\Indexed(
+    $iProgramCounter,
+    $oAddressRegisters,
+    $oDataRegisters,
+    $oMemory
+);
+
+$oEAModeIndirect->bind(Processor\IRegister::A0);
+
+$oAddressRegisters->iReg0 = 0x8; // Base Address
+$oDataRegisters->iReg5    = 6;   // Index value
+
+$iExtensionWord = Processor\IOpcode::BXW_REG_D5|0x02;
+$oMemory->writeWord(0x0, $iExtensionWord);
+$oMemory->writeWord(0x10, 0x2357);
+$iProgramCounter = 0;
+
+assert(
+    0x2357 === $oEAModeIndirect->readWord(),
+    new AssertionFailureException('Incorrect readWord() for Pre Decrement')
+);
 
 
 echo "OK\n";
