@@ -49,11 +49,11 @@ Enumerates the 16 standard condition codes used by branching/conditional set.
 
 Various masks and other enumerated values needed for decoding instruction words.
 
-## Processor\EATarget\IReadOnly
+## Processor\EAMode\IReadOnly
 
 Read-only interface for an Effective Address target, such as a specific register or memory location.
 
-## Processor\EATarget\IReadWrite
+## Processor\EAMode\IReadWrite
 
 Writeable extension of Processor\EATarget\IReadOnly
 
@@ -80,13 +80,23 @@ Implementation logic for maintaining the data RegisterSet, address RegisterSet, 
 
 Implementation logic for addressing modes.
 
-## Processor\EATarget\DataRegister
+## Processor\EAMode\Direct\*
 
-Implementation of Processor\EATarget\IReadWrite for an Data Register target. Allows reading and writing as byte, word and long. Writes smaller than 32 bits overwrite the corresponding lower order bits of the register only.
+Implementations of addressing modes that directly access register values or immediates:
 
-## Processor\EATarget\AddressRegister
+- DataRegister `dN`
+- AddressRegister `aN`
+- Immediate `#N`
 
-Implementation of Processor\EATarget\IReadWrite for an Address Register target. Allows reading as byte, word and long and writes as word and long. Attempts to write as byte will result in an exception. Word writes are sign extended to 32 bits.
+## Processor\EAMode\Indirect\*
+
+- Basic `(aN)`
+- Displacement `d16(aN)`
+- PostIncrement `(aN)+`
+- PreDecrement `-(aN)`
+- Indexed `d8(xN.w|.l, aN)`
+
+Implementations of addressing modes that use indirection to access values in memory.
 
 ## Processor\EATarget\Bus
 
