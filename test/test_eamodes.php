@@ -319,3 +319,89 @@ assert(
 echo "OK\n";
 
 /////////////////////////////////////////////////////////////////////////////////////////`
+
+echo "Testing Address Register Indirect Post Increment...";
+
+$oAddressRegisters->iReg0 = 0;
+$oEAModeIndirect = new Processor\EAMode\Indirect\PostIncrement($oAddressRegisters, $oMemory);
+$oEAModeIndirect->bind(Processor\IRegister::A0);
+
+$oMemory->writeLong(0x0, 0x11223344);
+$oMemory->writeLong(0x4, 0x55667788);
+
+assert(
+    0x11223344 === $oEAModeIndirect->readLong(),
+    new AssertionFailureException('Incorrect readLong() for Post Increment')
+);
+
+assert(
+    0x4 === $oAddressRegisters->iReg0,
+    new AssertionFailureException('Incorrect register value Post Increment')
+);
+
+assert(
+    0x5566 === $oEAModeIndirect->readWord(),
+    new AssertionFailureException('Incorrect readWord() for Post Increment')
+);
+
+assert(
+    0x6 === $oAddressRegisters->iReg0,
+    new AssertionFailureException('Incorrect register value Post Increment')
+);
+
+assert(
+    0x77 === $oEAModeIndirect->readByte(),
+    new AssertionFailureException('Incorrect readByte() for Post Increment')
+);
+
+assert(
+    0x7 === $oAddressRegisters->iReg0,
+    new AssertionFailureException('Incorrect register value Post Increment')
+);
+
+echo "OK\n";
+
+/////////////////////////////////////////////////////////////////////////////////////////`
+
+echo "Testing Address Register Indirect Pre Decrement...";
+
+$oEAModeIndirect = new Processor\EAMode\Indirect\PreDecrement($oAddressRegisters, $oMemory);
+$oEAModeIndirect->bind(Processor\IRegister::A0);
+
+$oMemory->writeLong(0x0, 0x76543210);
+$oMemory->writeLong(0x4, 0xFEDCBA98);
+$oAddressRegisters->iReg0 = 0x8;
+
+assert(
+    0xFEDCBA98 === $oEAModeIndirect->readLong(),
+    new AssertionFailureException('Incorrect readLong() for Pre Decrement')
+);
+
+assert(
+    0x4 === $oAddressRegisters->iReg0,
+    new AssertionFailureException('Incorrect register value Pre Decrement')
+);
+
+assert(
+    0x3210 === $oEAModeIndirect->readWord(),
+    new AssertionFailureException('Incorrect readWord() for Pre Decrement')
+);
+
+assert(
+    0x2 === $oAddressRegisters->iReg0,
+    new AssertionFailureException('Incorrect register value Pre Decrement')
+);
+
+assert(
+    0x54 === $oEAModeIndirect->readByte(),
+    new AssertionFailureException('Incorrect readByte() for Pre Decrement')
+);
+
+assert(
+    0x1 === $oAddressRegisters->iReg0,
+    new AssertionFailureException('Incorrect register value Pre Decrement')
+);
+
+
+
+echo "OK\n";
