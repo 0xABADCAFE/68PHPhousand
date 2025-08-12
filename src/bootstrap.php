@@ -52,6 +52,7 @@ const CLASS_MAP = [
   'ABadCafe\\G8PHPhousand\\Processor\\EAMode\\Direct\\DataRegister' => '/Processor/EAMode/Direct/DataRegister.php',
   'ABadCafe\\G8PHPhousand\\Processor\\EAMode\\Direct\\Immediate' => '/Processor/EAMode/Direct/Immediate.php',
   'ABadCafe\\G8PHPhousand\\Processor\\EAMode\\Direct\\AddressRegister' => '/Processor/EAMode/Direct/AddressRegister.php',
+  'ABadCafe\\G8PHPhousand\\Processor\\Opcode\\IPrefix' => '/Processor/Opcode/IPrefix.php',
 ];
 
 spl_autoload_register(function(string $str_class): void {

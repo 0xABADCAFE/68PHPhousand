@@ -32,9 +32,11 @@ interface IOpcode {
     const MASK_OP_SIZE_MPE = 0b0000000001000000; // Size operand for movem/movep/ext
     const MASK_OP_SIZE_A   = 0b0000000010000000; // Size operand for address ops
     const MASK_MOVEM_DIR   = 0b0000010000000000; // MOVEM direction
-    const MASK_MOVEP_DIR   = 0x0000000010000000; // MOVEP direction
-    const MASK_SHIFT_DIR   = 0x0000000010000000; // shift/rotate direction
-    const MASK_MOVEUSP_DIR = 0x0000000000001000; // MOVE USP direction
+    const MASK_MOVEP_DIR   = 0b0000000010000000; // MOVEP direction
+    const MASK_SHIFT_DIR   = 0b0000000010000000; // shift/rotate direction
+    const MASK_MOVEUSP_DIR = 0b0000000000001000; // MOVE USP direction
+
+    const MASK_OP_PREFIX   = 0b1111111111000000;
 
     // Brief eXtension Word
     const MASK_BXW_MODE    = 0b1000000000000000; // direction
