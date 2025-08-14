@@ -12,6 +12,7 @@
 declare(strict_types=1);
 
 namespace ABadCafe\G8PHPhousand\Processor\EAMode\Indirect;
+use ABadCafe\G8PHPhousand\Processor\EAMode;
 use ABadCafe\G8PHPhousand\Processor\ISize;
 use ABadCafe\G8PHPhousand\Device;
 use ABadCafe\G8PHPhousand\Processor;
@@ -23,13 +24,15 @@ use ValueError;
  */
 class PreDecrement extends Basic
 {
+    use EAMode\TWithLatch;
+
     /**
      * @return int<0,255>
      */
     public function readByte(): int
     {
-        $this->iRegister = ($this->iRegister - ISize::BYTE) & ISize::MASK_LONG;
-        return $this->oOutside->readByte($this->iRegister);
+        $this->iAddress = $this->iRegister = ($this->iRegister - ISize::BYTE) & ISize::MASK_LONG;
+        return $this->oOutside->readByte($this->iAddress);
     }
 
     /**
@@ -37,8 +40,8 @@ class PreDecrement extends Basic
      */
     public function readWord(): int
     {
-        $this->iRegister = ($this->iRegister - ISize::WORD) & ISize::MASK_LONG;
-        return $this->oOutside->readWord($this->iRegister);
+        $this->iAddress = $this->iRegister = ($this->iRegister - ISize::WORD) & ISize::MASK_LONG;
+        return $this->oOutside->readWord($this->iAddress);
     }
 
     /**
@@ -46,8 +49,8 @@ class PreDecrement extends Basic
      */
     public function readLong(): int
     {
-        $this->iRegister = ($this->iRegister - ISize::LONG) & ISize::MASK_LONG;
-        return $this->oOutside->readLong($this->iRegister);
+        $this->iAddress = $this->iRegister = ($this->iRegister - ISize::LONG) & ISize::MASK_LONG;
+        return $this->oOutside->readLong($this->iAddress);
     }
 
     /**
@@ -55,8 +58,12 @@ class PreDecrement extends Basic
      */
     public function writeByte(int $iValue): void
     {
-        $this->iRegister = ($this->iRegister - ISize::BYTE) & ISize::MASK_LONG;
-        $this->oOutside->writeByte($this->iRegister, $iValue);
+        $iAddress = $this->iAddress;
+        if (null === $iAddress) {
+            $iAddress = $this->iRegister = ($this->iRegister - ISize::BYTE) & ISize::MASK_LONG;
+        }
+        $this->oOutside->writeByte($iAddress, $iValue);
+        $this->iAddress = null;
     }
 
     /**
@@ -64,8 +71,12 @@ class PreDecrement extends Basic
      */
     public function writeWord(int $iValue): void
     {
-        $this->iRegister = ($this->iRegister - ISize::WORD) & ISize::MASK_LONG;
-        $this->oOutside->writeWord($this->iRegister, $iValue);
+        $iAddress = $this->iAddress;
+        if (null === $iAddress) {
+            $iAddress = $this->iRegister = ($this->iRegister - ISize::WORD) & ISize::MASK_LONG;
+        }
+        $this->oOutside->writeWord($iAddress, $iValue);
+        $this->iAddress = null;
     }
 
     /**
@@ -73,7 +84,11 @@ class PreDecrement extends Basic
      */
     public function writeLong(int $iValue): void
     {
-        $this->iRegister = ($this->iRegister - ISize::LONG) & ISize::MASK_LONG;
-        $this->oOutside->writeLong($this->iRegister, $iValue);
+        $iAddress = $this->iAddress;
+        if (null === $iAddress) {
+            $iAddress = $this->iRegister = ($this->iRegister - ISize::LONG) & ISize::MASK_LONG;
+        }
+        $this->oOutside->writeLong($iAddress, $iValue);
+        $this->iAddress = null;
     }
 }

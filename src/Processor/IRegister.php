@@ -55,10 +55,15 @@ interface IRegister {
     public const CCR_MASK_N = 0b00001000;
     public const CCR_MASK_X = 0b00010000;
 
+    public const CCR_MASK   = 0b00011111;
+
     // SR Bits (upper byte of SR)
     public const SR_MASK_INT_MASK = 0b00000111;
     public const SR_MASK_SUPER    = 0b00100000;
     public const SR_MASK_TRACE    = 0b10000000;
+    public const SR_MASK          = 0b10100111;
+
+    public const SR_CCR_MASK      = self::SR_MASK << 8 | self::CCR_MASK;
 
 
     // Names

@@ -54,33 +54,18 @@ trait TAddressUnit {
                 $this->oAddressRegisters,
                 $this->oOutside
             ),
-
         ];
     }
 
+    protected function decodeStandardDstEAMode(int $iOpcode): EAMode\IReadWrite
+    {
 
+    }
 
     protected function decodeStandardSrcEAMode(int $iOpcode) {
         $iMode      = $iOpcode & IOpcode::MASK_EA_MODE;
         $iModeParam = $iOpcode & IOpcode::MASK_EA_REG; // Register number or special
     }
-
-//     protected function decodeStandardIndirectEAMode(int $iOpcode): int {
-//         $iMode      = $iOpcode & IOpcode::MASK_EA_MODE;
-//         $iModeParam = $iOpcode & IOpocde::MASK_EA_REG;
-//
-//         // Expecting indirect modes only.
-//         switch ($iMode) {
-//             case IOpcode::LSB_EA_AI:
-//                 return $this->aAddrRegs[$iModeParam];
-//
-//             case IOpcode::LSB_EA_AIPI:
-//             case IOpcode::LSB_EA_AIPD:
-//             case IOpcode::LSB_EA_AID:
-//             case IOpcode::LSB_EA_AII:
-//             case IOpcode::LSB_EA_D:
-//         }
-//     }
 
     protected static function generateDisplacement(int $iAddress, int $iDisplacement): int
     {

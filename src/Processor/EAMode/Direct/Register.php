@@ -65,4 +65,5 @@ abstract class Register implements Processor\EAMode\IReadWrite
     {
         return $this->iRegister & ISize::MASK_LONG;
     }
+
 }
