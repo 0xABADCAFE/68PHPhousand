@@ -17,8 +17,8 @@ namespace ABadCafe\G8PHPhousand;
 /**
  * Root interface for processor
  */
-interface I68KProcessor extends IDevice {
-
+interface I68KProcessor extends IDevice
+{
     public function setPC(int $iAddress): self;
     public function getPC(): int;
 

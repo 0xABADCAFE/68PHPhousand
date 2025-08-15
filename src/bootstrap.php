@@ -38,6 +38,7 @@ const CLASS_MAP = [
   'ABadCafe\\G8PHPhousand\\Processor\\RegisterSet' => '/Processor/RegisterSet.php',
   'ABadCafe\\G8PHPhousand\\Processor\\Base' => '/Processor/Base.php',
   'ABadCafe\\G8PHPhousand\\Processor\\IConditionCode' => '/Processor/IConditionCode.php',
+  'ABadCafe\\G8PHPhousand\\Processor\\TArithmeticLogicUnit' => '/Processor/TArithmeticLogicUnit.php',
   'ABadCafe\\G8PHPhousand\\Processor\\TRegisterUnit' => '/Processor/TRegisterUnit.php',
   'ABadCafe\\G8PHPhousand\\Processor\\ISize' => '/Processor/ISize.php',
   'ABadCafe\\G8PHPhousand\\Processor\\EAMode\\TWithExtensionWords' => '/Processor/EAMode/TWithExtensionWords.php',

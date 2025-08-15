@@ -17,8 +17,8 @@ namespace ABadCafe\G8PHPhousand\Processor;
 /**
  * Basic CC enumerations
  */
-interface IConditionCode {
-
+interface IConditionCode
+{
     const T  =  0; // True
     const F  =  1; // False
     const HI =  2; // High

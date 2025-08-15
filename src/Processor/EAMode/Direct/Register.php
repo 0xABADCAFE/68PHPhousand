@@ -24,8 +24,6 @@ abstract class Register implements Processor\EAMode\IReadWrite
 {
     protected int $iRegister = 0;
 
-//    private array $aRegisterIndex;
-
     public function __construct(Processor\RegisterSet $oRegisters, int $iBaseReg)
     {
         $this->iRegister = &$oRegisters->aIndex[$iBaseReg];

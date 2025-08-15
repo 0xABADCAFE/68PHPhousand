@@ -19,7 +19,8 @@ use ABadCafe\G8PHPhousand\Device;
 /**
  * For all indirect and immediate modes, access to memory is required.
  */
-trait TWithBusAccess {
+trait TWithBusAccess
+{
     protected Device\IBus $oOutside;
 
     protected function bindBus(Device\IBus $oOutside)

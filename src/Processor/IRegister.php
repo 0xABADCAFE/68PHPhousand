@@ -17,8 +17,8 @@ namespace ABadCafe\G8PHPhousand\Processor;
 /**
  * Basic register enumerations
  */
-interface IRegister {
-
+interface IRegister
+{
     // General enumerations
     public const X0 = 0;
     public const X1 = 1;
@@ -49,13 +49,15 @@ interface IRegister {
     public const D7 = self::X7;
 
     // CCR Bits (lower byte of SR)
-    public const CCR_MASK_C = 0b00000001;
-    public const CCR_MASK_V = 0b00000010;
-    public const CCR_MASK_Z = 0b00000100;
-    public const CCR_MASK_N = 0b00001000;
-    public const CCR_MASK_X = 0b00010000;
+    public const CCR_CARRY    = 0b00000001;
+    public const CCR_OVERFLOW = 0b00000010;
+    public const CCR_ZERO     = 0b00000100;
+    public const CCR_NEGATIVE = 0b00001000;
+    public const CCR_EXTEND   = 0b00010000;
+    public const CCR_MASK     = 0b00011111;
+    public const CCR_CLEAR_NZ = 0b00010011;
+    public const CCR_CLEAR_CV = 0b00011100;
 
-    public const CCR_MASK   = 0b00011111;
 
     // SR Bits (upper byte of SR)
     public const SR_MASK_INT_MASK = 0b00000111;

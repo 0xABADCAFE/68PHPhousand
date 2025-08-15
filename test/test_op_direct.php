@@ -69,8 +69,8 @@ echo "\nTesting selected exact match Opcodes\n";
 echo "\tORI to CCR: ";
 // Test ORI_CCR
 $oMemory->writeWord(0x4, Processor\Opcode\IPrefix::OP_ORI_CCR);
-$oMemory->writeWord(0x6, Processor\IRegister::CCR_MASK_C);
-$oProcessor->setRegister('ccr', Processor\IRegister::CCR_MASK_N);
+$oMemory->writeWord(0x6, Processor\IRegister::CCR_CARRY);
+$oProcessor->setRegister('ccr', Processor\IRegister::CCR_NEGATIVE);
 $oProcessor->executeAt(0x4);
 
 assertSame(
@@ -80,7 +80,7 @@ assertSame(
 );
 
 assertSame(
-    Processor\IRegister::CCR_MASK_C|Processor\IRegister::CCR_MASK_N,
+    Processor\IRegister::CCR_CARRY|Processor\IRegister::CCR_NEGATIVE,
     $oProcessor->getRegister('ccr'),
     'ccr after ORI to CCR'
 );
@@ -90,7 +90,7 @@ echo "OK\n";
 echo "\tEORI to CCR: ";
 
 $oMemory->writeWord(0x4, Processor\Opcode\IPrefix::OP_EORI_CCR);
-$oMemory->writeWord(0x6, Processor\IRegister::CCR_MASK_N);
+$oMemory->writeWord(0x6, Processor\IRegister::CCR_NEGATIVE);
 $oProcessor->executeAt(0x4);
 
 assertSame(
@@ -99,7 +99,7 @@ assertSame(
     'PC after executeAt()'
 );
 assertSame(
-    Processor\IRegister::CCR_MASK_C,
+    Processor\IRegister::CCR_CARRY,
     $oProcessor->getRegister('ccr'),
     'CCR after EORI to CCR'
 );

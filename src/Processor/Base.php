@@ -23,8 +23,8 @@ use LogicException;
 /**
  * Base class implementation
  */
-abstract class Base implements I68KProcessor, IOpcode, Opcode\IPrefix {
-
+abstract class Base implements I68KProcessor, IOpcode, Opcode\IPrefix
+{
     protected Device\IBus $oOutside;
 
     use TRegisterUnit;
@@ -55,12 +55,9 @@ abstract class Base implements I68KProcessor, IOpcode, Opcode\IPrefix {
         return $this;
     }
 
-
     protected function execute()
     {
         $iOpcode =  $this->oOutside->readWord($this->iProgramCounter);
         $this->iProgramCounter += ISize::WORD;
-
-
     }
 }

@@ -19,9 +19,10 @@ use LogicException;
 /**
  * Trait for opcode handler
  */
-trait TOpcodeHandler {
-
+trait TOpcodeHandler
+{
     use TRegisterUnit;
+    use TArithmeticLogicUnit;
 
     /** @var array<int, callable> */
     protected array $aExactHandler = [];
@@ -106,67 +107,98 @@ trait TOpcodeHandler {
     {
         $this->aPrefixHandler = [
             Opcode\IPrefix::OP_ORI_B => function(int $iOpcode) {
-                $iImmediate = $this->oOutside->readByte($this->iProgramCounter + ISize::BYTE);
-                $this->iProgramCounter += ISize::WORD;
+                $iValue  = $this->oOutside->readByte($this->iProgramCounter + ISize::BYTE);
                 $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
-                $oEAMode->writeByte($iImmediate | $oEAMode->readByte());
+                $this->iProgramCounter += ISize::WORD;
+                $iValue |= $oEAMode->readByte();
+                $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
+                $this->updateNZByte($iValue);
+                $oEAMode->writeByte($iValue);
             },
 
             Opcode\IPrefix::OP_ORI_W => function(int $iOpcode) {
-                $iImmediate = $this->oOutside->readWord($this->iProgramCounter);
-                $this->iProgramCounter += ISize::WORD;
+                $iValue  = $this->oOutside->readWord($this->iProgramCounter);
                 $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
-                $oEAMode->writeWord($iImmediate | $oEAMode->readWord());
+                $this->iProgramCounter += ISize::WORD;
+                $iValue |= $oEAMode->readWord();
+                $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
+                $this->updateNZWord($iValue);
+                $oEAMode->writeWord($iValue);
             },
 
             Opcode\IPrefix::OP_ORI_L => function(int $iOpcode) {
-                $iImmediate = $this->oOutside->readLong($this->iProgramCounter);
-                $this->iProgramCounter += ISize::LONG;
+                $iValue  = $this->oOutside->readLong($this->iProgramCounter);
                 $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
-                $oEAMode->writeLong($iImmediate | $oEAMode->readLong());
+                $this->iProgramCounter += ISize::LONG;
+                $iValue |= $oEAMode->readLong();
+                $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
+                $this->updateNZLong($iValue);
+                $oEAMode->writeLong($iValue);
             },
 
             Opcode\IPrefix::OP_ANDI_B => function(int $iOpcode) {
-                $iImmediate = $this->oOutside->readByte($this->iProgramCounter + ISize::BYTE);
-                $this->iProgramCounter += ISize::WORD;
+                $iValue  = $this->oOutside->readByte($this->iProgramCounter + ISize::BYTE);
                 $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
-                $oEAMode->writeByte($iImmediate & $oEAMode->readByte());
+                $this->iProgramCounter += ISize::WORD;
+                $iValue &= $oEAMode->readByte();
+                $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
+                $this->updateNZByte($iValue);
+                $oEAMode->writeByte($iValue);
             },
 
             Opcode\IPrefix::OP_ANDI_W => function(int $iOpcode) {
-                $iImmediate = $this->oOutside->readWord($this->iProgramCounter);
-                $this->iProgramCounter += ISize::WORD;
+                $iValue  = $this->oOutside->readWord($this->iProgramCounter);
                 $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
-                $oEAMode->writeWord($iImmediate & $oEAMode->readWord());
+                $this->iProgramCounter += ISize::WORD;
+                $iValue &= $oEAMode->readWord();
+                $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
+                $this->updateNZWord($iValue);
+                $oEAMode->writeWord($iValue);
             },
 
             Opcode\IPrefix::OP_ANDI_L => function(int $iOpcode) {
-                $iImmediate = $this->oOutside->readLong($this->iProgramCounter);
-                $this->iProgramCounter += ISize::LONG;
+                $iValue  = $this->oOutside->readLong($this->iProgramCounter);
                 $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
-                $oEAMode->writeLong($iImmediate & $oEAMode->readLong());
+                $this->iProgramCounter += ISize::LONG;
+                $iValue &= $oEAMode->readLong();
+                $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
+                $this->updateNZLong($iValue);
+                $oEAMode->writeLong($iValue);
             },
 
             Opcode\IPrefix::OP_EORI_B => function(int $iOpcode) {
-                $iImmediate = $this->oOutside->readByte($this->iProgramCounter + ISize::BYTE);
-                $this->iProgramCounter += ISize::WORD;
+                $iValue  = $this->oOutside->readByte($this->iProgramCounter + ISize::BYTE);
                 $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
-                $oEAMode->writeByte($iImmediate ^ $oEAMode->readByte());
+                $this->iProgramCounter += ISize::WORD;
+                $iValue ^= $oEAMode->readByte();
+                $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
+                $this->updateNZByte($iValue);
+                $oEAMode->writeByte($iValue);
             },
 
             Opcode\IPrefix::OP_EORI_W => function(int $iOpcode) {
-                $iImmediate = $this->oOutside->readWord($this->iProgramCounter);
-                $this->iProgramCounter += ISize::WORD;
+                $iValue  = $this->oOutside->readWord($this->iProgramCounter);
                 $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
-                $oEAMode->writeWord($iImmediate ^ $oEAMode->readWord());
+                $this->iProgramCounter += ISize::WORD;
+                $iValue ^= $oEAMode->readWord();
+                $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
+                $this->updateNZWord($iValue);
+                $oEAMode->writeWord($iValue);
             },
 
             Opcode\IPrefix::OP_EORI_L => function(int $iOpcode) {
-                $iImmediate = $this->oOutside->readLong($this->iProgramCounter);
-                $this->iProgramCounter += ISize::LONG;
+                $iValue  = $this->oOutside->readLong($this->iProgramCounter);
                 $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
-                $oEAMode->writeLong($iImmediate ^ $oEAMode->readLong());
+                $this->iProgramCounter += ISize::LONG;
+                $iValue ^= $oEAMode->readLong();
+                $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
+                $this->updateNZLong($iValue);
+                $oEAMode->writeLong($iValue);
             },
+
+            // TODO CMPI_B, CMPI_W, CMPI_L
+
+
         ];
     }
 

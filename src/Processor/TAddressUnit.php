@@ -19,8 +19,8 @@ use LogicException;
 /**
  * Trait for effective address calculations
  */
-trait TAddressUnit {
-
+trait TAddressUnit
+{
     use TRegisterUnit;
 
     /**
@@ -129,7 +129,5 @@ trait TAddressUnit {
             $this->oOutside
         );
     }
-
-
 
 }

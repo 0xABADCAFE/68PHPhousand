@@ -18,8 +18,8 @@ namespace ABadCafe\G8PHPhousand\Processor\EAMode;
 /**
  * Common implementation shard for the latching behaviour of some IReadWrite modes.
  */
-trait TWithLatch {
-
+trait TWithLatch
+{
     protected ?int $iAddress = null;
 
     public function resetLatch(): void

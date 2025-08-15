@@ -17,8 +17,8 @@ namespace ABadCafe\G8PHPhousand\Processor;
 /**
  * Basic EA enumerations
  */
-interface IEffectiveAddress {
-
+interface IEffectiveAddress
+{
     // GP Register based EA m odes
     const MODE_D     = 0; // Data register dN
     const MODE_A     = 1; // Address register aN

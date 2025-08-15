@@ -18,12 +18,10 @@ namespace ABadCafe\G8PHPhousand\Processor\EAMode;
 /**
  * Common implementation shard for the latching behaviour of some IReadWrite modes.
  */
-trait TWithoutLatch {
-
-
+trait TWithoutLatch
+{
     public function resetLatch(): void
     {
         // No operation
     }
-
 }

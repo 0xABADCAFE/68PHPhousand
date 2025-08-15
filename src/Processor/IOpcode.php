@@ -17,7 +17,8 @@ namespace ABadCafe\G8PHPhousand\Processor;
 /**
  * Useful constants for opcode word interpretation
  */
-interface IOpcode {
+interface IOpcode
+{
     const MASK_OP_LINE     = 0b1111000000000000; // Instruction line type
     const MASK_CC_TYPE     = 0b0000111100000000; // Condition type for Bcc/Scc/DBcc
     const MASK_EA_REG      = 0b0000000000000111; // Register operand for most EA
