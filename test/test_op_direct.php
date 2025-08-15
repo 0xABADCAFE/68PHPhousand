@@ -21,13 +21,10 @@ use LogicException;
 
 require 'bootstrap.php';
 
-$oProcessor = new class extends Processor\Base
-{
-    public function __construct()
-    {
-        parent::__construct(new Device\Memory(64, 0));
-    }
+$oMemory = new Device\Memory(64, 0);
 
+$oProcessor = new class($oMemory) extends Processor\Base
+{
     public function getName(): string
     {
         return 'Test CPU';
@@ -54,9 +51,7 @@ $oProcessor = new class extends Processor\Base
     {
         assert($iAddress >= 0, new LogicException('Invalid start address'));
         $this->iProgramCounter = $iAddress;
-
         $iOpcode = $this->oOutside->readWord($this->iProgramCounter);
-
         $this->iProgramCounter += Processor\ISize::WORD;
 
         $cHandler = $this->aExactHandler[$iOpcode] ??
@@ -67,13 +62,14 @@ $oProcessor = new class extends Processor\Base
     }
 };
 
-echo "Testing selected exact match Opcodes\n";
+///////////////////////////////////////////////////////////////////////////////////////////////////
 
+echo "\nTesting selected exact match Opcodes\n";
 
 echo "\tORI to CCR: ";
 // Test ORI_CCR
-$oProcessor->getMemory()->writeWord(0x4, Processor\Opcode\IPrefix::OP_ORI_CCR);
-$oProcessor->getMemory()->writeWord(0x6, Processor\IRegister::CCR_MASK_C);
+$oMemory->writeWord(0x4, Processor\Opcode\IPrefix::OP_ORI_CCR);
+$oMemory->writeWord(0x6, Processor\IRegister::CCR_MASK_C);
 $oProcessor->setRegister('ccr', Processor\IRegister::CCR_MASK_N);
 $oProcessor->executeAt(0x4);
 
@@ -93,8 +89,8 @@ echo "OK\n";
 
 echo "\tEORI to CCR: ";
 
-$oProcessor->getMemory()->writeWord(0x4, Processor\Opcode\IPrefix::OP_EORI_CCR);
-$oProcessor->getMemory()->writeWord(0x6, Processor\IRegister::CCR_MASK_N);
+$oMemory->writeWord(0x4, Processor\Opcode\IPrefix::OP_EORI_CCR);
+$oMemory->writeWord(0x6, Processor\IRegister::CCR_MASK_N);
 $oProcessor->executeAt(0x4);
 
 assertSame(
@@ -110,13 +106,14 @@ assertSame(
 
 echo "OK\n";
 
-echo "Testing selected prefix match Opcodes\n";
+///////////////////////////////////////////////////////////////////////////////////////////////////
+
+echo "\nTesting selected prefix match Opcodes\n";
 
 echo "\tORI.w to d0: ";
-// Test ORI_CCR
-$oProcessor->getMemory()->writeWord(0x4, Processor\Opcode\IPrefix::OP_ORI_W);
-$oProcessor->getMemory()->writeWord(0x6, 0b1010101001010101);
-$oProcessor->setRegister('d0',           0b0101010110101010);
+$oMemory->writeWord(0x4, Processor\Opcode\IPrefix::OP_ORI_W);
+$oMemory->writeWord(0x6,       0b1010101001010101);
+$oProcessor->setRegister('d0', 0b0101010110101010);
 $oProcessor->executeAt(0x4);
 
 assertSame(
@@ -133,9 +130,8 @@ assertSame(
 echo "OK\n";
 
 echo "\tANDI.b to d0: ";
-// Test ORI_CCR
-$oProcessor->getMemory()->writeWord(0x4, Processor\Opcode\IPrefix::OP_ANDI_B);
-$oProcessor->getMemory()->writeWord(0x6, 0);
+$oMemory->writeWord(0x4, Processor\Opcode\IPrefix::OP_ANDI_B);
+$oMemory->writeWord(0x6, 0);
 $oProcessor->executeAt(0x4);
 
 assertSame(
@@ -152,9 +148,8 @@ assertSame(
 echo "OK\n";
 
 echo "\tEORI.l to d0: ";
-// Test ORI_CCR
-$oProcessor->getMemory()->writeWord(0x4, Processor\Opcode\IPrefix::OP_EORI_L);
-$oProcessor->getMemory()->writeLong(0x6, 0xFFFFFFFF);
+$oMemory->writeWord(0x4, Processor\Opcode\IPrefix::OP_EORI_L);
+$oMemory->writeLong(0x6, 0xFFFFFFFF);
 $oProcessor->executeAt(0x4);
 
 assertSame(
