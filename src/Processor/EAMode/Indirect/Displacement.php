@@ -29,9 +29,9 @@ class Displacement extends Basic
     use EAMode\TWithExtensionWords;
     use EAMode\TWithLatch;
 
-    public function __construct(int& $iProgramCounter, Processor\RegisterSet $oRegisters, Device\IBus $oOutside)
+    public function __construct(int& $iProgramCounter, Processor\RegisterSet $oRegisters, int $iBaseReg, Device\IBus $oOutside)
     {
-        parent::__construct($oRegisters, $oOutside);
+        parent::__construct($oRegisters, $iBaseReg, $oOutside);
         $this->bindProgramCounter($iProgramCounter);
     }
 

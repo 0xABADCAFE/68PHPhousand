@@ -38,6 +38,8 @@ interface IOpcode {
 
     const MASK_OP_PREFIX   = 0b1111111111000000;
 
+    const MASK_OP_STD_EA   = 0b0000000000111111; // Standard 6-bit EA mode
+
     // Brief eXtension Word
     const MASK_BXW_MODE    = 0b1000000000000000; // direction
     const MASK_BXW_REG     = 0b0111000000000000; // register
@@ -95,12 +97,12 @@ interface IOpcode {
     const LSB_EA_X     = IEffectiveAddress::MODE_X    << self::LSB_EA_MODE_SHIFT; // Special cases
 
     // Special EA cases
-    //             =   ----------xxxxxx
-    const EA_SHORT = 0b0000000000111000; // Absolute short (xxx).w
-    const EA_LONG  = 0b0000000000111001; // Absolute long (xxx).l
-    const EA_PC_D  = 0b0000000000111010; // Program counter with displacement (d16, pc)
-    const EA_PC_X  = 0b0000000000111011; // Program counter with index (d8, pc, xN)
-    const EA_IMM   = 0b0000000000111100; // Immediate #imm
+    //                 =   ----------xxxxxx
+    const LSB_EA_SHORT = 0b0000000000111000; // Absolute short (xxx).w
+    const LSB_EA_LONG  = 0b0000000000111001; // Absolute long (xxx).l
+    const LSB_EA_PC_D  = 0b0000000000111010; // Program counter with displacement (d16, pc)
+    const LSB_EA_PC_X  = 0b0000000000111011; // Program counter with index (d8, pc, xN)
+    const LSB_EA_IMM   = 0b0000000000111100; // Immediate #imm
 
     // Specific condition code requirenents for MASK_CC_TYPE
     const CC_SHIFT = 8;

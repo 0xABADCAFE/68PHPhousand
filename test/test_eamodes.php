@@ -24,8 +24,7 @@ $oDataRegisters    = new Processor\RegisterSet();
 echo "Testing Data Register Direct...";
 
 // Test Data Register Direct mode.
-$oEAModeDataRegister = new Processor\EAMode\Direct\DataRegister($oDataRegisters);
-$oEAModeDataRegister->bind(Processor\IRegister::D0);
+$oEAModeDataRegister = new Processor\EAMode\Direct\DataRegister($oDataRegisters, Processor\IRegister::D0);
 
 // Test 1 - Write/Read Long
 $oEAModeDataRegister->writeLong(0x11111111);
@@ -65,8 +64,10 @@ echo "Testing Address Register Direct...";
 $oAddressRegisters = new Processor\RegisterSet();
 
 // Test Address Register Direct mode.
-$oEAModeAddressRegister = new Processor\EAMode\Direct\AddressRegister($oAddressRegisters);
-$oEAModeAddressRegister->bind(Processor\IRegister::A0);
+$oEAModeAddressRegister = new Processor\EAMode\Direct\AddressRegister(
+    $oAddressRegisters,
+    Processor\IRegister::A0
+);
 
 $oEAModeAddressRegister->writeLong(0x12345678);
 assert(
@@ -152,8 +153,7 @@ echo "Testing Address Register Indirect...";
 // Basic Indirect
 $oMemory->writeLong(0x10, 0x11223344);
 $oAddressRegisters->iReg0 = 0x10;
-$oEAModeIndirect = new Processor\EAMode\Indirect\Basic($oAddressRegisters, $oMemory);
-$oEAModeIndirect->bind(Processor\IRegister::A0);
+$oEAModeIndirect = new Processor\EAMode\Indirect\Basic($oAddressRegisters, Processor\IRegister::A0, $oMemory);
 assert(
     0x11223344 === $oEAModeIndirect->readLong(),
     new AssertionFailureException('Incorrect readLong() for indirect')
@@ -215,8 +215,7 @@ $oMemory->writeWord(0x4, 4);
 
 $oAddressRegisters->iReg0 = 0x14;
 $iProgramCounter = 0;
-$oEAModeIndirect = new Processor\EAMode\Indirect\Displacement($iProgramCounter, $oAddressRegisters, $oMemory);
-$oEAModeIndirect->bind(Processor\IRegister::A0);
+$oEAModeIndirect = new Processor\EAMode\Indirect\Displacement($iProgramCounter, $oAddressRegisters, Processor\IRegister::A0, $oMemory);
 
 assert(
     0x11223344 === $oEAModeIndirect->readLong(),
@@ -323,8 +322,7 @@ echo "OK\n";
 echo "Testing Address Register Indirect Post Increment...";
 
 $oAddressRegisters->iReg0 = 0;
-$oEAModeIndirect = new Processor\EAMode\Indirect\PostIncrement($oAddressRegisters, $oMemory);
-$oEAModeIndirect->bind(Processor\IRegister::A0);
+$oEAModeIndirect = new Processor\EAMode\Indirect\PostIncrement($oAddressRegisters, Processor\IRegister::A0, $oMemory);
 
 $oMemory->writeLong(0x0, 0x11223344);
 $oMemory->writeLong(0x4, 0x55667788);
@@ -365,8 +363,7 @@ echo "OK\n";
 
 echo "Testing Address Register Indirect Pre Decrement...";
 
-$oEAModeIndirect = new Processor\EAMode\Indirect\PreDecrement($oAddressRegisters, $oMemory);
-$oEAModeIndirect->bind(Processor\IRegister::A0);
+$oEAModeIndirect = new Processor\EAMode\Indirect\PreDecrement($oAddressRegisters, Processor\IRegister::A0, $oMemory);
 
 $oMemory->writeLong(0x0, 0x76543210);
 $oMemory->writeLong(0x4, 0xFEDCBA98);
@@ -412,10 +409,9 @@ $oEAModeIndirect = new Processor\EAMode\Indirect\Indexed(
     $iProgramCounter,
     $oAddressRegisters,
     $oDataRegisters,
+    Processor\IRegister::A0,
     $oMemory
 );
-
-$oEAModeIndirect->bind(Processor\IRegister::A0);
 
 $oAddressRegisters->iReg0 = 0x8; // Base Address
 $oDataRegisters->iReg5    = 6;   // Index value

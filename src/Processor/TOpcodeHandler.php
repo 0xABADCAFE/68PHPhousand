@@ -86,7 +86,7 @@ trait TOpcodeHandler {
             Opcode\IPrefix::OP_ILLEGAL  => $cUnhandled,
 
             Opcode\IPrefix::OP_RESET    => function() {
-                // TODO - probably needs to be a bit more specific than thi
+                // TODO - probably needs to be a bit more specific than this
                 $this->reset();
             },
 
@@ -108,23 +108,64 @@ trait TOpcodeHandler {
             Opcode\IPrefix::OP_ORI_B => function(int $iOpcode) {
                 $iImmediate = $this->oOutside->readByte($this->iProgramCounter + ISize::BYTE);
                 $this->iProgramCounter += ISize::WORD;
-                $oEAMode = $this->decodeStandardDstEAMode($iOpcode);
+                $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
                 $oEAMode->writeByte($iImmediate | $oEAMode->readByte());
             },
 
             Opcode\IPrefix::OP_ORI_W => function(int $iOpcode) {
                 $iImmediate = $this->oOutside->readWord($this->iProgramCounter);
                 $this->iProgramCounter += ISize::WORD;
-                $oEAMode = $this->decodeStandardDstEAMode($iOpcode);
+                $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
                 $oEAMode->writeWord($iImmediate | $oEAMode->readWord());
             },
 
             Opcode\IPrefix::OP_ORI_L => function(int $iOpcode) {
                 $iImmediate = $this->oOutside->readLong($this->iProgramCounter);
                 $this->iProgramCounter += ISize::LONG;
-                $oEAMode = $this->decodeStandardDstEAMode($iOpcode);
+                $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
                 $oEAMode->writeLong($iImmediate | $oEAMode->readLong());
+            },
 
+            Opcode\IPrefix::OP_ANDI_B => function(int $iOpcode) {
+                $iImmediate = $this->oOutside->readByte($this->iProgramCounter + ISize::BYTE);
+                $this->iProgramCounter += ISize::WORD;
+                $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
+                $oEAMode->writeByte($iImmediate & $oEAMode->readByte());
+            },
+
+            Opcode\IPrefix::OP_ANDI_W => function(int $iOpcode) {
+                $iImmediate = $this->oOutside->readWord($this->iProgramCounter);
+                $this->iProgramCounter += ISize::WORD;
+                $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
+                $oEAMode->writeWord($iImmediate & $oEAMode->readWord());
+            },
+
+            Opcode\IPrefix::OP_ANDI_L => function(int $iOpcode) {
+                $iImmediate = $this->oOutside->readLong($this->iProgramCounter);
+                $this->iProgramCounter += ISize::LONG;
+                $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
+                $oEAMode->writeLong($iImmediate & $oEAMode->readLong());
+            },
+
+            Opcode\IPrefix::OP_EORI_B => function(int $iOpcode) {
+                $iImmediate = $this->oOutside->readByte($this->iProgramCounter + ISize::BYTE);
+                $this->iProgramCounter += ISize::WORD;
+                $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
+                $oEAMode->writeByte($iImmediate ^ $oEAMode->readByte());
+            },
+
+            Opcode\IPrefix::OP_EORI_W => function(int $iOpcode) {
+                $iImmediate = $this->oOutside->readWord($this->iProgramCounter);
+                $this->iProgramCounter += ISize::WORD;
+                $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
+                $oEAMode->writeWord($iImmediate ^ $oEAMode->readWord());
+            },
+
+            Opcode\IPrefix::OP_EORI_L => function(int $iOpcode) {
+                $iImmediate = $this->oOutside->readLong($this->iProgramCounter);
+                $this->iProgramCounter += ISize::LONG;
+                $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
+                $oEAMode->writeLong($iImmediate ^ $oEAMode->readLong());
             },
         ];
     }

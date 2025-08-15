@@ -35,9 +35,10 @@ class Indexed extends Basic
         int& $iProgramCounter,
         Processor\RegisterSet $oAddressRegisters,
         Processor\RegisterSet $oDataRegisters,
+        int $iBaseReg,
         Device\IBus $oOutside
     ) {
-        parent::__construct($oAddressRegisters, $oOutside);
+        parent::__construct($oAddressRegisters, $iBaseReg, $oOutside);
         $this->bindProgramCounter($iProgramCounter);
         $this->bindIndexRegisters($oAddressRegisters, $oDataRegisters);
     }

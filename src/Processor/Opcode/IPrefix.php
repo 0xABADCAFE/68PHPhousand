@@ -33,8 +33,8 @@ interface IPrefix {
     const OP_ORI_L    = 0b0000000010000000;
 
     //                  --fedcba9876543210
-    const OP_ANDI_CCR = 0b0000000000111100; // exact match
-    const OP_ANDI_SR  = 0b0000000001111100; // exact match
+    const OP_ANDI_CCR = 0b0000001000111100; // exact match
+    const OP_ANDI_SR  = 0b0000001001111100; // exact match
 
     //                    --------ssEAEAEA
     const OP_ANDI_B   = 0b0000001000000000;

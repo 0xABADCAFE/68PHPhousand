@@ -33,11 +33,6 @@ class Immediate implements EAMode\IReadOnly
         $this->bindBus($oOutside);
     }
 
-    public function bind(int $iIndex): void
-    {
-
-    }
-
     /**
      * @return int<0,255>
      */
