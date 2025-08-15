@@ -56,26 +56,70 @@ assertThrown(
 
 // Test the read-write behaviours
 $oMemory = new Device\Memory(16, 0);
-assert('00000000000000000000000000000000' === $oMemory->getDump(0, 16), new LogicException('Failed asserting initial state'));
+assertSame(
+    '00000000000000000000000000000000',
+    $oMemory->getDump(0, 16),
+    'Initial state'
+);
 
 $oMemory->writeByte(8, 0x69);
 $oMemory->writeLong(4, 0xABADCAFE);
 $oMemory->writeWord(2, 0x4545);
-assert('00004545abadcafe6900000000000000' === $oMemory->getDump(0, 16), new LogicException('Failed asserting written state'));
-assert($oMemory->readByte(8) === 0x69,       new LogicException('Failed asserting readByte() value'));
-assert($oMemory->readWord(2) === 0x4545,     new LogicException('Failed asserting readWord() value'));
-assert($oMemory->readLong(4) === 0xABADCAFE, new LogicException('Failed asserting readLong() value'));
+assertSame(
+    '00004545abadcafe6900000000000000',
+    $oMemory->getDump(0, 16),
+    'After written'
+);
+assertSame(
+    0x69,
+    $oMemory->readByte(8),
+    'readByte(8) value'
+);
+assertSame(
+    0x4545,
+    $oMemory->readWord(2),
+    'readWord(2) value'
+);
+assertSame(
+    0xABADCAFE,
+    $oMemory->readLong(4),
+    'readLong(4) value'
+);
 
 $oMemory->writeWord(6, 0x1234);
-assert('00004545abad12346900000000000000' === $oMemory->getDump(0, 16), new LogicException('Failed asserting overwritten state'));
-assert($oMemory->readLong(4) === 0xABAD1234, new LogicException('Failed asserting readLong() value'));
+assertSame(
+    '00004545abad12346900000000000000',
+    $oMemory->getDump(0, 16),
+    'overwritten state'
+);
+assertSame(
+    0xABAD1234,
+    $oMemory->readLong(4),
+    'readLong(4) value'
+);
 
 $oMemory->softReset();
-assert('00004545abad12346900000000000000' === $oMemory->getDump(0, 16), new LogicException('Failed asserting soft reset state'));
-assert($oMemory->readLong(4) === 0xABAD1234, new LogicException('Failed asserting readLong() value'));
+assertSame(
+    '00004545abad12346900000000000000',
+    $oMemory->getDump(0, 16),
+    'soft reset state'
+);
+assertSame(
+    $oMemory->readLong(4),
+    0xABAD1234,
+    'readLong(4) value'
+);
 $oMemory->hardReset();
 
-assert('00000000000000000000000000000000' === $oMemory->getDump(0, 16),  new LogicException('Failed asserting hard reset state'));
-assert($oMemory->readLong(4) === 0, new LogicException('Failed asserting readLong() value'));
+assertSame(
+    '00000000000000000000000000000000',
+    $oMemory->getDump(0, 16),
+    'hard reset state'
+);
+assertSame(
+    $oMemory->readLong(4),
+    0,
+    'readLong(4) value'
+);
 
 echo "Memory Tests passed\n";

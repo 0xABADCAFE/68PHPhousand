@@ -77,10 +77,16 @@ $oProcessor->getMemory()->writeWord(0x6, Processor\IRegister::CCR_MASK_C);
 $oProcessor->setRegister('ccr', Processor\IRegister::CCR_MASK_N);
 $oProcessor->executeAt(0x4);
 
-assert(0x8 === $oProcessor->getPC(), new AssertionFailureException('Incorrect PC after executeAt()'));
-assert(
-    Processor\IRegister::CCR_MASK_C|Processor\IRegister::CCR_MASK_N === $oProcessor->getRegister('ccr'),
-    new AssertionFailureException()
+assertSame(
+    0x8,
+    $oProcessor->getPC(),
+    'PC after executeAt()'
+);
+
+assertSame(
+    Processor\IRegister::CCR_MASK_C|Processor\IRegister::CCR_MASK_N,
+    $oProcessor->getRegister('ccr'),
+    'ccr after ORI to CCR'
 );
 
 echo "OK\n";
@@ -89,13 +95,17 @@ echo "\tEORI to CCR: ";
 
 $oProcessor->getMemory()->writeWord(0x4, Processor\Opcode\IPrefix::OP_EORI_CCR);
 $oProcessor->getMemory()->writeWord(0x6, Processor\IRegister::CCR_MASK_N);
-
 $oProcessor->executeAt(0x4);
 
-assert(0x8 === $oProcessor->getPC(), new AssertionFailureException('Incorrect PC after executeAt()'));
-assert(
-    Processor\IRegister::CCR_MASK_C === $oProcessor->getRegister('ccr'),
-    new AssertionFailureException()
+assertSame(
+    0x8,
+    $oProcessor->getPC(),
+    'PC after executeAt()'
+);
+assertSame(
+    Processor\IRegister::CCR_MASK_C,
+    $oProcessor->getRegister('ccr'),
+    'CCR after EORI to CCR'
 );
 
 echo "OK\n";
@@ -109,10 +119,15 @@ $oProcessor->getMemory()->writeWord(0x6, 0b1010101001010101);
 $oProcessor->setRegister('d0',           0b0101010110101010);
 $oProcessor->executeAt(0x4);
 
-assert(0x8 === $oProcessor->getPC(), new AssertionFailureException('Incorrect PC after executeAt()'));
-assert(
-    0xFFFF === $oProcessor->getRegister('d0'),
-    new AssertionFailureException()
+assertSame(
+    0x8,
+    $oProcessor->getPC(),
+    'PC after executeAt()'
+);
+assertSame(
+    0xFFFF,
+    $oProcessor->getRegister('d0'),
+    'd0 after ORI.w'
 );
 
 echo "OK\n";
@@ -123,10 +138,15 @@ $oProcessor->getMemory()->writeWord(0x4, Processor\Opcode\IPrefix::OP_ANDI_B);
 $oProcessor->getMemory()->writeWord(0x6, 0);
 $oProcessor->executeAt(0x4);
 
-assert(0x8 === $oProcessor->getPC(), new AssertionFailureException('Incorrect PC after executeAt()'));
-assert(
-    0xFF00 === $oProcessor->getRegister('d0'),
-    new AssertionFailureException()
+assertSame(
+    0x8,
+    $oProcessor->getPC(),
+    'PC after executeAt()'
+);
+assertSame(
+    0xFF00,
+    $oProcessor->getRegister('d0'),
+    'd0 after ANDI.b'
 );
 
 echo "OK\n";
@@ -137,10 +157,15 @@ $oProcessor->getMemory()->writeWord(0x4, Processor\Opcode\IPrefix::OP_EORI_L);
 $oProcessor->getMemory()->writeLong(0x6, 0xFFFFFFFF);
 $oProcessor->executeAt(0x4);
 
-assert(0xA === $oProcessor->getPC(), new AssertionFailureException('Incorrect PC after executeAt()'));
-assert(
-    0xFFFF00FF === $oProcessor->getRegister('d0'),
-    new AssertionFailureException()
+assertSame(
+    0xA,
+    $oProcessor->getPC(),
+    'PC after executeAt()'
+);
+assertSame(
+    0xFFFF00FF,
+    $oProcessor->getRegister('d0'),
+    'd0 after EORI.l'
 );
 
 echo "OK\n";
