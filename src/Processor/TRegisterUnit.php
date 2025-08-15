@@ -18,8 +18,8 @@ use ValueError;
 
 /**
  */
-trait TRegisterUnit {
-
+trait TRegisterUnit
+{
     protected int $iProgramCounter    = 0;
     protected int $iStatusRegister    = 0;
     protected int $iConditionRegister = 0;
@@ -29,7 +29,8 @@ trait TRegisterUnit {
 
     protected array $aRegisterNames = [];
 
-    public function getPC(): int {
+    public function getPC(): int
+    {
         return $this->iProgramCounter;
     }
 

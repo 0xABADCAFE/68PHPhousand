@@ -27,18 +27,24 @@ class Displacement extends Basic
 {
     use EAMode\TWithBusAccess;
     use EAMode\TWithExtensionWords;
+    use EAMode\TWithLatch;
 
-    public function __construct(int& $iProgramCounter, Processor\RegisterSet $oRegisters, Device\IBus $oOutside)
-    {
-        parent::__construct($oRegisters, $oOutside);
+    public function __construct(
+        int& $iProgramCounter,
+        Processor\RegisterSet $oRegisters,
+        int $iBaseReg,
+        Device\IBus $oOutside
+    ) {
+        parent::__construct($oRegisters, $iBaseReg, $oOutside);
         $this->bindProgramCounter($iProgramCounter);
     }
+
 
     private function getAddress(): int
     {
         $iDisplacement = Processor\Sign::extWord($this->oOutside->readWord($this->iProgramCounter));
         $this->iProgramCounter += ISize::WORD;
-        return ($iDisplacement + $this->iRegister) & ISize::MASK_LONG;
+        return $this->iAddress = ($iDisplacement + $this->iRegister) & ISize::MASK_LONG;
     }
 
     public function readByte(): int
@@ -67,7 +73,8 @@ class Displacement extends Basic
      */
     public function writeByte(int $iValue): void
     {
-        $this->oOutside->writeByte($this->getAddress(), $iValue);
+        $this->oOutside->writeByte($this->iAddress ?? $this->getAddress(), $iValue);
+        $this->iAddress = null;
     }
 
     /**
@@ -75,7 +82,8 @@ class Displacement extends Basic
      */
     public function writeWord(int $iValue): void
     {
-        $this->oOutside->writeWord($this->getAddress(), $iValue);
+        $this->oOutside->writeWord($this->iAddress ?? $this->getAddress(), $iValue);
+        $this->iAddress = null;
     }
 
     /**
@@ -83,6 +91,7 @@ class Displacement extends Basic
      */
     public function writeLong(int $iValue): void
     {
-        $this->oOutside->writeLong($this->getAddress(), $iValue);
+        $this->oOutside->writeLong($this->iAddress ?? $this->getAddress(), $iValue);
+        $this->iAddress = null;
     }
 }

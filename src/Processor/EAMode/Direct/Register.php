@@ -24,22 +24,9 @@ abstract class Register implements Processor\EAMode\IReadWrite
 {
     protected int $iRegister = 0;
 
-    private array $aRegisterIndex;
-
-    public function __construct(Processor\RegisterSet $oRegisters)
+    public function __construct(Processor\RegisterSet $oRegisters, int $iBaseReg)
     {
-        $this->aRegisterIndex = &$oRegisters->aIndex;
-    }
-
-    public function bind(int $iIndex): void
-    {
-        assert(
-            isset($this->aRegisterIndex[$iIndex]),
-            new ValueError()
-        );
-
-        // Bind
-        $this->iRegister = &$this->aRegisterIndex[$iIndex];
+        $this->iRegister = &$oRegisters->aIndex[$iBaseReg];
     }
 
     /**
@@ -65,4 +52,5 @@ abstract class Register implements Processor\EAMode\IReadWrite
     {
         return $this->iRegister & ISize::MASK_LONG;
     }
+
 }

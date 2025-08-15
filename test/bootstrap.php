@@ -26,6 +26,19 @@ require  __DIR__ . '/../src/bootstrap.php';
 
 class AssertionFailureException extends LogicException { }
 
+function assertSame($a, $b, string $sCase)
+{
+    assert(
+        $a === $b,
+        new AssertionFailureException(sprintf(
+            "Failed to assert that %s === %s for: %s",
+            (string)$a,
+            (string)$b,
+            $sCase
+        ))
+    );
+}
+
 function assertThrown(string $sCase, callable $cCall, string $sErrorClass): void
 {
     $oThrownError = null;

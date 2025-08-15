@@ -26,7 +26,8 @@ namespace ABadCafe\G8PHPhousand\Processor;
  *
  * Operations commented with * are privileged
  */
-interface IOpcodeMSB {
+interface IOpcodeMSB
+{
     const OP_MSB_ORI     = 0b00000000; // 0000 000 0 - ORI to CCR, ORI to SR*, ORI
     const OP_MSB_ANDI    = 0b00000010; // 0000 001 0 - ANDI to CCR, ANDI to SR*, ANDI
     const OP_MSB_SUBI    = 0b00000100; // 0000 010 0 -

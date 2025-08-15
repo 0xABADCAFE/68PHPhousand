@@ -1,6 +1,6 @@
 <?php
 
-/**                                                                                                                                          
+/**
  *       _/_/_/    _/_/    _/_/_/   _/    _/  _/_/_/   _/                                                            _/
  *     _/       _/    _/  _/    _/ _/    _/  _/    _/ _/_/_/     _/_/   _/    _/   _/_/_/    _/_/_/  _/_/_/     _/_/_/
  *    _/_/_/     _/_/    _/_/_/   _/_/_/_/  _/_/_/   _/    _/ _/    _/ _/    _/ _/_/      _/    _/  _/    _/ _/    _/
@@ -17,8 +17,8 @@ namespace ABadCafe\G8PHPhousand;
 /**
  * Root interface for devices.
  */
-interface IDevice {
-
+interface IDevice
+{
     /**
      * Returns a descriptive name of the device for debugging etc.
      */

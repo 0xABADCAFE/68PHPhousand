@@ -24,10 +24,14 @@ use ValueError;
 class Basic extends EAMode\Direct\Register
 {
     use EAMode\TWithBusAccess;
+    use EAMode\TWithoutLatch;
 
-    public function __construct(Processor\RegisterSet $oRegisters, Device\IBus $oOutside)
-    {
-        parent::__construct($oRegisters);
+    public function __construct(
+        Processor\RegisterSet $oRegisters,
+        int $iBaseReg,
+        Device\IBus $oOutside
+    ) {
+        parent::__construct($oRegisters, $iBaseReg);
         $this->bindBus($oOutside);
     }
 

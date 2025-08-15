@@ -17,8 +17,8 @@ namespace ABadCafe\G8PHPhousand\Processor;
 /**
  * Basic register enumerations
  */
-interface ISize {
-
+interface ISize
+{
     const BYTE = 1;
     const WORD = 2;
     const LONG = 4;

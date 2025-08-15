@@ -92,7 +92,11 @@ class Memory implements IBus
      */
     public function readByte(int $iAddress): int
     {
-        assert($iAddress >= $this->iBaseAddress && $iAddress <= $this->iTopAddress, new DomainException('Read byte out of range'));
+        assert(
+            $iAddress >= $this->iBaseAddress &&
+            $iAddress <= $this->iTopAddress,
+            new DomainException('Read byte out of range')
+        );
         return IByteConv::AORD[$this->sData[$iAddress - $this->iBaseAddress]];
     }
 
@@ -102,7 +106,11 @@ class Memory implements IBus
     public function readWord(int $iAddress): int
     {
         $iOffset = $iAddress - $this->iBaseAddress;
-        assert($iOffset >= 0 && $iOffset <= $this->iLength - 2, new DomainException('Read word out of range'));
+        assert(
+            $iOffset >= 0 &&
+            $iOffset <= $this->iLength - 2,
+            new DomainException('Read word out of range')
+        );
         return
             IByteConv::AORD[$this->sData[$iOffset]] << 8 |
             IByteConv::AORD[$this->sData[$iOffset + 1]
@@ -115,7 +123,11 @@ class Memory implements IBus
     public function readLong(int $iAddress): int
     {
         $iOffset = $iAddress - $this->iBaseAddress;
-        assert($iOffset >= 0 && $iOffset <= $this->iLength - 4, new DomainException('Read long out of range'));
+        assert(
+            $iOffset >= 0 &&
+            $iOffset <= $this->iLength - 4,
+            new DomainException('Read long out of range')
+        );
         return
             IByteConv::AORD[$this->sData[$iOffset]]     << 24 |
             IByteConv::AORD[$this->sData[$iOffset + 1]] << 16 |
@@ -129,7 +141,11 @@ class Memory implements IBus
      */
     public function writeByte(int $iAddress, int $iValue): void
     {
-        assert($iAddress >= $this->iBaseAddress && $iAddress <= $this->iTopAddress, new DomainException('Write byte out of range'));
+        assert(
+            $iAddress >= $this->iBaseAddress &&
+            $iAddress <= $this->iTopAddress,
+            new DomainException('Write byte out of range')
+        );
         assert(0 == ($iValue & ~0xFF), new ValueError('Illegal byte value'));
         $this->sData[$iAddress - $this->iBaseAddress] = IByteConv::ACHR[$iValue];
     }
@@ -140,7 +156,11 @@ class Memory implements IBus
     public function writeWord(int $iAddress, int $iValue): void
     {
         $iOffset = $iAddress - $this->iBaseAddress;
-        assert($iOffset >= 0 && $iOffset <= $this->iLength - 2, new DomainException('Write word out of range'));
+        assert(
+            $iOffset >= 0 &&
+            $iOffset <= $this->iLength - 2,
+            new DomainException('Write word out of range')
+        );
         assert(0 == ($iValue & ~0xFFFF), new ValueError('Illegal word value'));
         $this->sData[$iOffset]     = IByteConv::ACHR[($iValue >> 8) & 0xFF];
         $this->sData[$iOffset + 1] = IByteConv::ACHR[$iValue        & 0xFF];
@@ -152,7 +172,11 @@ class Memory implements IBus
     public function writeLong(int $iAddress, int $iValue): void
     {
         $iOffset = $iAddress - $this->iBaseAddress;
-        assert($iOffset >= 0 && $iOffset <= $this->iLength - 4, new DomainException('Write long out of range'));
+        assert(
+            $iOffset >= 0 &&
+            $iOffset <= $this->iLength - 4,
+            new DomainException('Write long out of range')
+        );
         assert(0 == ($iValue & ~0xFFFFFFFF), new ValueError('Illegal long value'));
         $this->sData[$iOffset] = IByteConv::ACHR[($iValue >> 24)     & 0xFF];
         $this->sData[$iOffset + 1] = IByteConv::ACHR[($iValue >> 16) & 0xFF];

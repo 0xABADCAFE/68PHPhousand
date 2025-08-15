@@ -33,16 +33,20 @@ const CLASS_MAP = [
   'ABadCafe\\G8PHPhousand\\Processor\\IRegister' => '/Processor/IRegister.php',
   'ABadCafe\\G8PHPhousand\\Processor\\TAddressUnit' => '/Processor/TAddressUnit.php',
   'ABadCafe\\G8PHPhousand\\Processor\\Sign' => '/Processor/Sign.php',
+  'ABadCafe\\G8PHPhousand\\Processor\\TOpcodeHandler' => '/Processor/TOpcodeHandler.php',
   'ABadCafe\\G8PHPhousand\\Processor\\IEffectiveAddress' => '/Processor/IEffectiveAddress.php',
   'ABadCafe\\G8PHPhousand\\Processor\\RegisterSet' => '/Processor/RegisterSet.php',
   'ABadCafe\\G8PHPhousand\\Processor\\Base' => '/Processor/Base.php',
   'ABadCafe\\G8PHPhousand\\Processor\\IConditionCode' => '/Processor/IConditionCode.php',
+  'ABadCafe\\G8PHPhousand\\Processor\\TArithmeticLogicUnit' => '/Processor/TArithmeticLogicUnit.php',
   'ABadCafe\\G8PHPhousand\\Processor\\TRegisterUnit' => '/Processor/TRegisterUnit.php',
   'ABadCafe\\G8PHPhousand\\Processor\\ISize' => '/Processor/ISize.php',
   'ABadCafe\\G8PHPhousand\\Processor\\EAMode\\TWithExtensionWords' => '/Processor/EAMode/TWithExtensionWords.php',
+  'ABadCafe\\G8PHPhousand\\Processor\\EAMode\\TWithoutLatch' => '/Processor/EAMode/TWithoutLatch.php',
   'ABadCafe\\G8PHPhousand\\Processor\\EAMode\\IReadOnly' => '/Processor/EAMode/IReadOnly.php',
   'ABadCafe\\G8PHPhousand\\Processor\\EAMode\\IReadWrite' => '/Processor/EAMode/IReadWrite.php',
   'ABadCafe\\G8PHPhousand\\Processor\\EAMode\\TWithBusAccess' => '/Processor/EAMode/TWithBusAccess.php',
+  'ABadCafe\\G8PHPhousand\\Processor\\EAMode\\TWithLatch' => '/Processor/EAMode/TWithLatch.php',
   'ABadCafe\\G8PHPhousand\\Processor\\EAMode\\Indirect\\Indexed' => '/Processor/EAMode/Indirect/Indexed.php',
   'ABadCafe\\G8PHPhousand\\Processor\\EAMode\\Indirect\\Basic' => '/Processor/EAMode/Indirect/Basic.php',
   'ABadCafe\\G8PHPhousand\\Processor\\EAMode\\Indirect\\PreDecrement' => '/Processor/EAMode/Indirect/PreDecrement.php',
@@ -52,6 +56,7 @@ const CLASS_MAP = [
   'ABadCafe\\G8PHPhousand\\Processor\\EAMode\\Direct\\DataRegister' => '/Processor/EAMode/Direct/DataRegister.php',
   'ABadCafe\\G8PHPhousand\\Processor\\EAMode\\Direct\\Immediate' => '/Processor/EAMode/Direct/Immediate.php',
   'ABadCafe\\G8PHPhousand\\Processor\\EAMode\\Direct\\AddressRegister' => '/Processor/EAMode/Direct/AddressRegister.php',
+  'ABadCafe\\G8PHPhousand\\Processor\\Opcode\\IPrefix' => '/Processor/Opcode/IPrefix.php',
 ];
 
 spl_autoload_register(function(string $str_class): void {

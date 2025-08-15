@@ -19,8 +19,8 @@ use LogicException;
 /**
  * Trait for effective address calculations
  */
-trait TAddressUnit {
-
+trait TAddressUnit
+{
     use TRegisterUnit;
 
     /**
@@ -30,101 +30,104 @@ trait TAddressUnit {
      * Generally
      */
 
+    /** @var array<int, EAMode\IReadOnly> */
     protected array $aSrcEAModes = [];
+
+    /** @var array<int, EAMode\IReadWrite> */
     protected array $aDstEAModes = [];
 
     protected function initEAModes(): void
     {
-        $this->aSrcEAModes = [
-            IOpcode::LSB_EA_D  => new EAMode\Direct\DataRegister(
-                $this->oDataRegisters
-            ),
-            IOpcode::LSB_EA_A  => new EAMode\Direct\DataRegister(
-                $this->oAddressRegisters
-            ),
-            IOpcode::LSB_EA_AI => new EAMode\Indirect\Basic(
+        $this->aSrcEAModes = [];
+        $this->aDstEAModes = [];
+
+        // Data Register Direct dN [000 nnn]
+        for ($iReg = IRegister::D0; $iReg <= IRegister::D7; ++$iReg) {
+            $this->aSrcEAModes[IOpcode::LSB_EA_D|$iReg] = new EAMode\Direct\DataRegister(
+                $this->oDataRegisters,
+                $iReg
+            );
+        }
+
+        // Address Register direct aN [001 nnn]
+        for ($iReg = IRegister::A0; $iReg <= IRegister::A7; ++$iReg) {
+            $this->aSrcEAModes[IOpcode::LSB_EA_A|$iReg] = new EAMode\Direct\AddressRegister(
+                $this->oDataRegisters,
+                $iReg
+            );
+        }
+
+        // Address Register indirect (aN) [010 nnn]
+        for ($iReg = IRegister::A0; $iReg <= IRegister::A7; ++$iReg) {
+            $this->aSrcEAModes[IOpcode::LSB_EA_AI|$iReg] = new EAMode\Indirect\Basic(
                 $this->oAddressRegisters,
+                $iReg,
                 $this->oOutside
-            ),
-            IOpcode::LSB_EA_AIPI => new EAMode\Indirect\PostIncrement(
-                $this->oAddressRegisters,
+            );
+        }
+
+
+        // Address Register indirect, post increment (aN)+ [011 nnn]
+        for ($iReg = IRegister::A0; $iReg <= IRegister::A7; ++$iReg) {
+            $this->aSrcEAModes[IOpcode::LSB_EA_AIPI|$iReg] = new EAMode\Indirect\PostIncrement(
+                $this->oDataRegisters,
+                $iReg,
                 $this->oOutside
-            ),
-            IOpcode::LSB_EA_AIPD => new EAMode\Indirect\PreDecrement(
-                $this->oAddressRegisters,
+            );
+        }
+
+        // Address Register indirect, pre decrement -(aN) [100 nnn]
+        for ($iReg = IRegister::A0; $iReg <= IRegister::A7; ++$iReg) {
+            $this->aSrcEAModes[IOpcode::LSB_EA_AIPD|$iReg] = new EAMode\Indirect\PreDecrement(
+                $this->oDataRegisters,
+                $iReg,
                 $this->oOutside
-            ),
+            );
+        }
 
-        ];
+        // Address Register indirect with displacement d16(aN) [101 nnn]
+        for ($iReg = IRegister::A0; $iReg <= IRegister::A7; ++$iReg) {
+            $this->aSrcEAModes[IOpcode::LSB_EA_AD|$iReg] = new EAMode\Indirect\Displacement(
+                $this->iProgramCounter,
+                $this->oDataRegisters,
+                $iReg,
+                $this->oOutside
+            );
+        }
+
+        // Address Register indirect with index d8(aN,xN.w|l) [110 nnn]
+        for ($iReg = IRegister::A0; $iReg <= IRegister::A7; ++$iReg) {
+            $this->aSrcEAModes[IOpcode::LSB_EA_AD|$iReg] = new EAMode\Indirect\Indexed(
+                $this->iProgramCounter,
+                $this->oDataRegisters,
+                $this->oDataRegisters,
+                $iReg,
+                $this->oOutside
+            );
+        }
+
+
+        // TODO absolute modes
+
+        // Abs short (xxx).w [111 000]
+        // Abs long (xxx).l [111 001]
+
+
+        // The current set of EA modes is common to both source and destination operands.
+        // We split after this with some source only
+        $this->aDstEAModes = $this->aSrcEAModes;
+
+
+        // TODO Special source only modes next
+
+        // Program Counter with Displacement d16(pc) [111 010]
+        // Program Counter with Index d8(pc,xN) [111 011]
+
+        // Immediate [111 100]
+        $this->aSrcEAModes[IOpcode::LSB_EA_IMM] = new EAMode\Direct\Immediate(
+            $this->iProgramCounter,
+            $this->oOutside
+        );
     }
-
-
-
-    protected function decodeStandardSrcEAMode(int $iOpcode) {
-        $iMode      = $iOpcode & IOpcode::MASK_EA_MODE;
-        $iModeParam = $iOpcode & IOpcode::MASK_EA_REG; // Register number or special
-    }
-
-//     protected function decodeStandardIndirectEAMode(int $iOpcode): int {
-//         $iMode      = $iOpcode & IOpcode::MASK_EA_MODE;
-//         $iModeParam = $iOpcode & IOpocde::MASK_EA_REG;
-//
-//         // Expecting indirect modes only.
-//         switch ($iMode) {
-//             case IOpcode::LSB_EA_AI:
-//                 return $this->aAddrRegs[$iModeParam];
-//
-//             case IOpcode::LSB_EA_AIPI:
-//             case IOpcode::LSB_EA_AIPD:
-//             case IOpcode::LSB_EA_AID:
-//             case IOpcode::LSB_EA_AII:
-//             case IOpcode::LSB_EA_D:
-//         }
-//     }
-
-    protected static function generateDisplacement(int $iAddress, int $iDisplacement): int
-    {
-        return ($iAddress + $iDisplacement) & 0xFFFFFFFF;
-    }
-
-    protected static function generateBytePostInc(int& $iAddress): int
-    {
-        $iResult = $iAddress;
-        $iAddress = ($iAddress + 1) & 0xFFFFFFFF;
-        return $iResult;
-    }
-
-    protected static function generateWordPostInc(int& $iAddress): int
-    {
-        $iResult = $iAddress;
-        $iAddress = ($iAddress + 2) & 0xFFFFFFFF;
-        return $iResult;
-    }
-
-    protected static function generateLongPostInc(int& $iAddress): int
-    {
-        $iResult = $iAddress;
-        $iAddress = ($iAddress + 4) & 0xFFFFFFFF;
-        return $iResult;
-    }
-
-    protected static function generateBytePreDec(int& $iAddress): int
-    {
-        $iAddress = ($iAddress - 1) & 0xFFFFFFFF;
-        return $iAddress;
-    }
-
-    protected static function generateWordPreDec(int& $iAddress): int
-    {
-        $iAddress = ($iAddress - 2) & 0xFFFFFFFF;
-        return $iAddress;
-    }
-
-    protected static function generateLongPreDec(int& $iAddress): int
-    {
-        $iAddress = ($iAddress - 4) & 0xFFFFFFFF;
-        return $iAddress;
-    }
-
 
 }

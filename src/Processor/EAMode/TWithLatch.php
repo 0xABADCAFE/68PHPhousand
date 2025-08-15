@@ -14,18 +14,17 @@ declare(strict_types=1);
 
 namespace ABadCafe\G8PHPhousand\Processor\EAMode;
 
-use ABadCafe\G8PHPhousand\Device;
 
 /**
- * For all indirect and immediate modes, access to memory is required.
+ * Common implementation shard for the latching behaviour of some IReadWrite modes.
  */
-trait TWithBusAccess
+trait TWithLatch
 {
-    protected Device\IBus $oOutside;
+    protected ?int $iAddress = null;
 
-    protected function bindBus(Device\IBus $oOutside)
+    public function resetLatch(): void
     {
-        $this->oOutside = $oOutside;
+        $this->iAddress = null;
     }
 
 }

@@ -21,8 +21,8 @@ use ABadCafe\G8PHPhousand\Processor;
  * For modes that have extension words, provides the functionality required to read from
  * the program counter.
  */
-trait TWithExtensionWords {
-
+trait TWithExtensionWords
+{
     use TWithBusAccess;
 
     protected int $iProgramCounter;

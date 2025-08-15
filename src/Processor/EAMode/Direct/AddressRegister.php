@@ -12,7 +12,7 @@
 declare(strict_types=1);
 
 namespace ABadCafe\G8PHPhousand\Processor\EAMode\Direct;
-
+use ABadCafe\G8PHPhousand\Processor\EAMode;
 use ABadCafe\G8PHPhousand\Processor\ISize;
 use LogicException;
 
@@ -21,6 +21,8 @@ use LogicException;
  */
 class AddressRegister extends Register
 {
+    use EAMode\TWithoutLatch;
+
     /**
      * @param int<0,255> $iValue
      */

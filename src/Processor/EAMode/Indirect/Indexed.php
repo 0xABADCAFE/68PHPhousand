@@ -27,6 +27,7 @@ class Indexed extends Basic
 {
     use EAMode\TWithBusAccess;
     use EAMode\TWithExtensionWords;
+    use EAMode\TWithLatch;
 
     protected array $aIndexRegisters = [];
 
@@ -34,9 +35,10 @@ class Indexed extends Basic
         int& $iProgramCounter,
         Processor\RegisterSet $oAddressRegisters,
         Processor\RegisterSet $oDataRegisters,
+        int $iBaseReg,
         Device\IBus $oOutside
     ) {
-        parent::__construct($oAddressRegisters, $oOutside);
+        parent::__construct($oAddressRegisters, $iBaseReg, $oOutside);
         $this->bindProgramCounter($iProgramCounter);
         $this->bindIndexRegisters($oAddressRegisters, $oDataRegisters);
     }
@@ -58,7 +60,7 @@ class Indexed extends Basic
         // Get the fixed 8-bit displacement
         $iDisplacement = Processor\Sign::extByte($iExtension & IOpcode::BXW_DISP_MASK);
 
-        return ($iDisplacement + $this->iRegister + $iIndex) & ISize::MASK_LONG;
+        return $this->iAddress = ($iDisplacement + $this->iRegister + $iIndex) & ISize::MASK_LONG;
     }
 
     private function bindIndexRegisters(
@@ -112,7 +114,8 @@ class Indexed extends Basic
      */
     public function writeByte(int $iValue): void
     {
-        $this->oOutside->writeByte($this->getAddress(), $iValue);
+        $this->oOutside->writeByte($this->iAddress ?? $this->getAddress(), $iValue);
+        $this->iAddress = null;
     }
 
     /**
@@ -120,7 +123,8 @@ class Indexed extends Basic
      */
     public function writeWord(int $iValue): void
     {
-        $this->oOutside->writeWord($this->getAddress(), $iValue);
+        $this->oOutside->writeWord($this->iAddress ?? $this->getAddress(), $iValue);
+        $this->iAddress = null;
     }
 
     /**
@@ -128,6 +132,7 @@ class Indexed extends Basic
      */
     public function writeLong(int $iValue): void
     {
-        $this->oOutside->writeLong($this->getAddress(), $iValue);
+        $this->oOutside->writeLong($this->iAddress ?? $this->getAddress(), $iValue);
+        $this->iAddress = null;
     }
 }

@@ -12,6 +12,7 @@
 declare(strict_types=1);
 
 namespace ABadCafe\G8PHPhousand\Processor\EAMode\Indirect;
+use ABadCafe\G8PHPhousand\Processor\EAMode;
 use ABadCafe\G8PHPhousand\Processor\ISize;
 use ABadCafe\G8PHPhousand\Device;
 use ABadCafe\G8PHPhousand\Processor;
@@ -23,14 +24,16 @@ use ValueError;
  */
 class PostIncrement extends Basic
 {
+    use EAMode\TWithLatch;
+
     /**
      * @return int<0,255>
      */
     public function readByte(): int
     {
-        $iAddress = $this->iRegister;
+        $this->iAddress = $this->iRegister;
         $this->iRegister = ($this->iRegister + ISize::BYTE) & ISize::MASK_LONG;
-        return $this->oOutside->readByte($iAddress);
+        return $this->oOutside->readByte($this->iAddress);
     }
 
     /**
@@ -38,9 +41,9 @@ class PostIncrement extends Basic
      */
     public function readWord(): int
     {
-        $iAddress = $this->iRegister;
+        $this->iAddress = $this->iRegister;
         $this->iRegister = ($this->iRegister + ISize::WORD) & ISize::MASK_LONG;
-        return $this->oOutside->readWord($iAddress);
+        return $this->oOutside->readWord($this->iAddress);
     }
 
     /**
@@ -48,9 +51,9 @@ class PostIncrement extends Basic
      */
     public function readLong(): int
     {
-        $iAddress = $this->iRegister;
+        $this->iAddress = $this->iRegister;
         $this->iRegister = ($this->iRegister + ISize::LONG) & ISize::MASK_LONG;
-        return $this->oOutside->readLong($iAddress);
+        return $this->oOutside->readLong($this->iAddress);
     }
 
     /**
@@ -58,9 +61,13 @@ class PostIncrement extends Basic
      */
     public function writeByte(int $iValue): void
     {
-        $iAddress = $this->iRegister;
-        $this->iRegister = ($this->iRegister + ISize::BYTE) & ISize::MASK_LONG;
+        $iAddress = $this->iAddress;
+        if (null === $iAddress) {
+            $iAddress = $this->iRegister;
+            $this->iRegister = ($this->iRegister + ISize::BYTE) & ISize::MASK_LONG;
+        }
         $this->oOutside->writeByte($iAddress, $iValue);
+        $this->iAddress = null;
     }
 
     /**
@@ -68,9 +75,13 @@ class PostIncrement extends Basic
      */
     public function writeWord(int $iValue): void
     {
-        $iAddress = $this->iRegister;
-        $this->iRegister = ($this->iRegister + ISize::WORD) & ISize::MASK_LONG;
+        $iAddress = $this->iAddress;
+        if (null === $iAddress) {
+            $iAddress = $this->iRegister;
+            $this->iRegister = ($this->iRegister + ISize::WORD) & ISize::MASK_LONG;
+        }
         $this->oOutside->writeWord($iAddress, $iValue);
+        $this->iAddress = null;
     }
 
     /**
@@ -78,8 +89,12 @@ class PostIncrement extends Basic
      */
     public function writeLong(int $iValue): void
     {
-        $iAddress = $this->iRegister;
-        $this->iRegister = ($this->iRegister + ISize::LONG) & ISize::MASK_LONG;
+        $iAddress = $this->iAddress;
+        if (null === $iAddress) {
+            $iAddress = $this->iRegister;
+            $this->iRegister = ($this->iRegister + ISize::LONG) & ISize::MASK_LONG;
+        }
         $this->oOutside->writeLong($iAddress, $iValue);
+        $this->iAddress = null;
     }
 }
