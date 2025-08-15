@@ -49,16 +49,6 @@ $oProcessor = new class extends Processor\Base
     {
         return $this->oAddressRegisters->aIndex;
     }
-
-//     public function readLongA0PostIncrement(): int
-//     {
-//         return $this->readLongIndPostInc($this->iRegA0);
-//     }
-//
-//     public function readWordA0PreDecrement(): int
-//     {
-//         return $this->readWordIndPreDec($this->iRegA0);
-//     }
 };
 
 // Test the enumerated data register masks (lower) map to the specific registers

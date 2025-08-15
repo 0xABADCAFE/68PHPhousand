@@ -94,7 +94,7 @@ Implementations of addressing modes that directly access register values or imme
 - Displacement `d16(aN)`
 - PostIncrement `(aN)+`
 - PreDecrement `-(aN)`
-- Indexed `d8(xN.w|.l, aN)`
+- Indexed `d8(aN,xN.w|.l)`
 
 Implementations of addressing modes that use indirection to access values in memory.
 
