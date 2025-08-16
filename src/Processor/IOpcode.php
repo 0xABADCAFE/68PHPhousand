@@ -97,6 +97,8 @@ interface IOpcode
 
     const LSB_EA_X     = IEffectiveAddress::MODE_X    << self::LSB_EA_MODE_SHIFT; // Special cases
 
+    const LSB_EA_MODE_MASK = 0b0000000000111000;
+
     // Special EA cases
     //                 =   ----------xxxxxx
     const LSB_EA_SHORT = 0b0000000000111000; // Absolute short (xxx).w
