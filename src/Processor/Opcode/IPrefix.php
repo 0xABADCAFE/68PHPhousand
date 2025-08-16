@@ -65,6 +65,68 @@ interface IPrefix
     const OP_CMPI_W   = 0b0000110001000000;
     const OP_CMPI_L   = 0b0000110010000000;
 
+
+    // Test bit, dynamic (bit number in data reg)
+    //                    --------ssEAEAEA
+    const OP_BTST_D0  = 0b0000000100000000;
+    const OP_BTST_D1  = 0b0000001100000000;
+    const OP_BTST_D2  = 0b0000010100000000;
+    const OP_BTST_D3  = 0b0000011100000000;
+    const OP_BTST_D4  = 0b0000100100000000;
+    const OP_BTST_D5  = 0b0000101100000000;
+    const OP_BTST_D6  = 0b0000110100000000;
+    const OP_BTST_D7  = 0b0000111100000000;
+
+    // Test bit, immediate in ext word
+    //                    --------ssEAEAEA
+    const OP_BTST_I   = 0b0000100000000000;
+
+    // Change bit, dynamic (bit number in data reg)
+    //                    --------ssEAEAEA
+    const OP_BCHG_D0  = 0b0000000101000000;
+    const OP_BCHG_D1  = 0b0000001101000000;
+    const OP_BCHG_D2  = 0b0000010101000000;
+    const OP_BCHG_D3  = 0b0000011101000000;
+    const OP_BCHG_D4  = 0b0000100101000000;
+    const OP_BCHG_D5  = 0b0000101101000000;
+    const OP_BCHG_D6  = 0b0000110101000000;
+    const OP_BCHG_D7  = 0b0000111101000000;
+
+    // Change bit, immediate in ext word
+    //                    --------ssEAEAEA
+    const OP_BCHG_I   = 0b0000100001000000;
+
+    // Clear bit, dynamic (bit number in data reg)
+    //                    --------ssEAEAEA
+    const OP_BCLR_D0  = 0b0000000110000000;
+    const OP_BCLR_D1  = 0b0000001110000000;
+    const OP_BCLR_D2  = 0b0000010110000000;
+    const OP_BCLR_D3  = 0b0000011110000000;
+    const OP_BCLR_D4  = 0b0000100110000000;
+    const OP_BCLR_D5  = 0b0000101110000000;
+    const OP_BCLR_D6  = 0b0000110110000000;
+    const OP_BCLR_D7  = 0b0000111110000000;
+
+    // Clear bit, immediate in ext word
+    //                    --------ssEAEAEA
+    const OP_BCLR_I   = 0b0000100010000000;
+
+    // Set bit, dynamic (bit number in data reg)
+    //                    --------ssEAEAEA
+    const OP_BSET_D0  = 0b0000000111000000;
+    const OP_BSET_D1  = 0b0000001111000000;
+    const OP_BSET_D2  = 0b0000010111000000;
+    const OP_BSET_D3  = 0b0000011111000000;
+    const OP_BSET_D4  = 0b0000100111000000;
+    const OP_BSET_D5  = 0b0000101111000000;
+    const OP_BSET_D6  = 0b0000110111000000;
+    const OP_BSET_D7  = 0b0000111111000000;
+
+    // Set bit, immediate in ext word
+    //                    --------ssEAEAEA
+    const OP_BSET_I   = 0b0000100011000000;
+
+
     const OP_ILLEGAL  = 0b0100101011111100; // exact match
     const OP_RESET    = 0b0100111001110000; // exact match
     const OP_NOP      = 0b0100111001110001; // exact match

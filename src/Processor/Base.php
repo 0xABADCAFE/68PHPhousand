@@ -29,16 +29,24 @@ abstract class Base implements I68KProcessor, IOpcode, Opcode\IPrefix
 
     use TRegisterUnit;
     use TAddressUnit;
-    use TOpcodeHandler;
+    use Opcode\TLogical;
+    use Opcode\TSingleBit;
+    use Opcode\TArithmetic;
+    use Opcode\TFlow;
+    use Opcode\TSpecial;
 
     public function __construct(Device\IBus $oOutside)
     {
         $this->oOutside  = $oOutside;
         $this->initRegIndexes();
         $this->initEAModes();
-        $this->initExactMatchHandlers();
-        $this->initPrefixMatchHandlers();
-        $this->softReset();
+
+        // Install our opcode handlers.
+        $this->initLogicalHandlers();
+        $this->initSingleBitHandlers();
+        $this->initArithmeticHandlers();
+        $this->initFlowHandlers();
+        $this->initSpecialHandlers();
     }
 
     public function softReset(): self

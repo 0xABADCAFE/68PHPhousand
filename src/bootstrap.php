@@ -33,9 +33,9 @@ const CLASS_MAP = [
   'ABadCafe\\G8PHPhousand\\Processor\\IRegister' => '/Processor/IRegister.php',
   'ABadCafe\\G8PHPhousand\\Processor\\TAddressUnit' => '/Processor/TAddressUnit.php',
   'ABadCafe\\G8PHPhousand\\Processor\\Sign' => '/Processor/Sign.php',
-  'ABadCafe\\G8PHPhousand\\Processor\\TOpcodeHandler' => '/Processor/TOpcodeHandler.php',
   'ABadCafe\\G8PHPhousand\\Processor\\IEffectiveAddress' => '/Processor/IEffectiveAddress.php',
   'ABadCafe\\G8PHPhousand\\Processor\\RegisterSet' => '/Processor/RegisterSet.php',
+  'ABadCafe\\G8PHPhousand\\Processor\\TOpcode' => '/Processor/TOpcode.php',
   'ABadCafe\\G8PHPhousand\\Processor\\Base' => '/Processor/Base.php',
   'ABadCafe\\G8PHPhousand\\Processor\\IConditionCode' => '/Processor/IConditionCode.php',
   'ABadCafe\\G8PHPhousand\\Processor\\TArithmeticLogicUnit' => '/Processor/TArithmeticLogicUnit.php',
@@ -56,7 +56,12 @@ const CLASS_MAP = [
   'ABadCafe\\G8PHPhousand\\Processor\\EAMode\\Direct\\DataRegister' => '/Processor/EAMode/Direct/DataRegister.php',
   'ABadCafe\\G8PHPhousand\\Processor\\EAMode\\Direct\\Immediate' => '/Processor/EAMode/Direct/Immediate.php',
   'ABadCafe\\G8PHPhousand\\Processor\\EAMode\\Direct\\AddressRegister' => '/Processor/EAMode/Direct/AddressRegister.php',
+  'ABadCafe\\G8PHPhousand\\Processor\\Opcode\\TSingleBit' => '/Processor/Opcode/TSingleBit.php',
+  'ABadCafe\\G8PHPhousand\\Processor\\Opcode\\TArithmetic' => '/Processor/Opcode/TArithmetic.php',
   'ABadCafe\\G8PHPhousand\\Processor\\Opcode\\IPrefix' => '/Processor/Opcode/IPrefix.php',
+  'ABadCafe\\G8PHPhousand\\Processor\\Opcode\\TFlow' => '/Processor/Opcode/TFlow.php',
+  'ABadCafe\\G8PHPhousand\\Processor\\Opcode\\TLogical' => '/Processor/Opcode/TLogical.php',
+  'ABadCafe\\G8PHPhousand\\Processor\\Opcode\\TSpecial' => '/Processor/Opcode/TSpecial.php',
 ];
 
 spl_autoload_register(function(string $str_class): void {
