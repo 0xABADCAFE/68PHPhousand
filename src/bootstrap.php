@@ -58,14 +58,19 @@ const CLASS_MAP = [
   'ABadCafe\\G8PHPhousand\\Processor\\EAMode\\Direct\\AddressRegister' => '/Processor/EAMode/Direct/AddressRegister.php',
   'ABadCafe\\G8PHPhousand\\Processor\\Opcode\\TSingleBit' => '/Processor/Opcode/TSingleBit.php',
   'ABadCafe\\G8PHPhousand\\Processor\\Opcode\\TArithmetic' => '/Processor/Opcode/TArithmetic.php',
+  'ABadCafe\\G8PHPhousand\\Processor\\Opcode\\IFlow' => '/Processor/Opcode/IFlow.php',
   'ABadCafe\\G8PHPhousand\\Processor\\Opcode\\IPrefix' => '/Processor/Opcode/IPrefix.php',
   'ABadCafe\\G8PHPhousand\\Processor\\Opcode\\TFlow' => '/Processor/Opcode/TFlow.php',
   'ABadCafe\\G8PHPhousand\\Processor\\Opcode\\TLogical' => '/Processor/Opcode/TLogical.php',
   'ABadCafe\\G8PHPhousand\\Processor\\Opcode\\TSpecial' => '/Processor/Opcode/TSpecial.php',
+  'ABadCafe\\G8PHPhousand\\Processor\\Opcode\\Template\\Params' => '/Processor/Opcode/Template/Params.php',
+  'ABadCafe\\G8PHPhousand\\Processor\\Opcode\\Template\\TGenerator' => '/Processor/Opcode/Template/TGenerator.php',
 ];
+
+const PROJ_SRC_BASE = __DIR__;
 
 spl_autoload_register(function(string $str_class): void {
     if (isset(CLASS_MAP[$str_class])) {
-        require_once __DIR__ . CLASS_MAP[$str_class];
+        require_once PROJ_SRC_BASE . CLASS_MAP[$str_class];
     }
 });

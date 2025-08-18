@@ -120,7 +120,7 @@ interface IOpcode
     const CC_VC    = IConditionCode::VC << self::CC_SHIFT; // Overflow Clear
     const CC_VS    = IConditionCode::VS << self::CC_SHIFT; // Overflow Set
     const CC_PL    = IConditionCode::PL << self::CC_SHIFT; // Plus
-    const CC_MI    = IConditionCode::HI << self::CC_SHIFT; // Minus
+    const CC_MI    = IConditionCode::MI << self::CC_SHIFT; // Minus
     const CC_GE    = IConditionCode::GE << self::CC_SHIFT; // Greater or Equal
     const CC_LT    = IConditionCode::LT << self::CC_SHIFT; // Less Than
     const CC_GT    = IConditionCode::GT << self::CC_SHIFT; // Greater Than

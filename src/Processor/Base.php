@@ -29,6 +29,7 @@ abstract class Base implements I68KProcessor, IOpcode, Opcode\IPrefix
 
     use TRegisterUnit;
     use TAddressUnit;
+    use Opcode\Template\TGenerator;
     use Opcode\TLogical;
     use Opcode\TSingleBit;
     use Opcode\TArithmetic;
@@ -42,11 +43,14 @@ abstract class Base implements I68KProcessor, IOpcode, Opcode\IPrefix
         $this->initEAModes();
 
         // Install our opcode handlers.
+        $this->clearCompilerCache();
         $this->initLogicalHandlers();
         $this->initSingleBitHandlers();
         $this->initArithmeticHandlers();
         $this->initFlowHandlers();
         $this->initSpecialHandlers();
+        $this->clearCompilerCache();
+        $this->reportHandlerStats();
     }
 
     public function softReset(): self

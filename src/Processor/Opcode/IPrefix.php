@@ -23,6 +23,7 @@ namespace ABadCafe\G8PHPhousand\Processor\Opcode;
  */
 interface IPrefix
 {
+
     //                  --fedcba9876543210
     const OP_ORI_CCR  = 0b0000000000111100; // exact match
     const OP_ORI_SR   = 0b0000000001111100; // exact match

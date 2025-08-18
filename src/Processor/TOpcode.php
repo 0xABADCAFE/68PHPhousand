@@ -14,7 +14,11 @@ declare(strict_types=1);
 
 namespace ABadCafe\G8PHPhousand\Processor;
 
+use ABadCafe\G8PHPhousand;
+
 use LogicException;
+
+use \stdClass;
 
 /**
  * Trait for opcode handler
@@ -34,10 +38,13 @@ trait TOpcode
      * Populates the aExactHandler array with callables for each of the opcode bit patterns
      * that are unique, i.e. all bits encode only the operation and not any parameters.
      */
-
     protected function addExactHandlers(array $aHandlers)
     {
         foreach($aHandlers as $iPrefix => $cHandler) {
+            assert(
+                !isset($this->aExactHandler[$iPrefix]),
+                new LogicException(sprintf("Duplicate handler $%04X", $iPrefix))
+            );
             $this->aExactHandler[$iPrefix] = $cHandler;
         }
     }
@@ -49,4 +56,12 @@ trait TOpcode
         }
     }
 
+    protected function reportHandlerStats()
+    {
+        printf(
+            "%d Exact and %d Prefix handlers defined\n",
+            count($this->aExactHandler),
+            count($this->aPrefixHandler)
+        );
+    }
 }

@@ -49,6 +49,7 @@ interface IRegister
     public const D7 = self::X7;
 
     // CCR Bits (lower byte of SR)
+    //                               XNZVC
     public const CCR_CARRY    = 0b00000001;
     public const CCR_OVERFLOW = 0b00000010;
     public const CCR_ZERO     = 0b00000100;
@@ -58,7 +59,13 @@ interface IRegister
     public const CCR_CLEAR_NZ = 0b00010011;
     public const CCR_CLEAR_CV = 0b00011100;
 
+    //                               XNZVC
     public const CCR_CLEAR_Z  = 0b00011011;
+
+    //                               XNZVC
+    public const CCR_MASK_NV  = 0b00001010;
+    public const CCR_MASK_ZNV = 0b00001110;
+    public const CCR_MASK_ZC  = 0b00000101;
 
     // SR Bits (upper byte of SR)
     public const SR_MASK_INT_MASK = 0b00000111;
