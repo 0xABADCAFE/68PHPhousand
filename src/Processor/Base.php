@@ -34,6 +34,7 @@ abstract class Base implements I68KProcessor, IOpcode, Opcode\IPrefix
     use Opcode\TSingleBit;
     use Opcode\TArithmetic;
     use Opcode\TFlow;
+    use Opcode\TConditional;
     use Opcode\TSpecial;
 
     public function __construct(Device\IBus $oOutside)
@@ -48,6 +49,7 @@ abstract class Base implements I68KProcessor, IOpcode, Opcode\IPrefix
         $this->initSingleBitHandlers();
         $this->initArithmeticHandlers();
         $this->initFlowHandlers();
+        $this->initConditionalHandlers();
         $this->initSpecialHandlers();
         $this->clearCompilerCache();
         $this->reportHandlerStats();

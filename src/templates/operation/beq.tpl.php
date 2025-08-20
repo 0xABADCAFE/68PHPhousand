@@ -24,3 +24,6 @@ return function(int $iOpcode): void {
     ) {
 <?php
     include 'fragments/branch_conditional.tpl.php';
+?>
+    }
+};

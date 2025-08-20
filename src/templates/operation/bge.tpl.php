@@ -23,3 +23,6 @@ return function(int $iOpcode): void {
     if (0 === $iCCR || IRegister::CCR_MASK_NV === $iCCR) {
 <?php
     include 'fragments/branch_conditional.tpl.php';
+?>
+    }
+};
