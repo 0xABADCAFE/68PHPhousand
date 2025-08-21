@@ -63,7 +63,7 @@ trait TConditional
     {
         $oBraTemplate = new Template\Params(
             $iPrefix,
-            'operation/'.$sName,
+            'operation/Bcc/'.$sName,
             []
         );
 
@@ -95,7 +95,7 @@ trait TConditional
     {
         $oSccTemplate = new Template\Params(
             $iPrefix,
-            'operation/'.$sName,
+            'operation/Scc/'.$sName,
             []
         );
         $cHandler = $this->compileTemplateHandler($oSccTemplate);
