@@ -18,7 +18,7 @@ use ABadCafe\G8PHPhousand\Processor\IOpcode;
 
 
 /**
- * Opode prefixes for flow instructions
+ * Opode prefixes for conditional instructions
  */
 interface IConditional
 {
@@ -40,9 +40,27 @@ interface IConditional
     const OP_BGT      = self::OP_BRA|IOpcode::CC_GT;
     const OP_BLE      = self::OP_BRA|IOpcode::CC_LE;
 
-    // BT is actually branch unconditional
-    //                    ----ccccdddddddd // condition / displacement
-    const OP_ST       = 0b0101000000000000;
+    //                    0101cccc11001rrr // condition / reg
+    const OP_DBT      = 0b0101000011001000;
+    const OP_DBF      = self::OP_DBT|IOpcode::CC_F;
+    const OP_DBHI     = self::OP_DBT|IOpcode::CC_HI;
+    const OP_DBLS     = self::OP_DBT|IOpcode::CC_LS;
+    const OP_DBCC     = self::OP_DBT|IOpcode::CC_CC;
+    const OP_DBCS     = self::OP_DBT|IOpcode::CC_CS;
+    const OP_DBNE     = self::OP_DBT|IOpcode::CC_NE;
+    const OP_DBEQ     = self::OP_DBT|IOpcode::CC_EQ;
+    const OP_DBVC     = self::OP_DBT|IOpcode::CC_VC;
+    const OP_DBVS     = self::OP_DBT|IOpcode::CC_VS;
+    const OP_DBPL     = self::OP_DBT|IOpcode::CC_PL;
+    const OP_DBMI     = self::OP_DBT|IOpcode::CC_MI;
+    const OP_DBGE     = self::OP_DBT|IOpcode::CC_GE;
+    const OP_DBLT     = self::OP_DBT|IOpcode::CC_LT;
+    const OP_DBGT     = self::OP_DBT|IOpcode::CC_GT;
+    const OP_DBLE     = self::OP_DBT|IOpcode::CC_LE;
+
+    // Set Conditional
+    //                    0101cccc11EAEAEA // condition / displacement
+    const OP_ST       = 0b0101000011000000;
     const OP_SF       = self::OP_ST|IOpcode::CC_F;
     const OP_SHI      = self::OP_ST|IOpcode::CC_HI;
     const OP_SLS      = self::OP_ST|IOpcode::CC_LS;

@@ -42,20 +42,20 @@ trait TConditional
 
         $this->buildSCCHandlers(IConditional::OP_ST,  'st');
         $this->buildSCCHandlers(IConditional::OP_SF,  'sf');
-        $this->buildSCCHandlers(IConditional::OP_BHI, 'shi');
-        $this->buildSCCHandlers(IConditional::OP_BLS, 'sls');
-        $this->buildSCCHandlers(IConditional::OP_BCC, 'scc');
-        $this->buildSCCHandlers(IConditional::OP_BCS, 'scs');
-        $this->buildSCCHandlers(IConditional::OP_BNE, 'sne');
-        $this->buildSCCHandlers(IConditional::OP_BEQ, 'seq');
-        $this->buildSCCHandlers(IConditional::OP_BVC, 'svc');
-        $this->buildSCCHandlers(IConditional::OP_BVS, 'svs');
-        $this->buildSCCHandlers(IConditional::OP_BPL, 'spl');
-        $this->buildSCCHandlers(IConditional::OP_BMI, 'smi');
-        $this->buildSCCHandlers(IConditional::OP_BGE, 'sge');
-        $this->buildSCCHandlers(IConditional::OP_BLT, 'slt');
-        $this->buildSCCHandlers(IConditional::OP_BGT, 'sgt');
-        $this->buildSCCHandlers(IConditional::OP_BLE, 'sle');
+        $this->buildSCCHandlers(IConditional::OP_SHI, 'shi');
+        $this->buildSCCHandlers(IConditional::OP_SLS, 'sls');
+        $this->buildSCCHandlers(IConditional::OP_SCC, 'scc');
+        $this->buildSCCHandlers(IConditional::OP_SCS, 'scs');
+        $this->buildSCCHandlers(IConditional::OP_SNE, 'sne');
+        $this->buildSCCHandlers(IConditional::OP_SEQ, 'seq');
+        $this->buildSCCHandlers(IConditional::OP_SVC, 'svc');
+        $this->buildSCCHandlers(IConditional::OP_SVS, 'svs');
+        $this->buildSCCHandlers(IConditional::OP_SPL, 'spl');
+        $this->buildSCCHandlers(IConditional::OP_SMI, 'smi');
+        $this->buildSCCHandlers(IConditional::OP_SGE, 'sge');
+        $this->buildSCCHandlers(IConditional::OP_SLT, 'slt');
+        $this->buildSCCHandlers(IConditional::OP_SGT, 'sgt');
+        $this->buildSCCHandlers(IConditional::OP_SLE, 'sle');
     }
 
 
@@ -93,7 +93,14 @@ trait TConditional
 
     private function buildSCCHandlers(int $iPrefix, string $sName)
     {
-
+        $oSccTemplate = new Template\Params(
+            $iPrefix,
+            'operation/'.$sName,
+            []
+        );
+        $cHandler = $this->compileTemplateHandler($oSccTemplate);
+        $aHandlers = array_fill_keys(range($iPrefix, $iPrefix|63, 1), $cHandler);
+        $this->addExactHandlers($aHandlers);
     }
 
 }

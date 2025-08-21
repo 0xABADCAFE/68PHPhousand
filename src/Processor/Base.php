@@ -15,7 +15,6 @@ declare(strict_types=1);
 namespace ABadCafe\G8PHPhousand\Processor;
 
 use ABadCafe\G8PHPhousand\I68KProcessor;
-
 use ABadCafe\G8PHPhousand\Device;
 
 use LogicException;
