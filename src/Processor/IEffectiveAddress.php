@@ -31,10 +31,11 @@ interface IEffectiveAddress
     const MODE_X     = 7; // All other cases, low bits are not register
 
     // Non - GP Register values for Mode X
-    const MODE_X_SHORT = 0; // Absolute short (xxx).w
-    const MODE_X_LONG  = 1; // Absolute long (xxx).l
-    const MODE_X_PC_D  = 2; // Program counter with displacement (d16, pc)
-    const MODE_X_PC_X  = 3; // Program counter with index (d8, pc, xN)
-    const MODE_X_IMM   = 4; // Immediate #imm
+    const MODE_X_SHORT  = 0; // Absolute short (xxx).w
+    const MODE_X_LONG   = 1; // Absolute long (xxx).l
+    const MODE_X_PC_D   = 2; // Program counter with displacement (d16, pc)
+    const MODE_X_PC_X   = 3; // Program counter with index (d8, pc, xN)
+    const MODE_X_IMM    = 4; // Immediate #imm
+    const MASK_BASE_REG = 7;
 }
 
