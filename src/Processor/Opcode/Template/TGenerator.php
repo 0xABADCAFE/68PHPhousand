@@ -39,4 +39,6 @@ trait TGenerator
 
         return $this->aCompilerCache[$sHash] ?? ($this->aCompilerCache[$sHash] = eval($sCode));
     }
+
+
 }

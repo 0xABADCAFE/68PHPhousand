@@ -28,6 +28,7 @@ class Params
     public int      $iOpcode;
     public string   $sName;
     public string   $sPath;
+    public string   $sBasePath;
     public stdClass $oAdditional;
 
     public function __construct(int $iOpcode, string $sName, array $aAdditional = [])
@@ -37,9 +38,10 @@ class Params
             new DomainException('Invalid opcode number #'. $iOpcode)
         );
         assert(!empty($sName), new LogicException('Empty template path'));
+        $this->sBasePath = G8PHPhousand\PROJ_SRC_BASE . '/templates';
         $sPath = sprintf(
-            '%s/templates/%s.tpl.php',
-            G8PHPhousand\PROJ_SRC_BASE,
+            '%s/%s.tpl.php',
+            $this->sBasePath,
             $sName
         );
         assert(file_exists($sPath), new LogicException('No template ' . $sPath));

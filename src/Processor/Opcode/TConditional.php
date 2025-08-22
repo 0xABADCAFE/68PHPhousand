@@ -14,13 +14,15 @@ declare(strict_types=1);
 
 namespace ABadCafe\G8PHPhousand\Processor\Opcode;
 
-use ABadCafe\G8PHPhousand\Processor;
-
+use ABadCafe\G8PHPhousand\Processor\TOpcode;
+use ABadCafe\G8PHPhousand\Processor\IOpcode;
+use ABadCafe\G8PHPhousand\Processor\IRegister;
+use ABadCafe\G8PHPhousand\Processor\IEffectiveAddress;
 use LogicException;
 
 trait TConditional
 {
-    use Processor\TOpcode;
+    use TOpcode;
 
     protected function initConditionalHandlers()
     {
@@ -56,6 +58,24 @@ trait TConditional
         $this->buildSCCHandlers(IConditional::OP_SLT, 'slt');
         $this->buildSCCHandlers(IConditional::OP_SGT, 'sgt');
         $this->buildSCCHandlers(IConditional::OP_SLE, 'sle');
+
+        $this->buildDBCCHandlers(IConditional::OP_DBT,  'dbt');
+        $this->buildDBCCHandlers(IConditional::OP_DBF,  'dbf');
+        $this->buildDBCCHandlers(IConditional::OP_DBHI, 'dbhi');
+        $this->buildDBCCHandlers(IConditional::OP_DBLS, 'dbls');
+        $this->buildDBCCHandlers(IConditional::OP_DBCC, 'dbcc');
+        $this->buildDBCCHandlers(IConditional::OP_DBCS, 'dbcs');
+        $this->buildDBCCHandlers(IConditional::OP_DBNE, 'dbne');
+        $this->buildDBCCHandlers(IConditional::OP_DBEQ, 'dbeq');
+        $this->buildDBCCHandlers(IConditional::OP_DBVC, 'dbvc');
+        $this->buildDBCCHandlers(IConditional::OP_DBVS, 'dbvs');
+        $this->buildDBCCHandlers(IConditional::OP_DBPL, 'dbpl');
+        $this->buildDBCCHandlers(IConditional::OP_DBMI, 'dbmi');
+        $this->buildDBCCHandlers(IConditional::OP_DBGE, 'dbge');
+        $this->buildDBCCHandlers(IConditional::OP_DBLT, 'dblt');
+        $this->buildDBCCHandlers(IConditional::OP_DBGT, 'dbgt');
+        $this->buildDBCCHandlers(IConditional::OP_DBLE, 'dble');
+
     }
 
 
@@ -98,9 +118,26 @@ trait TConditional
             'operation/Scc/'.$sName,
             []
         );
-        $cHandler = $this->compileTemplateHandler($oSccTemplate);
-        $aHandlers = array_fill_keys(range($iPrefix, $iPrefix|63, 1), $cHandler);
-        $this->addExactHandlers($aHandlers);
+        $this->addExactHandlers(
+            array_fill_keys(
+                $this->generateForEAModeList(
+                    IEffectiveAddress::MODE_DATA_ADDRESSABLE,
+                    $iPrefix
+                ),
+                $this->compileTemplateHandler($oSccTemplate)
+            )
+        );
     }
 
+    private function buildDBCCHandlers(int $iPrefix, string $sName)
+    {
+        $oSccTemplate = new Template\Params(
+            $iPrefix,
+            'operation/DBcc/'.$sName,
+            []
+        );
+        $cHandler = $this->compileTemplateHandler($oSccTemplate);
+        $aHandlers = array_fill_keys(range($iPrefix, $iPrefix|7, 1), $cHandler);
+        $this->addExactHandlers($aHandlers);
+    }
 }

@@ -20,10 +20,10 @@ $iLSB = ($oParams->iOpcode & 0xFF);
 ?>
 return function(int $iOpcode): void {
     if (
-        ($this->iConditionRegister & IRegister::CCR_CARRY)
+        $this->iConditionRegister & IRegister::CCR_CARRY
     ) {
 <?php
-    include '../fragments/branch_conditional.tpl.php';
+    require $oParams->sBasePath . '/operation/fragments/branch_conditional.tpl.php';
 ?>
     }
 };

@@ -64,4 +64,20 @@ trait TOpcode
             count($this->aPrefixHandler)
         );
     }
+
+    /**
+     *  @param array<int> $aGroups
+     *  @return array<int>
+     */
+    protected function generateForEAModeList(array $aModes, int $iOpcode=0, int $iModeShift = 3, $iRegShift = 0): array
+    {
+        $aMerge   = [];
+        foreach ($aModes as $iMode => $aRecords) {
+            foreach ($aRecords as &$iRecord) {
+                $iRecord = $iOpcode|(($iMode & 7) << $iModeShift)|(($iRecord & 7) << $iRegShift);
+            }
+            $aMerge[] = $aRecords;
+        }
+        return array_merge(...$aMerge);
+    }
 }

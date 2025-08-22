@@ -1,7 +1,7 @@
 <?php
 
 /**
- * DBPL
+ * DBGE
  *
  */
 
@@ -9,9 +9,8 @@ assert(!empty($oParams), new \LogicException());
 
 ?>
 return function(int $iOpcode): void {
-    if (
-        !($this->iConditionRegister & IRegister::CCR_NEGATIVE)
-    ) {
+    $iCCR = $this->iConditionRegister & IRegister::CCR_MASK_NV;
+    if (0 === $iCCR || IRegister::CCR_MASK_NV === $iCCR) {
 <?php
     require $oParams->sBasePath . '/operation/fragments/dbra_conditional.tpl.php';
 ?>

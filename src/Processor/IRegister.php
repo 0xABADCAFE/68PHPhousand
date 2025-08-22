@@ -76,6 +76,15 @@ interface IRegister
     public const SR_CCR_MASK      = self::SR_MASK << 8 | self::CCR_MASK;
 
 
+    public const DATA_REGS = [
+        self::D0, self::D1, self::D2, self::D3, self::D4, self::D5, self::D6, self::D7
+    ];
+
+    public const ADDR_REGS = [
+        self::A0, self::A1, self::A2, self::A3, self::A4, self::A5, self::A6, self::A7
+    ];
+
+
     // Names
     public const DATA_NAMES = [
         'd0', 'd1', 'd2', 'd3', 'd4', 'd5', 'd6', 'd7'

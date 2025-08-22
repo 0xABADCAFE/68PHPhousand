@@ -37,5 +37,48 @@ interface IEffectiveAddress
     const MODE_X_PC_X   = 3; // Program counter with index (d8, pc, xN)
     const MODE_X_IMM    = 4; // Immediate #imm
     const MASK_BASE_REG = 7;
+
+
+    const MODE_REG_BASED = [
+        self::MODE_D    => IRegister::DATA_REGS,
+        self::MODE_A    => IRegister::ADDR_REGS,
+        self::MODE_AI   => IRegister::ADDR_REGS,
+        self::MODE_AIPI => IRegister::ADDR_REGS,
+        self::MODE_AIPD => IRegister::ADDR_REGS,
+        self::MODE_AID  => IRegister::ADDR_REGS,
+        self::MODE_AII  => IRegister::ADDR_REGS,
+    ];
+
+    const MODE_DATA_REG_ONLY = [
+        self::MODE_D    => IRegister::DATA_REGS,
+    ];
+
+    const MODE_DATA_ADDRESSABLE = [
+        self::MODE_D    => IRegister::DATA_REGS,
+        self::MODE_AI   => IRegister::ADDR_REGS,
+        self::MODE_AIPI => IRegister::ADDR_REGS,
+        self::MODE_AIPD => IRegister::ADDR_REGS,
+        self::MODE_AID  => IRegister::ADDR_REGS,
+        self::MODE_AII  => IRegister::ADDR_REGS,
+        self::MODE_X    => [self::MODE_X_SHORT, self::MODE_X_LONG]
+    ];
+
+    const MODE_ALL = [
+        self::MODE_D    => IRegister::DATA_REGS,
+        self::MODE_A    => IRegister::ADDR_REGS,
+        self::MODE_AI   => IRegister::ADDR_REGS,
+        self::MODE_AIPI => IRegister::ADDR_REGS,
+        self::MODE_AIPD => IRegister::ADDR_REGS,
+        self::MODE_AID  => IRegister::ADDR_REGS,
+        self::MODE_AII  => IRegister::ADDR_REGS,
+        self::MODE_X    => [
+            self::MODE_X_SHORT,
+            self::MODE_X_LONG,
+            self::MODE_X_PC_D,
+            self::MODE_X_PC_X,
+            self::MODE_X_IMM
+        ]
+    ];
+
 }
 
