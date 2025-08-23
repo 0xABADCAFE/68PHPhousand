@@ -34,15 +34,18 @@ const CLASS_MAP = ";
 
     const EPILOGUE = ";
 
+const PROJ_SRC_BASE = __DIR__;
+
 spl_autoload_register(function(string \$str_class): void {
     if (isset(CLASS_MAP[\$str_class])) {
-        require_once __DIR__ . CLASS_MAP[\$str_class];
+        require_once PROJ_SRC_BASE . CLASS_MAP[\$str_class];
     }
 });
 ";
     const EXCLUDE_PATTERNS = [
         '.'  => 1,
-        '..' => 1
+        '..' => 1,
+        'templates' => 1,
     ];
 
     const EXCLUDE_DIRS = [

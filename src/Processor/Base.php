@@ -15,7 +15,6 @@ declare(strict_types=1);
 namespace ABadCafe\G8PHPhousand\Processor;
 
 use ABadCafe\G8PHPhousand\I68KProcessor;
-
 use ABadCafe\G8PHPhousand\Device;
 
 use LogicException;
@@ -29,16 +28,30 @@ abstract class Base implements I68KProcessor, IOpcode, Opcode\IPrefix
 
     use TRegisterUnit;
     use TAddressUnit;
-    use TOpcodeHandler;
+    use Opcode\Template\TGenerator;
+    use Opcode\TLogical;
+    use Opcode\TSingleBit;
+    use Opcode\TArithmetic;
+    use Opcode\TFlow;
+    use Opcode\TConditional;
+    use Opcode\TSpecial;
 
     public function __construct(Device\IBus $oOutside)
     {
         $this->oOutside  = $oOutside;
         $this->initRegIndexes();
         $this->initEAModes();
-        $this->initExactMatchHandlers();
-        $this->initPrefixMatchHandlers();
-        $this->softReset();
+
+        // Install our opcode handlers.
+        $this->clearCompilerCache();
+        $this->initLogicalHandlers();
+        $this->initSingleBitHandlers();
+        $this->initArithmeticHandlers();
+        $this->initFlowHandlers();
+        $this->initConditionalHandlers();
+        $this->initSpecialHandlers();
+        $this->clearCompilerCache();
+        $this->reportHandlerStats();
     }
 
     public function softReset(): self

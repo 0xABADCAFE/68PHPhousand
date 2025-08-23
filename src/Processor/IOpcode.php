@@ -97,6 +97,8 @@ interface IOpcode
 
     const LSB_EA_X     = IEffectiveAddress::MODE_X    << self::LSB_EA_MODE_SHIFT; // Special cases
 
+    const LSB_EA_MODE_MASK = 0b0000000000111000;
+
     // Special EA cases
     //                 =   ----------xxxxxx
     const LSB_EA_SHORT = 0b0000000000111000; // Absolute short (xxx).w
@@ -118,7 +120,7 @@ interface IOpcode
     const CC_VC    = IConditionCode::VC << self::CC_SHIFT; // Overflow Clear
     const CC_VS    = IConditionCode::VS << self::CC_SHIFT; // Overflow Set
     const CC_PL    = IConditionCode::PL << self::CC_SHIFT; // Plus
-    const CC_MI    = IConditionCode::HI << self::CC_SHIFT; // Minus
+    const CC_MI    = IConditionCode::MI << self::CC_SHIFT; // Minus
     const CC_GE    = IConditionCode::GE << self::CC_SHIFT; // Greater or Equal
     const CC_LT    = IConditionCode::LT << self::CC_SHIFT; // Less Than
     const CC_GT    = IConditionCode::GT << self::CC_SHIFT; // Greater Than
