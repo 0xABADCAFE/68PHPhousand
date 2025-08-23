@@ -31,6 +31,8 @@ class Params
     public string   $sBasePath;
     public stdClass $oAdditional;
 
+    public const EXECUTION_NAMESPACE = 'ABadCafe\G8PHPhousand\Processor';
+
     public function __construct(int $iOpcode, string $sName, array $aAdditional = [])
     {
         assert(

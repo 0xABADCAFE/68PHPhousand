@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace ABadCafe\G8PHPhousand\Processor\Opcode\Template;
 
+
 trait TGenerator
 {
     /** @var array<string, callable> */
@@ -37,7 +38,9 @@ trait TGenerator
 
         printf("\n%s()\n$%4X : %s => %s\n", __METHOD__, $oParams->iOpcode, $sHash, $sCode);
 
-        return $this->aCompilerCache[$sHash] ?? ($this->aCompilerCache[$sHash] = eval($sCode));
+        return $this->aCompilerCache[$sHash] ?? ($this->aCompilerCache[$sHash] = eval(
+            "namespace " . Params::EXECUTION_NAMESPACE . ";\n" . $sCode)
+        );
     }
 
 
