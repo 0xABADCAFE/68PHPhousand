@@ -24,4 +24,6 @@ interface ISingleBit
 {
     //                   ----rrr100EAEAEA
     const OP_BTST_DN = 0b0000000100000000;
+    const OP_BTST_I  = 0b0000100000000000; // immediate
+
 }

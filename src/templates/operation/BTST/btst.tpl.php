@@ -7,38 +7,59 @@
 
 assert(!empty($oParams), new \LogicException());
 
-$bTargetIsReg = IOpcode::LSB_EA_D === $oParams->iOpcode & IOpcode::LSB_EA_MODE_MASK;
-$iModulo      = $bTargetIsReg ? 7 : 31;
+$iUseCase  = (IOpcode::LSB_EA_D === $oParams->iOpcode & IOpcode::LSB_EA_MODE_MASK) ? 1 : 0;
+$iUseCase |= ($oParams->iOpcode & Opcode\ISingleBit::OP_BTST_DN) ? 2 : 0;
 
 ?>
 return function(int $iOpcode): void {
 <?php
-if ($oParams->iOpcode & Opcode\ISingleBit::OP_BTST_DN) {
 
-    // Bit to test is dynamic, stored in the source register.
-    $iSourceReg = ($oParams->iOpcode >> 9) & 7;
+switch ($iUseCase) {
+
+    case 0: // Immediate bit position, EA target, byte access
 ?>
-    $iTestBit = 1 << (($this->oDataRegisters->iReg<?= $iSourceReg ?>) & <?= $iModulo ?>);
+    $iValue   = $this->aSrcEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]->readByte();
+    $iTestBit = 1 << ($this->oOutside->readWord($this->iProgramCounter) & 7);
+    $this->iProgramCounter = ($this->iProgramCounter + ISize::WORD) & ISize::MASK_LONG;
 <?php
-    if ($bTargetIsReg) {
-        // Operand to test is a register, so we permit all 32 bits to be tested
+        break;
+
+///////////////////////////////////////////////////////////////////////////////
+
+    case 1: // Immediate bit position, register target, long access
         $iTargetReg = $oParams->iOpcode & 7;
 ?>
     $iValue = $this->oDataRegisters->iReg<?= $iTargetReg ?>;
+    $iTestBit = 1 << ($this->oOutside->readWord($this->iProgramCounter) & 31);
+    $this->iProgramCounter = ($this->iProgramCounter + ISize::WORD) & ISize::MASK_LONG;
 <?php
-    } else {
-        // Operand to test is an EA Byte, so we we only
+        break;
+
+///////////////////////////////////////////////////////////////////////////////
+
+    case 2: // Dynamic bit position, EA target, byte access
+        $iSourceReg = ($oParams->iOpcode >> 9) & 7;
 ?>
     $iValue = $this->aSrcEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]->readByte();
+    $iTestBit = 1 << (($this->oDataRegisters->iReg<?= $iSourceReg ?>) & 7;
 <?php
-    }
+        break;
+
+///////////////////////////////////////////////////////////////////////////////
+
+    case 3: // Dynamic bit position, register target, long access
+        $iSourceReg = ($oParams->iOpcode >> 9) & 7;
+        $iTargetReg = $oParams->iOpcode & 7;
 ?>
+    $iValue = $this->oDataRegisters->iReg<?= $iTargetReg ?>;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg<?= $iSourceReg ?>) & 31;
 
 <?php
-} else {
-    // Bit to test is immediate
-}
+        break;
 
+///////////////////////////////////////////////////////////////////////////////
+
+}
 ?>
     ($iValue & $iTestBit) ?
         ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
