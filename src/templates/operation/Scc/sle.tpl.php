@@ -16,6 +16,6 @@ return function(int $iOpcode): void {
         IRegister::CCR_NEGATIVE === $iCCR
     ) ? 0xFF : 0;
 <?php
-    require $oParams->sBasePath . '/operation/fragments/set_conditional.tpl.php';
+    require 'common.tpl.php';
 ?>
 };

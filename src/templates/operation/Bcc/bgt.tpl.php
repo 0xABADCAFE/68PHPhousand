@@ -23,7 +23,7 @@ return function(int $iOpcode): void {
     $iCCR = $this->iConditionRegister & IRegister::CCR_MASK_ZNV;
     if (0 === $iCCR || IRegister::CCR_MASK_NV === $iCCR) {
 <?php
-    require $oParams->sBasePath . '/operation/fragments/branch_conditional.tpl.php';
+    require 'common.tpl.php';
 ?>
     }
 };
