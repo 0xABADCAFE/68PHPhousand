@@ -23,62 +23,64 @@ trait TSingleBit
 
     protected function initSingleBitHandlers()
     {
-        $this->addPrefixHandlers([
-            IPrefix::OP_BTST_D0 => function(int $iOpcode) {
-                $oEAMode = $this->aSrcEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
-                if (IOpcode::LSB_EA_D === $iOpcode & IOpcode::LSB_EA_MODE_MASK) {
-                    // Data register targets can have bits 0-31 tested
-                    $iValue = $oEAMode->readLong();
-                    $iBit   = 1 << (($this->oDataRegisters->iReg0) & 31);
-                } else {
-                    // Memory EA targets can only have bits 0-7 tested
-                    $iValue = $oEAMode->readByte();
-                    $iBit   = 1 << (($this->oDataRegisters->iReg0) & 7);
-                }
+        $aHandlers = [];
 
-                ($iValue & $iBit) ?
-                ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
-                ($this->iConditionRegister |= IRegister::CCR_ZERO);
-            },
-            IPrefix::OP_BTST_D1 => function(int $iOpcode) { },
-            IPrefix::OP_BTST_D2 => function(int $iOpcode) { },
-            IPrefix::OP_BTST_D3 => function(int $iOpcode) { },
-            IPrefix::OP_BTST_D4 => function(int $iOpcode) { },
-            IPrefix::OP_BTST_D5 => function(int $iOpcode) { },
-            IPrefix::OP_BTST_D6 => function(int $iOpcode) { },
-            IPrefix::OP_BTST_D7 => function(int $iOpcode) { },
-            IPrefix::OP_BTST_I  => function(int $iOpcode) { },
+        // Generate all the byte acessible EA modes we need here
+        $aByteEAModes = $this->generateForEAModeList(
+            [
+                Processor\IEffectiveAddress::MODE_AI   => Processor\IRegister::ADDR_REGS,
+                Processor\IEffectiveAddress::MODE_AIPI => Processor\IRegister::ADDR_REGS,
+                Processor\IEffectiveAddress::MODE_AIPD => Processor\IRegister::ADDR_REGS,
+                Processor\IEffectiveAddress::MODE_AID  => Processor\IRegister::ADDR_REGS,
+                Processor\IEffectiveAddress::MODE_AII  => Processor\IRegister::ADDR_REGS,
+                Processor\IEffectiveAddress::MODE_X    => [
+                    Processor\IEffectiveAddress::MODE_X_SHORT,
+                    Processor\IEffectiveAddress::MODE_X_LONG,
+                    Processor\IEffectiveAddress::MODE_X_PC_D,
+                    Processor\IEffectiveAddress::MODE_X_PC_X,
+                    Processor\IEffectiveAddress::MODE_X_IMM
+                ]
+            ],
+            0
+        );
 
-            IPrefix::OP_BCHG_D0 => function(int $iOpcode) { },
-            IPrefix::OP_BCHG_D1 => function(int $iOpcode) { },
-            IPrefix::OP_BCHG_D2 => function(int $iOpcode) { },
-            IPrefix::OP_BCHG_D3 => function(int $iOpcode) { },
-            IPrefix::OP_BCHG_D4 => function(int $iOpcode) { },
-            IPrefix::OP_BCHG_D5 => function(int $iOpcode) { },
-            IPrefix::OP_BCHG_D6 => function(int $iOpcode) { },
-            IPrefix::OP_BCHG_D7 => function(int $iOpcode) { },
-            IPrefix::OP_BCHG_I  => function(int $iOpcode) { },
+        $oBtstTemplate = new Template\Params(
+            0,
+            'operation/BTST/btst',
+            []
+        );
 
-            IPrefix::OP_BCLR_D0 => function(int $iOpcode) { },
-            IPrefix::OP_BCLR_D1 => function(int $iOpcode) { },
-            IPrefix::OP_BCLR_D2 => function(int $iOpcode) { },
-            IPrefix::OP_BCLR_D3 => function(int $iOpcode) { },
-            IPrefix::OP_BCLR_D4 => function(int $iOpcode) { },
-            IPrefix::OP_BCLR_D5 => function(int $iOpcode) { },
-            IPrefix::OP_BCLR_D6 => function(int $iOpcode) { },
-            IPrefix::OP_BCLR_D7 => function(int $iOpcode) { },
-            IPrefix::OP_BCLR_I  => function(int $iOpcode) { },
+        foreach (Processor\IRegister::DATA_REGS as $iSourceReg) {
+            $iPrefix = ISingleBit::OP_BTST_DN | ($iSourceReg << 9);
 
-            IPrefix::OP_BSET_D0 => function(int $iOpcode) { },
-            IPrefix::OP_BSET_D1 => function(int $iOpcode) { },
-            IPrefix::OP_BSET_D2 => function(int $iOpcode) { },
-            IPrefix::OP_BSET_D3 => function(int $iOpcode) { },
-            IPrefix::OP_BSET_D4 => function(int $iOpcode) { },
-            IPrefix::OP_BSET_D5 => function(int $iOpcode) { },
-            IPrefix::OP_BSET_D6 => function(int $iOpcode) { },
-            IPrefix::OP_BSET_D7 => function(int $iOpcode) { },
-            IPrefix::OP_BSET_I  => function(int $iOpcode) { },
+            // Register targets are special, as they have direct 32-bit access
+            foreach (Processor\IRegister::DATA_REGS as $iTargetReg) {
+                $iOpcode = $iPrefix | $iTargetReg;
+                $oBtstTemplate->iOpcode = $iOpcode;
+                $aHandlers[$iOpcode] = $this->compileTemplateHandler($oBtstTemplate);
+            }
 
-        ]);
+            // All other supported EA modes can just use the EAMode logic
+            $oBtstTemplate->iOpcode = $iPrefix | Processor\IOpcode::LSB_EA_A;
+            $cEAHandler = $this->compileTemplateHandler($oBtstTemplate);
+            foreach ($aByteEAModes as $iEAMode) {
+                $aHandlers[$iPrefix|$iEAMode] = $cEAHandler;
+            }
+
+        }
+        $this->addExactHandlers($aHandlers);
+    }
+
+    private function initBTSTImmediateHandlers()
+    {
+
+//         $oSccTemplate = new Template\Params(
+//             $iPrefix,
+//             'operation/BTST/btst.tpl.php',
+//             []
+//         );
+//         $cHandler = $this->compileTemplateHandler($oSccTemplate);
+//         $aHandlers = array_fill_keys(range($iPrefix, $iPrefix|7, 1), $cHandler);
+//         $this->addExactHandlers($aHandlers);
     }
 }

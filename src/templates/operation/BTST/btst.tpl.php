@@ -4,10 +4,12 @@
  * BTST
  *
  */
+use ABadCafe\G8PHPhousand\Processor\IOpcode;
+use ABadCafe\G8PHPhousand\Processor\Opcode;
 
 assert(!empty($oParams), new \LogicException());
 
-$iUseCase  = (IOpcode::LSB_EA_D === $oParams->iOpcode & IOpcode::LSB_EA_MODE_MASK) ? 1 : 0;
+$iUseCase  = IOpcode::LSB_EA_D === ($oParams->iOpcode & IOpcode::LSB_EA_MODE_MASK) ? 1 : 0;
 $iUseCase |= ($oParams->iOpcode & Opcode\ISingleBit::OP_BTST_DN) ? 2 : 0;
 
 ?>
@@ -41,7 +43,7 @@ switch ($iUseCase) {
         $iSourceReg = ($oParams->iOpcode >> 9) & 7;
 ?>
     $iValue = $this->aSrcEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]->readByte();
-    $iTestBit = 1 << (($this->oDataRegisters->iReg<?= $iSourceReg ?>) & 7;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg<?= $iSourceReg ?>) & 7);
 <?php
         break;
 
@@ -52,7 +54,7 @@ switch ($iUseCase) {
         $iTargetReg = $oParams->iOpcode & 7;
 ?>
     $iValue = $this->oDataRegisters->iReg<?= $iTargetReg ?>;
-    $iTestBit = 1 << (($this->oDataRegisters->iReg<?= $iSourceReg ?>) & 31;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg<?= $iSourceReg ?>) & 31);
 
 <?php
         break;
