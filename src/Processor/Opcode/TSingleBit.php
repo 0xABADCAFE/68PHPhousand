@@ -23,6 +23,20 @@ trait TSingleBit
 
     protected function initSingleBitHandlers()
     {
+        $this->buildBTSTHandlers(
+            ISingleBit::OP_BTST_DN,
+            ISingleBit::OP_BTST_I,
+            'btst'
+        );
+        $this->buildBTSTHandlers(
+            ISingleBit::OP_BCLR_DN,
+            ISingleBit::OP_BCLR_I,
+            'bclr'
+        );
+    }
+
+    private function buildBTSTHandlers(int $iDynPrefix, int $iImmPrefix, string $sName)
+    {
         $aHandlers = [];
 
         // Generate all the byte acessible EA modes we need here
@@ -46,12 +60,12 @@ trait TSingleBit
 
         $oBtstTemplate = new Template\Params(
             0,
-            'operation/BTST/btst',
+            'operation/bit/' . $sName,
             []
         );
 
         foreach (Processor\IRegister::DATA_REGS as $iSourceReg) {
-            $iPrefix = ISingleBit::OP_BTST_DN | ($iSourceReg << 9);
+            $iPrefix = $iDynPrefix | ($iSourceReg << 9);
 
             // Register targets are special, as they have direct 32-bit access
             foreach (Processor\IRegister::DATA_REGS as $iTargetReg) {
@@ -68,19 +82,22 @@ trait TSingleBit
             }
 
         }
+
+        $iPrefix = $iImmPrefix;
+
+        // Register targets are special, as they have direct 32-bit access
+        foreach (Processor\IRegister::DATA_REGS as $iTargetReg) {
+            $iOpcode = $iPrefix | $iTargetReg;
+            $oBtstTemplate->iOpcode = $iOpcode;
+            $aHandlers[$iOpcode] = $this->compileTemplateHandler($oBtstTemplate);
+        }
+
+        // All other supported EA modes can just use the EAMode logic
+        $oBtstTemplate->iOpcode = $iPrefix | Processor\IOpcode::LSB_EA_A;
+        $cEAHandler = $this->compileTemplateHandler($oBtstTemplate);
+        foreach ($aByteEAModes as $iEAMode) {
+            $aHandlers[$iPrefix|$iEAMode] = $cEAHandler;
+        }
         $this->addExactHandlers($aHandlers);
-    }
-
-    private function initBTSTImmediateHandlers()
-    {
-
-//         $oSccTemplate = new Template\Params(
-//             $iPrefix,
-//             'operation/BTST/btst.tpl.php',
-//             []
-//         );
-//         $cHandler = $this->compileTemplateHandler($oSccTemplate);
-//         $aHandlers = array_fill_keys(range($iPrefix, $iPrefix|7, 1), $cHandler);
-//         $this->addExactHandlers($aHandlers);
     }
 }

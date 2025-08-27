@@ -24,5 +24,3 @@
                 )
             ) & ISize::MASK_LONG;
         }
-
-
