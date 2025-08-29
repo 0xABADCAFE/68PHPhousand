@@ -29,9 +29,19 @@ trait TSingleBit
             'btst'
         );
         $this->buildBTSTHandlers(
+            ISingleBit::OP_BCHG_DN,
+            ISingleBit::OP_BCHG_I,
+            'bchg'
+        );
+        $this->buildBTSTHandlers(
             ISingleBit::OP_BCLR_DN,
             ISingleBit::OP_BCLR_I,
             'bclr'
+        );
+        $this->buildBTSTHandlers(
+            ISingleBit::OP_BSET_DN,
+            ISingleBit::OP_BSET_I,
+            'bset'
         );
     }
 

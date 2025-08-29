@@ -3,8 +3,6 @@
 /**
  * BCLR
  *
- * TODO - CCR update. Target bit is first tested before zeroing and Z flag set based on test.
- *
  */
 use ABadCafe\G8PHPhousand\Processor\IOpcode;
 use ABadCafe\G8PHPhousand\Processor\Opcode;
@@ -22,14 +20,14 @@ switch ($iUseCase) {
 
     case 0: // Immediate bit position, EA target, byte access
 ?>
-    $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
-    $oEAMode->writeByte(
-        $oEAMode->readByte() & ~(
-            1 << ($this->oOutside->readWord($this->iProgramCounter) & 7)
-        )
-    );
-
+    $oEAMode  = $this->aSrcEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
+    $iValue   = $oEAMode->readByte();
+    $iTestBit = 1 << ($this->oOutside->readWord($this->iProgramCounter) & 7);
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
     $this->iProgramCounter = ($this->iProgramCounter + ISize::WORD) & ISize::MASK_LONG;
+    $oEAMode->writeByte($iValue & ~$iTestBit);
 <?php
         break;
 
@@ -38,10 +36,14 @@ switch ($iUseCase) {
     case 1: // Immediate bit position, register target, long access
         $iTargetReg = $oParams->iOpcode & 7;
 ?>
-    $this->oDataRegisters->iReg<?= $iTargetReg ?> &= ~(
-        1 << ($this->oOutside->readWord($this->iProgramCounter) & 31)
-    );
+    $iValue   = $this->oDataRegisters->iReg<?= $iTargetReg ?>;
+    $iTestBit = 1 << ($this->oOutside->readWord($this->iProgramCounter) & 31);
     $this->iProgramCounter = ($this->iProgramCounter + ISize::WORD) & ISize::MASK_LONG;
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
+    $this->oDataRegisters->iReg<?= $iTargetReg ?> &= ~$iTestBit;
+
 <?php
         break;
 
@@ -50,12 +52,13 @@ switch ($iUseCase) {
     case 2: // Dynamic bit position, EA target, byte access
         $iSourceReg = ($oParams->iOpcode >> 9) & 7;
 ?>
-    $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
-    $oEAMode->writeByte(
-        $oEAMode->readByte() & ~(
-            1 << (($this->oDataRegisters->iReg<?= $iSourceReg ?>) & 7)
-        )
-    );
+    $oEAMode  = $this->aSrcEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
+    $iValue   = $oEAMode->readByte();
+    $iTestBit = 1 << (($this->oDataRegisters->iReg<?= $iSourceReg ?>) & 7);
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
+    $oEAMode->writeByte($iValue & ~$iTestBit);
 <?php
         break;
 
@@ -65,10 +68,12 @@ switch ($iUseCase) {
         $iSourceReg = ($oParams->iOpcode >> 9) & 7;
         $iTargetReg = $oParams->iOpcode & 7;
 ?>
-    $this->oDataRegisters->iReg<?= $iTargetReg ?> &= ~(
-        1 << (($this->oDataRegisters->iReg<?= $iSourceReg ?>) & 31)
-    );
-
+    $iValue = $this->oDataRegisters->iReg<?= $iTargetReg ?>;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg<?= $iSourceReg ?>) & 31);
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
+    $this->oDataRegisters->iReg<?= $iTargetReg ?> &= ~$iTestBit;
 <?php
         break;
 
