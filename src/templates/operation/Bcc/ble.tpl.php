@@ -27,7 +27,7 @@ return function(int $iOpcode): void {
         IRegister::CCR_NEGATIVE === $iCCR
     ) {
 <?php
-    require $oParams->sBasePath . '/operation/fragments/branch_conditional.tpl.php';
+    require 'common.tpl.php';
 ?>
     }
 };

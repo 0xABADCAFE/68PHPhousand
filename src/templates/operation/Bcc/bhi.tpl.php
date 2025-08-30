@@ -23,7 +23,7 @@ return function(int $iOpcode): void {
         !($this->iConditionRegister & IRegister::CCR_MASK_ZC)
     ) {
 <?php
-    require $oParams->sBasePath . '/operation/fragments/branch_conditional.tpl.php';
+    require 'common.tpl.php';
 ?>
     }
 };
