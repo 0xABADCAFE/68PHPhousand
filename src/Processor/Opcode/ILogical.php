@@ -40,4 +40,22 @@ interface ILogical
     const OP_EORI_W   = 0b0000101001000000;
     const OP_EORI_L   = 0b0000101010000000;
 
+    //                         rrrmssEAEAEA - r(eg) m(mode) s(ize)
+    const OP_OR_DIR    = 0b0000000100000000;
+    const OP_OR_EA2D_B = 0b1000000000000000;
+    const OP_OR_EA2D_W = 0b1000000001000000;
+    const OP_OR_EA2D_L = 0b1000000010000000;
+    const OP_OR_D2EA_B = 0b1000000100000000;
+    const OP_OR_D2EA_W = 0b1000000101000000;
+    const OP_OR_D2EA_L = 0b1000000110000000;
+
+    //                          rrrmssEAEAEA - r(eg) m(mode) s(ize)
+    const OP_AND_DIR    = 0b0000000100000000;
+    const OP_AND_EA2D_B = 0b1100000000000000;
+    const OP_AND_EA2D_W = 0b1100000001000000;
+    const OP_AND_EA2D_L = 0b1100000010000000;
+    const OP_AND_D2EA_B = 0b1100000100000000;
+    const OP_AND_D2EA_W = 0b1100000101000000;
+    const OP_AND_D2EA_L = 0b1100000110000000;
+
 }

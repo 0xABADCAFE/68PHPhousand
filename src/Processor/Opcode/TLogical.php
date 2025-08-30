@@ -92,6 +92,11 @@ trait TLogical
         );
     }
 
+    private function buildORLogicHandlers()
+    {
+
+    }
+
     private function buildANDILogicHandlers()
     {
         // ANDI Byte
