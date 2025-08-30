@@ -63,6 +63,32 @@ interface IEffectiveAddress
         self::MODE_X    => [self::MODE_X_SHORT, self::MODE_X_LONG]
     ];
 
+    const MODE_MEM_ALTERABLE = [
+        self::MODE_AI   => IRegister::ADDR_REGS,
+        self::MODE_AIPI => IRegister::ADDR_REGS,
+        self::MODE_AIPD => IRegister::ADDR_REGS,
+        self::MODE_AID  => IRegister::ADDR_REGS,
+        self::MODE_AII  => IRegister::ADDR_REGS,
+        self::MODE_X    => [self::MODE_X_SHORT, self::MODE_X_LONG]
+    ];
+
+    const MODE_ALL_EXCEPT_AREGS = [
+        self::MODE_D    => IRegister::DATA_REGS,
+        self::MODE_AI   => IRegister::ADDR_REGS,
+        self::MODE_AIPI => IRegister::ADDR_REGS,
+        self::MODE_AIPD => IRegister::ADDR_REGS,
+        self::MODE_AID  => IRegister::ADDR_REGS,
+        self::MODE_AII  => IRegister::ADDR_REGS,
+        self::MODE_X    => [
+            self::MODE_X_SHORT,
+            self::MODE_X_LONG,
+            self::MODE_X_PC_D,
+            self::MODE_X_PC_X,
+            self::MODE_X_IMM
+        ]
+    ];
+
+
     const MODE_ALL = [
         self::MODE_D    => IRegister::DATA_REGS,
         self::MODE_A    => IRegister::ADDR_REGS,

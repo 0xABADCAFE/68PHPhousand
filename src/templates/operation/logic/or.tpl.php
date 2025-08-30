@@ -4,11 +4,13 @@
  * OR
  *
  */
+use ABadCafe\G8PHPhousand\Processor\IOpcode;
+use ABadCafe\G8PHPhousand\Processor\Opcode\ILogical;
 
 assert(!empty($oParams), new \LogicException());
 
 $iDataReg = ($oParams->iOpcode >> 9) & 7;
-$iSize    = $oParams & IOpcode::MASK_OP_SIZE;
+$iSize    = $oParams->iOpcode & IOpcode::MASK_OP_SIZE;
 
 ?>
 return function(int $iOpcode): void {

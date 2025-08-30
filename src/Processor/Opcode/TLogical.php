@@ -30,6 +30,8 @@ trait TLogical
         $this->buildORILogicHandlers();
         $this->buildANDILogicHandlers();
         $this->buildEORILogicHandlers();
+        $this->buildORLogicHandlers();
+        $this->buildANDLogicHandlers();
     }
 
     private function buildORILogicHandlers()
@@ -94,7 +96,97 @@ trait TLogical
 
     private function buildORLogicHandlers()
     {
+        $oORTemplate = new Template\Params(
+            0,
+            'operation/logic/or',
+            []
+        );
 
+        // First do the EA2D variants
+        $aPrefixes = [
+            ILogical::OP_OR_EA2D_B,
+            ILogical::OP_OR_EA2D_W,
+            ILogical::OP_OR_EA2D_L,
+        ];
+        $aEAModes = $this->generateForEAModeList(IEffectiveAddress::MODE_ALL_EXCEPT_AREGS);
+        foreach ($aPrefixes as $iPrefix) {
+            foreach (Processor\IRegister::DATA_REGS as $iDataReg) {
+                $oORTemplate->iOpcode = $iPrefix | ($iDataReg << 9);
+                $this->addExactHandlers(
+                    array_fill_keys(
+                        $this->mergePrefixForModeList($oORTemplate->iOpcode, $aEAModes),
+                        $this->compileTemplateHandler($oORTemplate)
+                    )
+                );
+            }
+        }
+
+        // Next do the D2EA variants
+        $aPrefixes = [
+            ILogical::OP_OR_D2EA_B,
+            ILogical::OP_OR_D2EA_W,
+            ILogical::OP_OR_D2EA_L,
+        ];
+        $aEAModes = $this->generateForEAModeList(IEffectiveAddress::MODE_MEM_ALTERABLE);
+        foreach ($aPrefixes as $iPrefix) {
+            foreach (Processor\IRegister::DATA_REGS as $iDataReg) {
+                $oORTemplate->iOpcode = $iPrefix | ($iDataReg << 9);
+                $this->addExactHandlers(
+                    array_fill_keys(
+                        $this->mergePrefixForModeList($oORTemplate->iOpcode, $aEAModes),
+                        $this->compileTemplateHandler($oORTemplate)
+                    )
+                );
+            }
+        }
+
+    }
+
+    private function buildANDLogicHandlers()
+    {
+        $oANDTemplate = new Template\Params(
+            0,
+            'operation/logic/and',
+            []
+        );
+
+        // First do the EA2D variants
+        $aPrefixes = [
+            ILogical::OP_AND_EA2D_B,
+            ILogical::OP_AND_EA2D_W,
+            ILogical::OP_AND_EA2D_L,
+        ];
+        $aEAModes = $this->generateForEAModeList(IEffectiveAddress::MODE_ALL_EXCEPT_AREGS);
+        foreach ($aPrefixes as $iPrefix) {
+            foreach (Processor\IRegister::DATA_REGS as $iDataReg) {
+                $oANDTemplate->iOpcode = $iPrefix | ($iDataReg << 9);
+                $this->addExactHandlers(
+                    array_fill_keys(
+                        $this->mergePrefixForModeList($oANDTemplate->iOpcode, $aEAModes),
+                        $this->compileTemplateHandler($oANDTemplate)
+                    )
+                );
+            }
+        }
+
+        // Next do the D2EA variants
+        $aPrefixes = [
+            ILogical::OP_AND_D2EA_B,
+            ILogical::OP_AND_D2EA_W,
+            ILogical::OP_AND_D2EA_L,
+        ];
+        $aEAModes = $this->generateForEAModeList(IEffectiveAddress::MODE_MEM_ALTERABLE);
+        foreach ($aPrefixes as $iPrefix) {
+            foreach (Processor\IRegister::DATA_REGS as $iDataReg) {
+                $oANDTemplate->iOpcode = $iPrefix | ($iDataReg << 9);
+                $this->addExactHandlers(
+                    array_fill_keys(
+                        $this->mergePrefixForModeList($oANDTemplate->iOpcode, $aEAModes),
+                        $this->compileTemplateHandler($oANDTemplate)
+                    )
+                );
+            }
+        }
     }
 
     private function buildANDILogicHandlers()

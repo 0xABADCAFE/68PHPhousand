@@ -41,6 +41,9 @@ trait TOpcode
     protected function addExactHandlers(array $aHandlers)
     {
         foreach($aHandlers as $iPrefix => $cHandler) {
+
+            printf("Adding Handler for Opcode $%04X\n", $iPrefix);
+
             assert(
                 !isset($this->aExactHandler[$iPrefix]),
                 new LogicException(sprintf("Duplicate handler $%04X", $iPrefix))
@@ -69,8 +72,12 @@ trait TOpcode
      *  @param array<int> $aGroups
      *  @return array<int>
      */
-    protected function generateForEAModeList(array $aModes, int $iOpcode=0, int $iModeShift = 3, $iRegShift = 0): array
-    {
+    protected function generateForEAModeList(
+        array $aModes,
+        int   $iOpcode    = 0,
+        int   $iModeShift = 3,
+        int   $iRegShift  = 0
+    ): array {
         $aMerge   = [];
         foreach ($aModes as $iMode => $aRecords) {
             foreach ($aRecords as &$iRecord) {
@@ -79,5 +86,13 @@ trait TOpcode
             $aMerge[] = $aRecords;
         }
         return array_merge(...$aMerge);
+    }
+
+    protected function mergePrefixForModeList(int $iPrefix, array $aEAModes): array
+    {
+        foreach ($aEAModes as &$iMode) {
+            $iMode |= $iPrefix;
+        }
+        return $aEAModes;
     }
 }
