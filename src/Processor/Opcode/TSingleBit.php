@@ -23,29 +23,29 @@ trait TSingleBit
 
     protected function initSingleBitHandlers()
     {
-        $this->buildBTSTHandlers(
+        $this->buildSingleBitHandlers(
             ISingleBit::OP_BTST_DN,
             ISingleBit::OP_BTST_I,
             'btst'
         );
-        $this->buildBTSTHandlers(
+        $this->buildSingleBitHandlers(
             ISingleBit::OP_BCHG_DN,
             ISingleBit::OP_BCHG_I,
             'bchg'
         );
-        $this->buildBTSTHandlers(
+        $this->buildSingleBitHandlers(
             ISingleBit::OP_BCLR_DN,
             ISingleBit::OP_BCLR_I,
             'bclr'
         );
-        $this->buildBTSTHandlers(
+        $this->buildSingleBitHandlers(
             ISingleBit::OP_BSET_DN,
             ISingleBit::OP_BSET_I,
             'bset'
         );
     }
 
-    private function buildBTSTHandlers(int $iDynPrefix, int $iImmPrefix, string $sName)
+    private function buildSingleBitHandlers(int $iDynPrefix, int $iImmPrefix, string $sName)
     {
         $aHandlers = [];
 
