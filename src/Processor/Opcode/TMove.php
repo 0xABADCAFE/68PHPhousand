@@ -25,6 +25,7 @@ trait TMove
     protected function initMoveHandlers()
     {
         $this->buildCLRHandlers();
+        $this->buildMOVEHandlers();
     }
 
     private function buildCLRHandlers()
@@ -75,8 +76,52 @@ trait TMove
                 }
             )
         );
-
     }
 
+    private function buildMOVEHandlers()
+    {
+        $aDstEAModes =  $this->generateForEAModeList(Processor\IEffectiveAddress::MODE_DATA_ALTERABLE);
+        $aSrcEAModes = $this->generateForEAModeList(Processor\IEffectiveAddress::MODE_ALL);
+        $aSizes = [
+            IMove::OP_MOVE_B => function($iOpcode) {
+                $iValue = $this->aDstEAModes[
+                    ($iOpcode >> IMove::OP_MOVE_SRC_EA_SHIFT) & IOpcode::MASK_OP_STD_EA
+                ]->readByte();
+                $this->iConditionRegister &= IRegister::CCR_EXTEND;
+                $this->updateNZByte($iValue);
+                $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]->writeByte($iValue);
+            },
+            IMove::OP_MOVE_W => function($iOpcode) {
+                $iValue = $this->aDstEAModes[
+                    ($iOpcode >> IMove::OP_MOVE_SRC_EA_SHIFT) & IOpcode::MASK_OP_STD_EA
+                ]->readWord();
+                $this->iConditionRegister &= IRegister::CCR_EXTEND;
+                $this->updateNZWord($iValue);
+                $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]->writeWord($iValue);
+            },
+            IMove::OP_MOVE_L => function($iOpcode) {
+                $iValue = $this->aDstEAModes[
+                    ($iOpcode >> IMove::OP_MOVE_SRC_EA_SHIFT) & IOpcode::MASK_OP_STD_EA
+                ]->readLong();
+                $this->iConditionRegister &= IRegister::CCR_EXTEND;
+                $this->updateNZLong($iValue);
+                $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]->writeWord($iValue);
+            }
+        ];
 
+        // Size > Src EA > Dst EA
+        foreach ($aSizes as $iPrefix => $cHandler) {
+            foreach ($aSrcEAModes as $iSrcEAMode) {
+                $this->addExactHandlers(
+                    array_fill_keys(
+                        $this->mergePrefixForModeList(
+                            $iPrefix|($iSrcEAMode << IMove::OP_MOVE_SRC_EA_SHIFT),
+                            $aDstEAModes
+                        ),
+                        $cHandler
+                    )
+                );
+            }
+        }
+    }
 }
