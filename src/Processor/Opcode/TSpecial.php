@@ -42,8 +42,5 @@ trait TSpecial
 
         ]);
 
-        $this->addPrefixHandlers([
-
-        ]);
     }
 }

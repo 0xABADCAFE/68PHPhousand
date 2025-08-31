@@ -15,7 +15,9 @@ declare(strict_types=1);
 namespace ABadCafe\G8PHPhousand\Processor\Opcode;
 
 use ABadCafe\G8PHPhousand\Processor;
-use ABadCafe\G8PHPhousand\Processor\Opcode;
+use ABadCafe\G8PHPhousand\Processor\IOpcode;
+use ABadCafe\G8PHPhousand\Processor\IEffectiveAddress;
+use ABadCafe\G8PHPhousand\Processor\IRegister;
 
 trait TSingleBit
 {
@@ -52,17 +54,17 @@ trait TSingleBit
         // Generate all the byte acessible EA modes we need here
         $aByteEAModes = $this->generateForEAModeList(
             [
-                Processor\IEffectiveAddress::MODE_AI   => Processor\IRegister::ADDR_REGS,
-                Processor\IEffectiveAddress::MODE_AIPI => Processor\IRegister::ADDR_REGS,
-                Processor\IEffectiveAddress::MODE_AIPD => Processor\IRegister::ADDR_REGS,
-                Processor\IEffectiveAddress::MODE_AID  => Processor\IRegister::ADDR_REGS,
-                Processor\IEffectiveAddress::MODE_AII  => Processor\IRegister::ADDR_REGS,
-                Processor\IEffectiveAddress::MODE_X    => [
-                    Processor\IEffectiveAddress::MODE_X_SHORT,
-                    Processor\IEffectiveAddress::MODE_X_LONG,
-                    Processor\IEffectiveAddress::MODE_X_PC_D,
-                    Processor\IEffectiveAddress::MODE_X_PC_X,
-                    Processor\IEffectiveAddress::MODE_X_IMM
+                IEffectiveAddress::MODE_AI   => IRegister::ADDR_REGS,
+                IEffectiveAddress::MODE_AIPI => IRegister::ADDR_REGS,
+                IEffectiveAddress::MODE_AIPD => IRegister::ADDR_REGS,
+                IEffectiveAddress::MODE_AID  => IRegister::ADDR_REGS,
+                IEffectiveAddress::MODE_AII  => IRegister::ADDR_REGS,
+                IEffectiveAddress::MODE_X    => [
+                    IEffectiveAddress::MODE_X_SHORT,
+                    IEffectiveAddress::MODE_X_LONG,
+                    IEffectiveAddress::MODE_X_PC_D,
+                    IEffectiveAddress::MODE_X_PC_X,
+                    IEffectiveAddress::MODE_X_IMM
                 ]
             ],
             0
@@ -70,22 +72,21 @@ trait TSingleBit
 
         $oBtstTemplate = new Template\Params(
             0,
-            'operation/bit/' . $sName,
-            []
+            'operation/bit/' . $sName
         );
 
-        foreach (Processor\IRegister::DATA_REGS as $iSourceReg) {
-            $iPrefix = $iDynPrefix | ($iSourceReg << 9);
+        foreach (IRegister::DATA_REGS as $iSourceReg) {
+            $iPrefix = $iDynPrefix | ($iSourceReg << IOpcode::REG_UP_SHIFT);
 
             // Register targets are special, as they have direct 32-bit access
-            foreach (Processor\IRegister::DATA_REGS as $iTargetReg) {
+            foreach (IRegister::DATA_REGS as $iTargetReg) {
                 $iOpcode = $iPrefix | $iTargetReg;
                 $oBtstTemplate->iOpcode = $iOpcode;
                 $aHandlers[$iOpcode] = $this->compileTemplateHandler($oBtstTemplate);
             }
 
             // All other supported EA modes can just use the EAMode logic
-            $oBtstTemplate->iOpcode = $iPrefix | Processor\IOpcode::LSB_EA_A;
+            $oBtstTemplate->iOpcode = $iPrefix | IOpcode::LSB_EA_A;
             $cEAHandler = $this->compileTemplateHandler($oBtstTemplate);
             foreach ($aByteEAModes as $iEAMode) {
                 $aHandlers[$iPrefix|$iEAMode] = $cEAHandler;
@@ -96,14 +97,14 @@ trait TSingleBit
         $iPrefix = $iImmPrefix;
 
         // Register targets are special, as they have direct 32-bit access
-        foreach (Processor\IRegister::DATA_REGS as $iTargetReg) {
+        foreach (IRegister::DATA_REGS as $iTargetReg) {
             $iOpcode = $iPrefix | $iTargetReg;
             $oBtstTemplate->iOpcode = $iOpcode;
             $aHandlers[$iOpcode] = $this->compileTemplateHandler($oBtstTemplate);
         }
 
         // All other supported EA modes can just use the EAMode logic
-        $oBtstTemplate->iOpcode = $iPrefix | Processor\IOpcode::LSB_EA_A;
+        $oBtstTemplate->iOpcode = $iPrefix | IOpcode::LSB_EA_A;
         $cEAHandler = $this->compileTemplateHandler($oBtstTemplate);
         foreach ($aByteEAModes as $iEAMode) {
             $aHandlers[$iPrefix|$iEAMode] = $cEAHandler;

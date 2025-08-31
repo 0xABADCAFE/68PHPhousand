@@ -42,7 +42,7 @@ trait TOpcode
     {
         foreach($aHandlers as $iPrefix => $cHandler) {
 
-            printf("Adding Handler for Opcode $%04X\n", $iPrefix);
+            //printf("Adding Handler for Opcode $%04X\n", $iPrefix);
 
             assert(
                 !isset($this->aExactHandler[$iPrefix]),
@@ -66,6 +66,9 @@ trait TOpcode
             count($this->aExactHandler),
             count($this->aPrefixHandler)
         );
+//         foreach ($this->aExactHandler as $iOpcode => $cHandler) {
+//             printf("\t%04X : %d\n", $iOpcode, spl_object_id($cHandler));
+//         }
     }
 
     /**
