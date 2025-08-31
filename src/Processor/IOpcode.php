@@ -51,6 +51,7 @@ interface IOpcode
     const OP_SIZE_W           = 0b0000000001000000;
     const OP_SIZE_L           = 0b0000000010000000;
 
+
     const REG_EA_D0 = IRegister::D0;
     const REG_EA_D1 = IRegister::D1;
     const REG_EA_D2 = IRegister::D2;

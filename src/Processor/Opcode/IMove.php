@@ -32,5 +32,10 @@ interface IMove
     const OP_MOVE_W = 0b0011000000000000;
     const OP_MOVE_L = 0b0010000000000000;
 
+    //                    ssrrr   EAEAEA
+    const OP_MOVEA  = 0b0000000001000000;
+
+    const MASK_DST_EA = 0b0000111111000000;
+
     const OP_MOVE_SRC_EA_SHIFT = 6;
 }

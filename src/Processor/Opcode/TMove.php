@@ -22,10 +22,28 @@ trait TMove
 {
     use Processor\TOpcode;
 
+    private $aMoveDstEAModes = [];
+
+    /** @var array<int, int> */
+    private $aEAToDstEAMap = [];
+
     protected function initMoveHandlers()
     {
+        $this->initMoveDstEAModes();
         $this->buildCLRHandlers();
         $this->buildMOVEHandlers();
+        $this->buildMOVEAHandlers();
+    }
+
+    protected function initMoveDstEAModes()
+    {
+        for ($i = 0; $i < 64; ++$i) {
+            $this->aEAToDstEAMap[$i] = (($i >> 3) | (($i & 7) << 3)) << IMove::OP_MOVE_SRC_EA_SHIFT;
+        }
+
+        foreach ($this->aDstEAModes as $iMode => $oEAMode) {
+            $this->aMoveDstEAModes[$this->aEAToDstEAMap[$iMode]] = $oEAMode;
+        }
     }
 
     private function buildCLRHandlers()
@@ -80,43 +98,72 @@ trait TMove
 
     private function buildMOVEHandlers()
     {
-        $aDstEAModes =  $this->generateForEAModeList(Processor\IEffectiveAddress::MODE_DATA_ALTERABLE);
+        $aDstEAModes = $this->generateForEAModeList(Processor\IEffectiveAddress::MODE_DATA_ALTERABLE);
         $aSrcEAModes = $this->generateForEAModeList(Processor\IEffectiveAddress::MODE_ALL);
         $aSizes = [
             IMove::OP_MOVE_B => function($iOpcode) {
-                $iValue = $this->aDstEAModes[
-                    ($iOpcode >> IMove::OP_MOVE_SRC_EA_SHIFT) & IOpcode::MASK_OP_STD_EA
-                ]->readByte();
+                $iValue = $this->aSrcEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]->readByte();
                 $this->iConditionRegister &= IRegister::CCR_EXTEND;
                 $this->updateNZByte($iValue);
-                $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]->writeByte($iValue);
+                $this->aMoveDstEAModes[$iOpcode & IMove::MASK_DST_EA]->writeByte($iValue);
             },
             IMove::OP_MOVE_W => function($iOpcode) {
-                $iValue = $this->aDstEAModes[
-                    ($iOpcode >> IMove::OP_MOVE_SRC_EA_SHIFT) & IOpcode::MASK_OP_STD_EA
-                ]->readWord();
+                $iValue = $this->aSrcEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]->readWord();
                 $this->iConditionRegister &= IRegister::CCR_EXTEND;
                 $this->updateNZWord($iValue);
-                $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]->writeWord($iValue);
+                $this->aMoveDstEAModes[$iOpcode & IMove::MASK_DST_EA]->writeWord($iValue);
             },
             IMove::OP_MOVE_L => function($iOpcode) {
-                $iValue = $this->aDstEAModes[
-                    ($iOpcode >> IMove::OP_MOVE_SRC_EA_SHIFT) & IOpcode::MASK_OP_STD_EA
-                ]->readLong();
+                $iValue = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]->readLong();
                 $this->iConditionRegister &= IRegister::CCR_EXTEND;
                 $this->updateNZLong($iValue);
-                $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]->writeWord($iValue);
+                $this->aMoveDstEAModes[$iOpcode & IMove::MASK_DST_EA]->writeLong($iValue);
             }
         ];
 
-        // Size > Src EA > Dst EA
+        // Size > Dst EA > Src EA
         foreach ($aSizes as $iPrefix => $cHandler) {
-            foreach ($aSrcEAModes as $iSrcEAMode) {
+            foreach ($aDstEAModes as $iDstEAMode) {
                 $this->addExactHandlers(
                     array_fill_keys(
                         $this->mergePrefixForModeList(
-                            $iPrefix|($iSrcEAMode << IMove::OP_MOVE_SRC_EA_SHIFT),
-                            $aDstEAModes
+                            $iPrefix | ($this->aEAToDstEAMap[$iDstEAMode]),
+                            $aSrcEAModes
+                        ),
+                        $cHandler
+                    )
+                );
+            }
+        }
+    }
+
+    private function buildMOVEAHandlers()
+    {
+        $aSrcEAModes = $this->generateForEAModeList(Processor\IEffectiveAddress::MODE_ALL);
+        $aSizes = [
+            IMove::OP_MOVE_W|IMove::OP_MOVEA => function($iOpcode) {
+                $this->oAddressRegisters->aIndex[
+                    ($iOpcode & IOpcode::MASK_REG_UPPER) >> Processor\IOpcode::REG_UP_SHIFT
+                ] = Sign::extendWord(
+                    $this->aSrcEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]->readWord()
+                );
+            },
+            IMove::OP_MOVE_L|IMove::OP_MOVEA => function($iOpcode) {
+                $this->oAddressRegisters->aIndex[
+                    ($iOpcode & IOpcode::MASK_REG_UPPER) >> Processor\IOpcode::REG_UP_SHIFT
+                ] = $this->aSrcEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]->readLong();
+            }
+        ];
+
+        foreach ($aSizes as $iPrefix => $cHandler) {
+            foreach (Processor\IRegister::ADDR_REGS as $iAddrReg) {
+                echo "movea <ea>,a", $iAddrReg, "...\n";
+                $iOpcode = $iPrefix | ($iAddrReg << Processor\IOpcode::REG_UP_SHIFT);
+                $this->addExactHandlers(
+                    array_fill_keys(
+                        $this->mergePrefixForModeList(
+                            $iOpcode,
+                            $aSrcEAModes
                         ),
                         $cHandler
                     )
