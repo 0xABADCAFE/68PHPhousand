@@ -35,6 +35,9 @@ interface IMove
     //                    ssrrr   EAEAEA
     const OP_MOVEA  = 0b0000000001000000;
 
+    //                      rrr nnnnnnnn
+    const OP_MOVEQ  = 0b0111000000000000;
+
     const MASK_DST_EA = 0b0000111111000000;
 
     const OP_MOVE_SRC_EA_SHIFT = 6;

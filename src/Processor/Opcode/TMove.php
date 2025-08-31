@@ -16,6 +16,11 @@ namespace ABadCafe\G8PHPhousand\Processor\Opcode;
 
 use ABadCafe\G8PHPhousand\Processor;
 
+use ABadCafe\G8PHPhousand\Processor\ISize;
+use ABadCafe\G8PHPhousand\Processor\IOpcode;
+use ABadCafe\G8PHPhousand\Processor\IRegister;
+use ABadCafe\G8PHPhousand\Processor\IEffectiveAddress;
+use ABadCafe\G8PHPhousand\Processor\Sign;
 use LogicException;
 
 trait TMove
@@ -33,6 +38,7 @@ trait TMove
         $this->buildCLRHandlers();
         $this->buildMOVEHandlers();
         $this->buildMOVEAHandlers();
+        $this->buildMOVEQHandlers();
     }
 
     protected function initMoveDstEAModes()
@@ -48,7 +54,7 @@ trait TMove
 
     private function buildCLRHandlers()
     {
-        $aEAModes = $this->generateForEAModeList(Processor\IEffectiveAddress::MODE_DATA_ALTERABLE);
+        $aEAModes = $this->generateForEAModeList(IEffectiveAddress::MODE_DATA_ALTERABLE);
 
         // Byte
         $this->addExactHandlers(
@@ -59,7 +65,9 @@ trait TMove
                 ),
                 function(int $iOpcode) {
                     // Preserve X, clear NVC and set Z
-                    $this->iConditionRegister = ($this->iConditionRegister & IRegister::CCR_EXTEND)|IRegister::CCR_ZERO;
+                    $this->iConditionRegister = (
+                        $this->iConditionRegister & IRegister::CCR_EXTEND
+                    ) | IRegister::CCR_ZERO;
                     $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]->writeByte(0);
                 }
             )
@@ -74,7 +82,9 @@ trait TMove
                 ),
                 function(int $iOpcode) {
                     // Preserve X, clear NVC and set Z
-                    $this->iConditionRegister = ($this->iConditionRegister & IRegister::CCR_EXTEND)|IRegister::CCR_ZERO;
+                    $this->iConditionRegister = (
+                        $this->iConditionRegister & IRegister::CCR_EXTEND
+                    ) | IRegister::CCR_ZERO;
                     $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]->writeWord(0);
                 }
             )
@@ -89,7 +99,9 @@ trait TMove
                 ),
                 function(int $iOpcode) {
                     // Preserve X, clear NVC and set Z
-                    $this->iConditionRegister = ($this->iConditionRegister & IRegister::CCR_EXTEND)|IRegister::CCR_ZERO;
+                    $this->iConditionRegister = (
+                        $this->iConditionRegister & IRegister::CCR_EXTEND
+                    ) | IRegister::CCR_ZERO;
                     $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]->writeWord(0);
                 }
             )
@@ -98,8 +110,8 @@ trait TMove
 
     private function buildMOVEHandlers()
     {
-        $aDstEAModes = $this->generateForEAModeList(Processor\IEffectiveAddress::MODE_DATA_ALTERABLE);
-        $aSrcEAModes = $this->generateForEAModeList(Processor\IEffectiveAddress::MODE_ALL);
+        $aDstEAModes = $this->generateForEAModeList(IEffectiveAddress::MODE_DATA_ALTERABLE);
+        $aSrcEAModes = $this->generateForEAModeList(IEffectiveAddress::MODE_ALL);
         $aSizes = [
             IMove::OP_MOVE_B => function($iOpcode) {
                 $iValue = $this->aSrcEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]->readByte();
@@ -139,26 +151,25 @@ trait TMove
 
     private function buildMOVEAHandlers()
     {
-        $aSrcEAModes = $this->generateForEAModeList(Processor\IEffectiveAddress::MODE_ALL);
+        $aSrcEAModes = $this->generateForEAModeList(IEffectiveAddress::MODE_ALL);
         $aSizes = [
             IMove::OP_MOVE_W|IMove::OP_MOVEA => function($iOpcode) {
                 $this->oAddressRegisters->aIndex[
-                    ($iOpcode & IOpcode::MASK_REG_UPPER) >> Processor\IOpcode::REG_UP_SHIFT
+                    ($iOpcode & IOpcode::MASK_REG_UPPER) >> IOpcode::REG_UP_SHIFT
                 ] = Sign::extendWord(
                     $this->aSrcEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]->readWord()
                 );
             },
             IMove::OP_MOVE_L|IMove::OP_MOVEA => function($iOpcode) {
                 $this->oAddressRegisters->aIndex[
-                    ($iOpcode & IOpcode::MASK_REG_UPPER) >> Processor\IOpcode::REG_UP_SHIFT
+                    ($iOpcode & IOpcode::MASK_REG_UPPER) >> IOpcode::REG_UP_SHIFT
                 ] = $this->aSrcEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]->readLong();
             }
         ];
 
         foreach ($aSizes as $iPrefix => $cHandler) {
-            foreach (Processor\IRegister::ADDR_REGS as $iAddrReg) {
-                echo "movea <ea>,a", $iAddrReg, "...\n";
-                $iOpcode = $iPrefix | ($iAddrReg << Processor\IOpcode::REG_UP_SHIFT);
+            foreach (IRegister::ADDR_REGS as $iAddrReg) {
+                $iOpcode = $iPrefix | ($iAddrReg << IOpcode::REG_UP_SHIFT);
                 $this->addExactHandlers(
                     array_fill_keys(
                         $this->mergePrefixForModeList(
@@ -169,6 +180,53 @@ trait TMove
                     )
                 );
             }
+        }
+    }
+
+    private function buildMOVEQHandlers()
+    {
+        // LSB is immediate -128 to 127
+        $cZeroHandler = function(int $iOpcode) {
+            $this->oDataRegisters->aIndex[
+                ($iOpcode & IOpcode::MASK_REG_UPPER) >> IOpcode::REG_UP_SHIFT
+            ] = 0;
+            $this->iConditionRegister = (
+                $this->iConditionRegister & IRegister::CCR_EXTEND
+            ) | IRegister::CCR_ZERO;
+        };
+        $cPosHandler = function(int $iOpcode) {
+            $this->oDataRegisters->aIndex[
+                ($iOpcode & IOpcode::MASK_REG_UPPER) >> IOpcode::REG_UP_SHIFT
+            ] = $iOpcode & ISize::MASK_BYTE;
+            $this->iConditionRegister &= IRegister::CCR_EXTEND;
+        };
+        $cNegHandler = function(int $iOpcode) {
+            $this->oDataRegisters->aIndex[
+                ($iOpcode & IOpcode::MASK_REG_UPPER) >> IOpcode::REG_UP_SHIFT
+            ] = Sign::extendByte($iOpcode & ISize::MASK_BYTE);
+            $this->iConditionRegister = (
+                $this->iConditionRegister & IRegister::CCR_EXTEND
+            ) | IRegister::CCR_NEGATIVE;
+        };
+
+        foreach (IRegister::DATA_REGS as $iDataReg) {
+            $iPrefix = IMove::OP_MOVEQ | ($iDataReg << IOpcode::REG_UP_SHIFT);
+            $this->addExactHandlers([
+                $iPrefix => $cZeroHandler
+            ]);
+            $this->addExactHandlers(
+                array_fill_keys(
+                    range($iPrefix + 0x1, $iPrefix + 0x7F),
+                    $cPosHandler
+                )
+            );
+            $this->addExactHandlers(
+                array_fill_keys(
+                    range($iPrefix + 0x80, $iPrefix + 0xFF),
+                    $cNegHandler
+                )
+            );
+
         }
     }
 }
