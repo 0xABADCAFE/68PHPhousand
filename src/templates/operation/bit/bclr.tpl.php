@@ -50,7 +50,7 @@ switch ($iUseCase) {
 ///////////////////////////////////////////////////////////////////////////////
 
     case 2: // Dynamic bit position, EA target, byte access
-        $iSourceReg = ($oParams->iOpcode >> 9) & 7;
+        $iSourceReg = ($oParams->iOpcode & IOpcode::MASK_REG_UPPER) >> IOpcode::REG_UP_SHIFT;
 ?>
     $oEAMode  = $this->aSrcEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
     $iValue   = $oEAMode->readByte();
@@ -65,7 +65,7 @@ switch ($iUseCase) {
 ///////////////////////////////////////////////////////////////////////////////
 
     case 3: // Dynamic bit position, register target, long access
-        $iSourceReg = ($oParams->iOpcode >> 9) & 7;
+        $iSourceReg = ($oParams->iOpcode & IOpcode::MASK_REG_UPPER) >> IOpcode::REG_UP_SHIFT;
         $iTargetReg = $oParams->iOpcode & 7;
 ?>
     $iValue = $this->oDataRegisters->iReg<?= $iTargetReg ?>;
