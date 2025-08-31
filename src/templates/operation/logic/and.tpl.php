@@ -8,7 +8,7 @@ use ABadCafe\G8PHPhousand\Processor\Opcode\ILogical;
 
 assert(!empty($oParams), new \LogicException());
 
-$iDataReg = ($oParams->iOpcode >> 9) & 7;
+$iDataReg = ($oParams->iOpcode & IOpcode::MASK_REG_UPPER) >> IOpcode::REG_UP_SHIFT;
 $iSize    = $oParams->iOpcode & IOpcode::MASK_OP_SIZE;
 
 ?>

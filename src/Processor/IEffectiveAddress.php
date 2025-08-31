@@ -53,7 +53,7 @@ interface IEffectiveAddress
         self::MODE_D    => IRegister::DATA_REGS,
     ];
 
-    const MODE_DATA_ADDRESSABLE = [
+    const MODE_DATA_ALTERABLE = [
         self::MODE_D    => IRegister::DATA_REGS,
         self::MODE_AI   => IRegister::ADDR_REGS,
         self::MODE_AIPI => IRegister::ADDR_REGS,

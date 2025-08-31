@@ -29,7 +29,7 @@ trait TMove
 
     private function buildCLRHandlers()
     {
-        $aEAModes = $this->generateForEAModeList(Processor\IEffectiveAddress::MODE_DATA_ADDRESSABLE);
+        $aEAModes = $this->generateForEAModeList(Processor\IEffectiveAddress::MODE_DATA_ALTERABLE);
 
         // Byte
         $this->addExactHandlers(

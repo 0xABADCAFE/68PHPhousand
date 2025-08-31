@@ -34,7 +34,7 @@ switch ($iUseCase) {
 ///////////////////////////////////////////////////////////////////////////////
 
     case 1: // Immediate bit position, register target, long access
-        $iTargetReg = $oParams->iOpcode & 7;
+        $iTargetReg = $oParams->iOpcode & IOpcode::MASK_EA_REG;
 ?>
     $iValue   = $this->oDataRegisters->iReg<?= $iTargetReg ?>;
     $iTestBit = 1 << ($this->oOutside->readWord($this->iProgramCounter) & 31);
@@ -66,7 +66,7 @@ switch ($iUseCase) {
 
     case 3: // Dynamic bit position, register target, long access
         $iSourceReg = ($oParams->iOpcode & IOpcode::MASK_REG_UPPER) >> IOpcode::REG_UP_SHIFT;
-        $iTargetReg = $oParams->iOpcode & 7;
+        $iTargetReg = $oParams->iOpcode & IOpcode::MASK_EA_REG;
 ?>
     $iValue = $this->oDataRegisters->iReg<?= $iTargetReg ?>;
     $iTestBit = 1 << (($this->oDataRegisters->iReg<?= $iSourceReg ?>) & 31);

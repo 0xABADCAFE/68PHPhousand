@@ -121,7 +121,7 @@ trait TConditional
         $this->addExactHandlers(
             array_fill_keys(
                 $this->generateForEAModeList(
-                    IEffectiveAddress::MODE_DATA_ADDRESSABLE,
+                    IEffectiveAddress::MODE_DATA_ALTERABLE,
                     $iPrefix
                 ),
                 $this->compileTemplateHandler($oSccTemplate)
