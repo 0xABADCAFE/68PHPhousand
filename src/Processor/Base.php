@@ -48,7 +48,6 @@ abstract class Base implements I68KProcessor, IOpcode, Opcode\IPrefix
         $this->initMoveHandlers();
         $this->initLogicalHandlers();
         $this->initSingleBitHandlers();
-        //throw new \LogicException();
         $this->initArithmeticHandlers();
         $this->initFlowHandlers();
         $this->initConditionalHandlers();

@@ -113,7 +113,7 @@ trait TLogical
         ];
         $aEAModes = $this->generateForEAModeList(IEffectiveAddress::MODE_ALL_EXCEPT_AREGS);
         foreach ($aPrefixes as $iPrefix) {
-            foreach (Processor\IRegister::DATA_REGS as $iDataReg) {
+            foreach (IRegister::DATA_REGS as $iDataReg) {
                 $oORTemplate->iOpcode = $iPrefix | ($iDataReg << 9);
                 $this->addExactHandlers(
                     array_fill_keys(
@@ -132,7 +132,7 @@ trait TLogical
         ];
         $aEAModes = $this->generateForEAModeList(IEffectiveAddress::MODE_MEM_ALTERABLE);
         foreach ($aPrefixes as $iPrefix) {
-            foreach (Processor\IRegister::DATA_REGS as $iDataReg) {
+            foreach (IRegister::DATA_REGS as $iDataReg) {
                 $oORTemplate->iOpcode = $iPrefix | ($iDataReg << 9);
                 $this->addExactHandlers(
                     array_fill_keys(
@@ -142,7 +142,6 @@ trait TLogical
                 );
             }
         }
-
     }
 
     private function buildANDLogicHandlers()
@@ -161,7 +160,7 @@ trait TLogical
         ];
         $aEAModes = $this->generateForEAModeList(IEffectiveAddress::MODE_ALL_EXCEPT_AREGS);
         foreach ($aPrefixes as $iPrefix) {
-            foreach (Processor\IRegister::DATA_REGS as $iDataReg) {
+            foreach (IRegister::DATA_REGS as $iDataReg) {
                 $oANDTemplate->iOpcode = $iPrefix | ($iDataReg << 9);
                 $this->addExactHandlers(
                     array_fill_keys(
@@ -180,7 +179,7 @@ trait TLogical
         ];
         $aEAModes = $this->generateForEAModeList(IEffectiveAddress::MODE_MEM_ALTERABLE);
         foreach ($aPrefixes as $iPrefix) {
-            foreach (Processor\IRegister::DATA_REGS as $iDataReg) {
+            foreach (IRegister::DATA_REGS as $iDataReg) {
                 $oANDTemplate->iOpcode = $iPrefix | ($iDataReg << 9);
                 $this->addExactHandlers(
                     array_fill_keys(

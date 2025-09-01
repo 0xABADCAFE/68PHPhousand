@@ -7,9 +7,9 @@
         // When the short displacement is 0, we have a word displacement next.
 ?>
         $this->iProgramCounter = (
-            $this->iProgramCounter + $this->oOutside->readWord(
+            $this->iProgramCounter + Sign::extWord($this->oOutside->readWord(
                 $this->iProgramCounter
-            )
+            ))
         ) & ISize::MASK_LONG;
     } else {
         $this->iProgramCounter = ($this->iProgramCounter + ISize::WORD) & ISize::MASK_LONG;

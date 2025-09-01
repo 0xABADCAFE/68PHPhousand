@@ -156,7 +156,7 @@ trait TMove
             IMove::OP_MOVE_W|IMove::OP_MOVEA => function($iOpcode) {
                 $this->oAddressRegisters->aIndex[
                     ($iOpcode & IOpcode::MASK_REG_UPPER) >> IOpcode::REG_UP_SHIFT
-                ] = Sign::extendWord(
+                ] = Sign::extWord(
                     $this->aSrcEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]->readWord()
                 );
             },
@@ -203,7 +203,7 @@ trait TMove
         $cNegHandler = function(int $iOpcode) {
             $this->oDataRegisters->aIndex[
                 ($iOpcode & IOpcode::MASK_REG_UPPER) >> IOpcode::REG_UP_SHIFT
-            ] = Sign::extendByte($iOpcode & ISize::MASK_BYTE);
+            ] = Sign::extByte($iOpcode & ISize::MASK_BYTE);
             $this->iConditionRegister = (
                 $this->iConditionRegister & IRegister::CCR_EXTEND
             ) | IRegister::CCR_NEGATIVE;
