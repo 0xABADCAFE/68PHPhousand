@@ -37,6 +37,8 @@ abstract class Base implements I68KProcessor, IOpcode, Opcode\IPrefix
     use Opcode\TConditional;
     use Opcode\TSpecial;
 
+    protected array $aJumpCache = [];
+
     public function __construct(Device\IBus $oOutside)
     {
         $this->oOutside  = $oOutside;
