@@ -30,9 +30,7 @@ if (isset($aOpcacheStatus['jit'])) {
 }
 
 
-$oMemory = new Device\Memory(64, 0);
-
-//$oMemory = new Device\SparseRAM(64);
+$oMemory = new Device\CodeROM('68k/dbf.bin', 0x4);
 
 $oProcessor = new class($oMemory) extends Processor\Base
 {
@@ -76,12 +74,12 @@ $oProcessor = new class($oMemory) extends Processor\Base
         }
         $fTime = microtime(true) - $tStart;
 
-//         printf(
-//             "Executed %d dbf d0,-2 instructions in %.6f seconds: %.3f IPS\n",
-//             $iCount,
-//             $fTime,
-//             $iCount / $fTime
-//         );
+        printf(
+            "Executed %d instructions in %.6f seconds: %.3f IPS\n",
+            $iCount,
+            $fTime,
+            $iCount / $fTime
+        );
 
         return $iCount / $fTime;
     }
@@ -110,20 +108,16 @@ $oProcessor = new class($oMemory) extends Processor\Base
         }
         $fTime = microtime(true) - $tStart;
 
-//         printf(
-//             "Executed %d dbf d0,-2 instructions in %.6f seconds: %.3f IPS\n",
-//             $iCount,
-//             $fTime,
-//             $iCount / $fTime
-//         );
+        printf(
+            "Executed %d instructions in %.6f seconds: %.3f IPS\n",
+            $iCount,
+            $fTime,
+            $iCount / $fTime
+        );
 
         return $iCount / $fTime;
     }
 };
-
-$oMemory->writeWord(0x4, Processor\Opcode\IConditional::OP_DBF);
-$oMemory->writeWord(0x6, -2);
-$oMemory->writeWord(0x8, Processor\Opcode\IPrefix::OP_STOP);
 
 $fTotal = 0;
 for ($i = 0; $i < 100; ++$i) {

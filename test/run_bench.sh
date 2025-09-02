@@ -2,5 +2,5 @@
 
 #php -dopcache.enable_cli=0 bench_mem.php
 #php -dopcache.enable_cli=1 -dopcache.jit_buffer_size=2M -dopcache.jit=1255 bench_mem.php
-php -dopcache.enable_cli=0 test_dbcc.php
-php -dopcache.enable_cli=1 -dopcache.jit_buffer_size=2M -dopcache.jit=1255 test_dbcc.php
+php -dopcache.enable_cli=0 bench_dbcc.php
+php -dopcache.enable_cli=1 -dopcache.jit_buffer_size=2M -dopcache.jit=1255 bench_dbcc.php
