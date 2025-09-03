@@ -25,8 +25,10 @@ trait TArithmetic
         $aEAModes = $this->generateForEAModeList(
             Processor\IEffectiveAddress::MODE_DATA_ALTERABLE
         );
-        $this->buildSUBIHandlers($aEAModes);
         $this->buildADDIHandlers($aEAModes);
+        $this->buildADDQHandlers($aEAModes);
+        $this->buildSUBIHandlers($aEAModes);
+        $this->buildSUBQHandlers($aEAModes);
     }
 
     private function buildSUBIHandlers(array $aEAModes)
@@ -160,5 +162,57 @@ trait TArithmetic
                 }
             )
         );
+    }
+
+    private function buildADDQHandlers(array $aEAModes)
+    {
+        $oADDQTemplate = new Template\Params(
+            0,
+            'operation/arithmetic/addq',
+            []
+        );
+
+        $aPrefixes = [
+            IArithmetic::OP_ADDQ_B,
+            IArithmetic::OP_ADDQ_W,
+            IArithmetic::OP_ADDQ_L,
+        ];
+        foreach ($aPrefixes as $iPrefix) {
+            for ($iImmediate = 0; $iImmediate < 8; ++$iImmediate) {
+                $oADDQTemplate->iOpcode = $iPrefix | ($iImmediate << 9);
+                $this->addExactHandlers(
+                    array_fill_keys(
+                        $this->mergePrefixForModeList($oADDQTemplate->iOpcode, $aEAModes),
+                        $this->compileTemplateHandler($oADDQTemplate)
+                    )
+                );
+            }
+        }
+    }
+
+    private function buildSUBQHandlers(array $aEAModes)
+    {
+        $oSUBQTemplate = new Template\Params(
+            0,
+            'operation/arithmetic/subq',
+            []
+        );
+
+        $aPrefixes = [
+            IArithmetic::OP_SUBQ_B,
+            IArithmetic::OP_SUBQ_W,
+            IArithmetic::OP_SUBQ_L,
+        ];
+        foreach ($aPrefixes as $iPrefix) {
+            for ($iImmediate = 0; $iImmediate < 8; ++$iImmediate) {
+                $oSUBQTemplate->iOpcode = $iPrefix | ($iImmediate << 9);
+                $this->addExactHandlers(
+                    array_fill_keys(
+                        $this->mergePrefixForModeList($oSUBQTemplate->iOpcode, $aEAModes),
+                        $this->compileTemplateHandler($oSUBQTemplate)
+                    )
+                );
+            }
+        }
     }
 }
