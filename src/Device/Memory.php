@@ -67,7 +67,11 @@ class Memory implements IBus
      */
     public function getName(): string
     {
-        return 'RAM';
+        return sprintf(
+            'Relocatable RAM (string, base: $%08X, length %d)',
+            $this->iBaseAddress,
+            $this->iLength
+        );
     }
 
     /**
@@ -128,6 +132,7 @@ class Memory implements IBus
             $iOffset <= $this->iLength - 4,
             new DomainException('Read long out of range')
         );
+
         return
             IByteConv::AORD[$this->sData[$iOffset]]     << 24 |
             IByteConv::AORD[$this->sData[$iOffset + 1]] << 16 |

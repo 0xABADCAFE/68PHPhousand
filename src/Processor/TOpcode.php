@@ -34,6 +34,30 @@ trait TOpcode
     /** @var array<int, callable> */
     protected array $aPrefixHandler = [];
 
+    public function dumpExactHandlerMap()
+    {
+        $sHeader  =
+        $sHeader2 =
+        $sBuffer  = str_repeat('0123456789ABCDEF', 8);
+        for ($i = 0; $i < 128; ++$i) {
+            $sHeader2[$i] = $sHeader[$i>>4];
+        }
+        $sHeader3 = str_repeat(' ', 128);
+        for ($i = 0; $i < 65536; $i += 128) {
+
+            if (0 == ($i & 0x7FF)) {
+                printf("\n\n      |%s|\n", $sHeader2);
+                printf("      |%s|\n", $sHeader);
+                printf("      |%s|\n", $sHeader3);
+            }
+
+            for ($j = 0; $j < 128; ++$j) {
+                $sBuffer[$j] = isset($this->aExactHandler[($i + $j)]) ? 'X' : '-';
+            }
+            printf("$%04X |%s|\n", $i, $sBuffer);
+        }
+    }
+
     /**
      * Populates the aExactHandler array with callables for each of the opcode bit patterns
      * that are unique, i.e. all bits encode only the operation and not any parameters.

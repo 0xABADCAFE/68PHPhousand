@@ -19,10 +19,22 @@ use LogicException;
 error_reporting(-1);
 require  __DIR__ . '/../src/bootstrap.php';
 
-$oMemory = new Device\Memory(64, 0);
+echo "Benchmarking DBF loop\n";
 
-$oProcessor = new class($oMemory) extends Processor\Base
+$aOpcacheStatus = opcache_get_status();
+if (isset($aOpcacheStatus['jit'])) {
+    echo "JIT parameters: ";
+    print_r($aOpcacheStatus['jit']);
+} else {
+    echo "JIT mode disabled\n";
+}
+
+
+$oMemory = new Device\CodeROM('68k/dbf.bin', 0x4);
+
+$oProcessor = new class($oMemory, true) extends Processor\Base
 {
+
     public function getName(): string
     {
         return 'Benchmark CPU';
@@ -45,18 +57,17 @@ $oProcessor = new class($oMemory) extends Processor\Base
         return $this->oAddressRegisters;
     }
 
-    public function executeAt(int $iAddress): float
+    public function executeUncached(int $iAddress): float
     {
-        assert($iAddress >= 0, new LogicException('Invalid start address'));
         $this->iProgramCounter = $iAddress;
         $iCount = 0;
         $tStart = microtime(true);
+
         try {
             while(true) {
                 $iOpcode = $this->oOutside->readWord($this->iProgramCounter);
                 $this->iProgramCounter += Processor\ISize::WORD;
-                $cHandler = $this->aExactHandler[$iOpcode];
-                $cHandler($iOpcode);
+                $this->aExactHandler[$iOpcode]($iOpcode);
                 ++$iCount;
             };
         } catch (LogicException $oError) {
@@ -65,7 +76,41 @@ $oProcessor = new class($oMemory) extends Processor\Base
         $fTime = microtime(true) - $tStart;
 
         printf(
-            "Executed %d dbf d0,-2 instructions in %.6f seconds: %.3f IPS\n",
+            "Executed %d instructions in %.6f seconds: %.3f IPS\n",
+            $iCount,
+            $fTime,
+            $iCount / $fTime
+        );
+
+        return $iCount / $fTime;
+    }
+
+    public function executeCached(int $iAddress): float
+    {
+        $this->iProgramCounter = $iAddress;
+        $iCount = 0;
+        $tStart = microtime(true);
+
+        // Experimental opcode cache
+        $aInstCache = [];
+        try {
+            while(true) {
+                $iOpcode = $aInstCache[$this->iProgramCounter] ?? (
+                    $aInstCache[$this->iProgramCounter] = $this->oOutside->readWord(
+                        $this->iProgramCounter
+                    )
+                );
+                $this->iProgramCounter += Processor\ISize::WORD;
+                $this->aExactHandler[$iOpcode]($iOpcode);
+                ++$iCount;
+            };
+        } catch (LogicException $oError) {
+
+        }
+        $fTime = microtime(true) - $tStart;
+
+        printf(
+            "Executed %d instructions in %.6f seconds: %.3f IPS\n",
             $iCount,
             $fTime,
             $iCount / $fTime
@@ -75,23 +120,21 @@ $oProcessor = new class($oMemory) extends Processor\Base
     }
 };
 
-$oMemory->writeWord(0x4, Processor\Opcode\IConditional::OP_DBF);
-$oMemory->writeWord(0x6, -2);
-$oMemory->writeWord(0x8, Processor\Opcode\IPrefix::OP_STOP);
+$fTotal = 0;
+for ($i = 0; $i < 100; ++$i) {
+    //printf("Run %3d: ", $i + 1);
+    $oProcessor->getDataRegs()->iReg0 = 65535;
+    $fTotal += $oProcessor->executeUncached(0x4);
+}
+
+printf("Average (nocache) over 100 runs: %.3f IPS\n", 0.01 * $fTotal);
 
 $fTotal = 0;
 for ($i = 0; $i < 100; ++$i) {
-    printf("Run %3d: ", $i + 1);
+    //printf("Run %3d: ", $i + 1);
     $oProcessor->getDataRegs()->iReg0 = 65535;
-    $fTotal += $oProcessor->executeAt(0x4);
+    $fTotal += $oProcessor->executeCached(0x4);
 }
 
-printf("Average over 100 runs: %.3f IPS\n", 0.01 * $fTotal);
+printf("Average (opcode cache) over 100 runs: %.3f IPS\n", 0.01 * $fTotal);
 
-$aOpcacheStatus = opcache_get_status();
-if (isset($aOpcacheStatus['jit'])) {
-    echo "JIT parameters: ";
-    print_r($aOpcacheStatus['jit']);
-} else {
-    echo "JIT mode disabled\n";
-}
