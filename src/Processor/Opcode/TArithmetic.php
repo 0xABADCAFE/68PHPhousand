@@ -22,89 +22,143 @@ trait TArithmetic
 
     protected function initArithmeticHandlers()
     {
-        $this->addPrefixHandlers([
+        $aEAModes = $this->generateForEAModeList(
+            Processor\IEffectiveAddress::MODE_DATA_ALTERABLE
+        );
+        $this->buildSUBIHandlers($aEAModes);
+        $this->buildADDIHandlers($aEAModes);
+    }
 
-            // SUB Immediate
-            IPrefix::OP_SUBI_B => function(int $iOpcode) {
-                $iValue  = $this->oOutside->readByte($this->iProgramCounter + ISize::BYTE);
-                $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
-                $this->iProgramCounter += ISize::WORD;
-                $iValue -= $oEAMode->readByte();
-                $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
+    private function buildSUBIHandlers(array $aEAModes)
+    {
 
-                // TODO - C and V flags
+        // SUBI byte
+        $this->addExactHandlers(
+            array_fill_keys(
+                $this->mergePrefixForModeList(
+                    IArithmetic::OP_SUBI_B,
+                    $aEAModes
+                ),
+                function(int $iOpcode) {
+                    $iValue  = $this->oOutside->readByte($this->iProgramCounter + ISize::BYTE);
+                    $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
+                    $this->iProgramCounter += ISize::WORD;
+                    $iValue -= $oEAMode->readByte();
+                    $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
 
-                $this->updateNZByte($iValue);
-                $oEAMode->writeByte($iValue);
-            },
+                    // TODO - C and V flags
+                    $this->updateNZByte($iValue);
+                    $oEAMode->writeByte($iValue);
+                }
+            )
+        );
 
-            IPrefix::OP_SUBI_W => function(int $iOpcode) {
-                $iValue  = $this->oOutside->readWord($this->iProgramCounter);
-                $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
-                $this->iProgramCounter += ISize::WORD;
-                $iValue -= $oEAMode->readWord();
-                $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
+        // SUBI word
+        $this->addExactHandlers(
+            array_fill_keys(
+                $this->mergePrefixForModeList(
+                    IArithmetic::OP_SUBI_W,
+                    $aEAModes
+                ),
+                function(int $iOpcode) {
+                    $iValue  = $this->oOutside->readWord($this->iProgramCounter);
+                    $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
+                    $this->iProgramCounter += ISize::WORD;
+                    $iValue -= $oEAMode->readWord();
+                    $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
 
-                // TODO - C and V flags
+                    // TODO - C and V flags
+                    $this->updateNZWord($iValue);
+                    $oEAMode->writeWord($iValue);
+                }
+            )
+        );
 
-                $this->updateNZWord($iValue);
-                $oEAMode->writeWord($iValue);
-            },
+        // SUBI long
+        $this->addExactHandlers(
+            array_fill_keys(
+                $this->mergePrefixForModeList(
+                    IArithmetic::OP_SUBI_L,
+                    $aEAModes
+                ),
+                function(int $iOpcode) {
+                    $iValue  = $this->oOutside->readLong($this->iProgramCounter);
+                    $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
+                    $this->iProgramCounter += ISize::LONG;
+                    $iValue -= $oEAMode->readLong();
+                    $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
 
-            IPrefix::OP_SUBI_L => function(int $iOpcode) {
-                $iValue  = $this->oOutside->readLong($this->iProgramCounter);
-                $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
-                $this->iProgramCounter += ISize::LONG;
-                $iValue -= $oEAMode->readLong();
-                $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
+                    // TODO - C and V flags
+                    $this->updateNZLong($iValue);
+                    $oEAMode->writeLong($iValue);
+                }
+            )
+        );
+    }
 
-                // TODO - C and V flags
+    private function buildADDIHandlers(array $aEAModes)
+    {
+        // ADDI byte
+        $this->addExactHandlers(
+            array_fill_keys(
+                $this->mergePrefixForModeList(
+                    IArithmetic::OP_ADDI_B,
+                    $aEAModes
+                ),
+                function(int $iOpcode) {
+                    $iValue  = $this->oOutside->readByte($this->iProgramCounter + ISize::BYTE);
+                    $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
+                    $this->iProgramCounter += ISize::WORD;
+                    $iValue += $oEAMode->readByte();
+                    $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
 
-                $this->updateNZLong($iValue);
-                $oEAMode->writeLong($iValue);
-            },
+                    // TODO - C and V flags
+                    $this->updateNZByte($iValue);
+                    $oEAMode->writeByte($iValue);
+                }
+            )
+        );
 
+        // ADDI word
+        $this->addExactHandlers(
+            array_fill_keys(
+                $this->mergePrefixForModeList(
+                    IArithmetic::OP_ADDI_W,
+                    $aEAModes
+                ),
+                function(int $iOpcode) {
+                    $iValue  = $this->oOutside->readWord($this->iProgramCounter);
+                    $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
+                    $this->iProgramCounter += ISize::WORD;
+                    $iValue += $oEAMode->readWord();
+                    $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
 
-            // ADD Immediate
+                    // TODO - C and V flags
+                    $this->updateNZWord($iValue);
+                    $oEAMode->writeWord($iValue);
+                }
+            )
+        );
 
-            IPrefix::OP_ADDI_B => function(int $iOpcode) {
-                $iValue  = $this->oOutside->readByte($this->iProgramCounter + ISize::BYTE);
-                $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
-                $this->iProgramCounter += ISize::WORD;
-                $iValue += $oEAMode->readByte();
-                $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
+        // ADDI long
+        $this->addExactHandlers(
+            array_fill_keys(
+                $this->mergePrefixForModeList(
+                    IArithmetic::OP_ADDI_L,
+                    $aEAModes
+                ),
+                function(int $iOpcode) {
+                    $iValue  = $this->oOutside->readLong($this->iProgramCounter);
+                    $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
+                    $this->iProgramCounter += ISize::LONG;
+                    $iValue += $oEAMode->readLong();
+                    $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
 
-                // TODO - C and V flags
-
-                $this->updateNZByte($iValue);
-                $oEAMode->writeByte($iValue);
-            },
-
-            IPrefix::OP_ADDI_W => function(int $iOpcode) {
-                $iValue  = $this->oOutside->readWord($this->iProgramCounter);
-                $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
-                $this->iProgramCounter += ISize::WORD;
-                $iValue += $oEAMode->readWord();
-                $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
-
-                // TODO - C and V flags
-
-                $this->updateNZWord($iValue);
-                $oEAMode->writeWord($iValue);
-            },
-
-            IPrefix::OP_ADDI_L => function(int $iOpcode) {
-                $iValue  = $this->oOutside->readLong($this->iProgramCounter);
-                $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
-                $this->iProgramCounter += ISize::LONG;
-                $iValue += $oEAMode->readLong();
-                $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
-
-                // TODO - C and V flags
-
-                $this->updateNZLong($iValue);
-                $oEAMode->writeLong($iValue);
-            },
-        ]);
+                    // TODO - C and V flags
+                    $this->updateNZLong($iValue);
+                    $oEAMode->writeLong($iValue);
+                }
+            )
+        );
     }
 }

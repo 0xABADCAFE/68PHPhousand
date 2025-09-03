@@ -62,6 +62,7 @@ const CLASS_MAP = [
   'ABadCafe\\G8PHPhousand\\Processor\\Opcode\\IMove' => '/Processor/Opcode/IMove.php',
   'ABadCafe\\G8PHPhousand\\Processor\\Opcode\\TSingleBit' => '/Processor/Opcode/TSingleBit.php',
   'ABadCafe\\G8PHPhousand\\Processor\\Opcode\\TArithmetic' => '/Processor/Opcode/TArithmetic.php',
+  'ABadCafe\\G8PHPhousand\\Processor\\Opcode\\IArithmetic' => '/Processor/Opcode/IArithmetic.php',
   'ABadCafe\\G8PHPhousand\\Processor\\Opcode\\IFlow' => '/Processor/Opcode/IFlow.php',
   'ABadCafe\\G8PHPhousand\\Processor\\Opcode\\ILogical' => '/Processor/Opcode/ILogical.php',
   'ABadCafe\\G8PHPhousand\\Processor\\Opcode\\TMove' => '/Processor/Opcode/TMove.php',
