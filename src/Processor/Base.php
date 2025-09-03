@@ -28,7 +28,10 @@ abstract class Base implements I68KProcessor, IOpcode, Opcode\IPrefix
 
     use TRegisterUnit;
     use TAddressUnit;
+    use TCache;
+
     use Opcode\Template\TGenerator;
+    use Opcode\TMove;
     use Opcode\TLogical;
     use Opcode\TSingleBit;
     use Opcode\TArithmetic;
@@ -36,17 +39,24 @@ abstract class Base implements I68KProcessor, IOpcode, Opcode\IPrefix
     use Opcode\TConditional;
     use Opcode\TSpecial;
 
-    public function __construct(Device\IBus $oOutside)
+    public function __construct(Device\IBus $oOutside, bool $bCache = false)
     {
         $this->oOutside  = $oOutside;
         $this->initRegIndexes();
         $this->initEAModes();
 
+        // Caching affects how some handlers are generated.
+        if ($bCache) {
+            echo "Enable Caches\n";
+            $this->enableJumpCache();
+            $this->enableImmediateCache();
+        }
+
         // Install our opcode handlers.
         $this->clearCompilerCache();
+        $this->initMoveHandlers();
         $this->initLogicalHandlers();
         $this->initSingleBitHandlers();
-        //throw new \LogicException();
         $this->initArithmeticHandlers();
         $this->initFlowHandlers();
         $this->initConditionalHandlers();
@@ -69,9 +79,5 @@ abstract class Base implements I68KProcessor, IOpcode, Opcode\IPrefix
         return $this;
     }
 
-    protected function execute()
-    {
-        $iOpcode =  $this->oOutside->readWord($this->iProgramCounter);
-        $this->iProgramCounter += ISize::WORD;
-    }
+
 }

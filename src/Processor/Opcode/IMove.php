@@ -14,33 +14,31 @@ declare(strict_types=1);
 
 namespace ABadCafe\G8PHPhousand\Processor\Opcode;
 
-use ABadCafe\G8PHPhousand\Processor;
+use ABadCafe\G8PHPhousand\Processor\IOpcode;
 
-use LogicException;
 
-trait TSpecial
+/**
+ * Opode prefixes for conditional instructions
+ */
+interface IMove
 {
-    use Processor\TOpcode;
+    //                         ssEAEAEA
+    const OP_CLR_B  = 0b0100001000000000;
+    const OP_CLR_W  = 0b0100001001000000;
+    const OP_CLR_L  = 0b0100001010000000;
 
-    protected function initSpecialHandlers()
-    {
-        $cUnhandled = function(int $iOpcode) {
-            throw new LogicException(sprintf('Unhandled special operation 0x%4X (TODO)', $iOpcode));
-        };
+    //                    ssEAEAEAEAEAEA - EA Destination, EA Source
+    const OP_MOVE_B = 0b0001000000000000;
+    const OP_MOVE_W = 0b0011000000000000;
+    const OP_MOVE_L = 0b0010000000000000;
 
-        $this->addExactHandlers([
-            IPrefix::OP_ILLEGAL  => $cUnhandled,
+    //                    ssrrr   EAEAEA
+    const OP_MOVEA  = 0b0000000001000000;
 
-            IPrefix::OP_RESET    => function() {
-                // TODO - probably needs to be a bit more specific than this
-                $this->reset();
-            },
+    //                      rrr nnnnnnnn
+    const OP_MOVEQ  = 0b0111000000000000;
 
-            IPrefix::OP_NOP      => function() {
-                // Nothing yet
-            },
+    const MASK_DST_EA = 0b0000111111000000;
 
-        ]);
-
-    }
+    const OP_MOVE_SRC_EA_SHIFT = 6;
 }

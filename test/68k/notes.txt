@@ -1,0 +1,1 @@
+vasmm68k_mot src.s -Fbin -oname.bin

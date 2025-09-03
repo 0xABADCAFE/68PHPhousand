@@ -1,0 +1,752 @@
+
+ABadCafe\G8PHPhousand\Processor\Opcode\Template\TGenerator::compileTemplateHandler()
+$ 100 : 6ff9dcd3b60416116e387698a632b7055680ff79 => return function(int $iOpcode): void {
+    $iValue = $this->oDataRegisters->iReg0;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg0) & 31);
+
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
+};
+
+
+ABadCafe\G8PHPhousand\Processor\Opcode\Template\TGenerator::compileTemplateHandler()
+$ 101 : 4bcd95f6b363b8dda58e5cd0862c2f37d219e952 => return function(int $iOpcode): void {
+    $iValue = $this->oDataRegisters->iReg1;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg0) & 31);
+
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
+};
+
+
+ABadCafe\G8PHPhousand\Processor\Opcode\Template\TGenerator::compileTemplateHandler()
+$ 102 : f9b36df8d51221fd13cbc605b8c33265c98d2a3f => return function(int $iOpcode): void {
+    $iValue = $this->oDataRegisters->iReg2;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg0) & 31);
+
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
+};
+
+
+ABadCafe\G8PHPhousand\Processor\Opcode\Template\TGenerator::compileTemplateHandler()
+$ 103 : 946bf04bcf012c37974e6a13306be83411df29d7 => return function(int $iOpcode): void {
+    $iValue = $this->oDataRegisters->iReg3;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg0) & 31);
+
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
+};
+
+
+ABadCafe\G8PHPhousand\Processor\Opcode\Template\TGenerator::compileTemplateHandler()
+$ 104 : aa45c5f522a5260d676e7991f23d78ba2c176dca => return function(int $iOpcode): void {
+    $iValue = $this->oDataRegisters->iReg4;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg0) & 31);
+
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
+};
+
+
+ABadCafe\G8PHPhousand\Processor\Opcode\Template\TGenerator::compileTemplateHandler()
+$ 105 : 1cf77cf4da65b050da843ee696fde4888bfd07d4 => return function(int $iOpcode): void {
+    $iValue = $this->oDataRegisters->iReg5;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg0) & 31);
+
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
+};
+
+
+ABadCafe\G8PHPhousand\Processor\Opcode\Template\TGenerator::compileTemplateHandler()
+$ 106 : f76a1d192ca5a362daba5e2220985b275f4363d6 => return function(int $iOpcode): void {
+    $iValue = $this->oDataRegisters->iReg6;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg0) & 31);
+
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
+};
+
+
+ABadCafe\G8PHPhousand\Processor\Opcode\Template\TGenerator::compileTemplateHandler()
+$ 107 : b6e9d791e4f1897a5a2026f50541f0a4477483e8 => return function(int $iOpcode): void {
+    $iValue = $this->oDataRegisters->iReg7;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg0) & 31);
+
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
+};
+
+
+ABadCafe\G8PHPhousand\Processor\Opcode\Template\TGenerator::compileTemplateHandler()
+$ 300 : e7c3001a0d55325a58f3c65b49cadb45b9fea2fc => return function(int $iOpcode): void {
+    $iValue = $this->oDataRegisters->iReg0;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg1) & 31);
+
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
+};
+
+
+ABadCafe\G8PHPhousand\Processor\Opcode\Template\TGenerator::compileTemplateHandler()
+$ 301 : a5afbbf094139968b241820c476f89220f610435 => return function(int $iOpcode): void {
+    $iValue = $this->oDataRegisters->iReg1;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg1) & 31);
+
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
+};
+
+
+ABadCafe\G8PHPhousand\Processor\Opcode\Template\TGenerator::compileTemplateHandler()
+$ 302 : 0ad3cdbb136ab5443010f7a29ef6785409539dde => return function(int $iOpcode): void {
+    $iValue = $this->oDataRegisters->iReg2;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg1) & 31);
+
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
+};
+
+
+ABadCafe\G8PHPhousand\Processor\Opcode\Template\TGenerator::compileTemplateHandler()
+$ 303 : 42e818c6feb08d9bc49f3d1bd919b148597893a6 => return function(int $iOpcode): void {
+    $iValue = $this->oDataRegisters->iReg3;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg1) & 31);
+
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
+};
+
+
+ABadCafe\G8PHPhousand\Processor\Opcode\Template\TGenerator::compileTemplateHandler()
+$ 304 : 08b38de58ad4524ddb4478ece8dd95a2111a1a93 => return function(int $iOpcode): void {
+    $iValue = $this->oDataRegisters->iReg4;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg1) & 31);
+
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
+};
+
+
+ABadCafe\G8PHPhousand\Processor\Opcode\Template\TGenerator::compileTemplateHandler()
+$ 305 : 7af6abf4a4be8eba3c04cad0ee116a95be921acf => return function(int $iOpcode): void {
+    $iValue = $this->oDataRegisters->iReg5;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg1) & 31);
+
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
+};
+
+
+ABadCafe\G8PHPhousand\Processor\Opcode\Template\TGenerator::compileTemplateHandler()
+$ 306 : e89ba284e15af3ade468c4097e1c5c92fa3e548e => return function(int $iOpcode): void {
+    $iValue = $this->oDataRegisters->iReg6;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg1) & 31);
+
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
+};
+
+
+ABadCafe\G8PHPhousand\Processor\Opcode\Template\TGenerator::compileTemplateHandler()
+$ 307 : 1d7756b6e94bf14c9a233cfb9f056e1ddac3ece4 => return function(int $iOpcode): void {
+    $iValue = $this->oDataRegisters->iReg7;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg1) & 31);
+
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
+};
+
+
+ABadCafe\G8PHPhousand\Processor\Opcode\Template\TGenerator::compileTemplateHandler()
+$ 500 : cfbab3383312e56a5a5fb706cfcacd6da281ac9d => return function(int $iOpcode): void {
+    $iValue = $this->oDataRegisters->iReg0;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg2) & 31);
+
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
+};
+
+
+ABadCafe\G8PHPhousand\Processor\Opcode\Template\TGenerator::compileTemplateHandler()
+$ 501 : e30aaabf7ac15bbb44cdb27c42897bdd4c4902d0 => return function(int $iOpcode): void {
+    $iValue = $this->oDataRegisters->iReg1;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg2) & 31);
+
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
+};
+
+
+ABadCafe\G8PHPhousand\Processor\Opcode\Template\TGenerator::compileTemplateHandler()
+$ 502 : 5a27aa41cd8ea130ec6762ef6ead347bb2097e05 => return function(int $iOpcode): void {
+    $iValue = $this->oDataRegisters->iReg2;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg2) & 31);
+
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
+};
+
+
+ABadCafe\G8PHPhousand\Processor\Opcode\Template\TGenerator::compileTemplateHandler()
+$ 503 : bc2a24650faf5a0df90d8efac884e392688a4e86 => return function(int $iOpcode): void {
+    $iValue = $this->oDataRegisters->iReg3;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg2) & 31);
+
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
+};
+
+
+ABadCafe\G8PHPhousand\Processor\Opcode\Template\TGenerator::compileTemplateHandler()
+$ 504 : 6aababcc81c8862e8d433ae227f5e2dbdda2ce8c => return function(int $iOpcode): void {
+    $iValue = $this->oDataRegisters->iReg4;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg2) & 31);
+
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
+};
+
+
+ABadCafe\G8PHPhousand\Processor\Opcode\Template\TGenerator::compileTemplateHandler()
+$ 505 : 1db039170ab67e71540b1cfbf7d71213abd4f847 => return function(int $iOpcode): void {
+    $iValue = $this->oDataRegisters->iReg5;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg2) & 31);
+
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
+};
+
+
+ABadCafe\G8PHPhousand\Processor\Opcode\Template\TGenerator::compileTemplateHandler()
+$ 506 : 6c3425756538b331a9fd453d63e4d390834acf33 => return function(int $iOpcode): void {
+    $iValue = $this->oDataRegisters->iReg6;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg2) & 31);
+
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
+};
+
+
+ABadCafe\G8PHPhousand\Processor\Opcode\Template\TGenerator::compileTemplateHandler()
+$ 507 : 99959b15ef3acafcabbf8541305e1b65caed6cca => return function(int $iOpcode): void {
+    $iValue = $this->oDataRegisters->iReg7;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg2) & 31);
+
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
+};
+
+
+ABadCafe\G8PHPhousand\Processor\Opcode\Template\TGenerator::compileTemplateHandler()
+$ 700 : 674fc5adff1629931bab1e9b650438da1313eef3 => return function(int $iOpcode): void {
+    $iValue = $this->oDataRegisters->iReg0;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg3) & 31);
+
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
+};
+
+
+ABadCafe\G8PHPhousand\Processor\Opcode\Template\TGenerator::compileTemplateHandler()
+$ 701 : 748ebf45f7c564d37102d71b608da500469fbd71 => return function(int $iOpcode): void {
+    $iValue = $this->oDataRegisters->iReg1;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg3) & 31);
+
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
+};
+
+
+ABadCafe\G8PHPhousand\Processor\Opcode\Template\TGenerator::compileTemplateHandler()
+$ 702 : 99a942dbf1b26578524f6b91e67bc093b3aa894f => return function(int $iOpcode): void {
+    $iValue = $this->oDataRegisters->iReg2;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg3) & 31);
+
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
+};
+
+
+ABadCafe\G8PHPhousand\Processor\Opcode\Template\TGenerator::compileTemplateHandler()
+$ 703 : b095caa569c3931636446cc1948c96c299b7d63b => return function(int $iOpcode): void {
+    $iValue = $this->oDataRegisters->iReg3;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg3) & 31);
+
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
+};
+
+
+ABadCafe\G8PHPhousand\Processor\Opcode\Template\TGenerator::compileTemplateHandler()
+$ 704 : 853fdfe9edb51465045f1914d2f9393f6d2a4ef7 => return function(int $iOpcode): void {
+    $iValue = $this->oDataRegisters->iReg4;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg3) & 31);
+
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
+};
+
+
+ABadCafe\G8PHPhousand\Processor\Opcode\Template\TGenerator::compileTemplateHandler()
+$ 705 : 69f506dfb5a3796cee53b2f27bb57e1910994877 => return function(int $iOpcode): void {
+    $iValue = $this->oDataRegisters->iReg5;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg3) & 31);
+
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
+};
+
+
+ABadCafe\G8PHPhousand\Processor\Opcode\Template\TGenerator::compileTemplateHandler()
+$ 706 : c898296a1db6b9e2a247a26fd1e1dc3f154a709c => return function(int $iOpcode): void {
+    $iValue = $this->oDataRegisters->iReg6;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg3) & 31);
+
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
+};
+
+
+ABadCafe\G8PHPhousand\Processor\Opcode\Template\TGenerator::compileTemplateHandler()
+$ 707 : 1a312014ac902dac4ac6c46cb33e80562ffb4e2b => return function(int $iOpcode): void {
+    $iValue = $this->oDataRegisters->iReg7;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg3) & 31);
+
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
+};
+
+
+ABadCafe\G8PHPhousand\Processor\Opcode\Template\TGenerator::compileTemplateHandler()
+$ 900 : 5a86f365ba94340d6de4d538bd7cfd15b09170fd => return function(int $iOpcode): void {
+    $iValue = $this->oDataRegisters->iReg0;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg4) & 31);
+
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
+};
+
+
+ABadCafe\G8PHPhousand\Processor\Opcode\Template\TGenerator::compileTemplateHandler()
+$ 901 : 8a00eb405409302a16176b6e512dd6c3c8bac2f6 => return function(int $iOpcode): void {
+    $iValue = $this->oDataRegisters->iReg1;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg4) & 31);
+
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
+};
+
+
+ABadCafe\G8PHPhousand\Processor\Opcode\Template\TGenerator::compileTemplateHandler()
+$ 902 : ea93f13b633b9c891624a7aa9e59efb97e8b4ea1 => return function(int $iOpcode): void {
+    $iValue = $this->oDataRegisters->iReg2;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg4) & 31);
+
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
+};
+
+
+ABadCafe\G8PHPhousand\Processor\Opcode\Template\TGenerator::compileTemplateHandler()
+$ 903 : e1deb6159c4ccd047e2fb6a37542c162a2852d1d => return function(int $iOpcode): void {
+    $iValue = $this->oDataRegisters->iReg3;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg4) & 31);
+
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
+};
+
+
+ABadCafe\G8PHPhousand\Processor\Opcode\Template\TGenerator::compileTemplateHandler()
+$ 904 : d28170d7c4447263a4a87c8fff22452cb813b5dc => return function(int $iOpcode): void {
+    $iValue = $this->oDataRegisters->iReg4;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg4) & 31);
+
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
+};
+
+
+ABadCafe\G8PHPhousand\Processor\Opcode\Template\TGenerator::compileTemplateHandler()
+$ 905 : 59bd38f4da42d8e2d9abac26adc10290f5ec19ec => return function(int $iOpcode): void {
+    $iValue = $this->oDataRegisters->iReg5;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg4) & 31);
+
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
+};
+
+
+ABadCafe\G8PHPhousand\Processor\Opcode\Template\TGenerator::compileTemplateHandler()
+$ 906 : 9e8f8848a33674c1513e5631fffd50a63bfdf9cd => return function(int $iOpcode): void {
+    $iValue = $this->oDataRegisters->iReg6;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg4) & 31);
+
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
+};
+
+
+ABadCafe\G8PHPhousand\Processor\Opcode\Template\TGenerator::compileTemplateHandler()
+$ 907 : d5c136e7ddf9cb053414366fdace8da460153adf => return function(int $iOpcode): void {
+    $iValue = $this->oDataRegisters->iReg7;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg4) & 31);
+
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
+};
+
+
+ABadCafe\G8PHPhousand\Processor\Opcode\Template\TGenerator::compileTemplateHandler()
+$ B00 : 8757fc3480b915bea3f12c96155159fba54994af => return function(int $iOpcode): void {
+    $iValue = $this->oDataRegisters->iReg0;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg5) & 31);
+
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
+};
+
+
+ABadCafe\G8PHPhousand\Processor\Opcode\Template\TGenerator::compileTemplateHandler()
+$ B01 : 01867f565e3ed217bdddde9d3b7b439556e1dfda => return function(int $iOpcode): void {
+    $iValue = $this->oDataRegisters->iReg1;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg5) & 31);
+
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
+};
+
+
+ABadCafe\G8PHPhousand\Processor\Opcode\Template\TGenerator::compileTemplateHandler()
+$ B02 : a4d65e60f9e3bc6b64cc23a5ba026c8cf412c093 => return function(int $iOpcode): void {
+    $iValue = $this->oDataRegisters->iReg2;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg5) & 31);
+
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
+};
+
+
+ABadCafe\G8PHPhousand\Processor\Opcode\Template\TGenerator::compileTemplateHandler()
+$ B03 : 0344d36a110fd3037f132603b42992a93adc9eb1 => return function(int $iOpcode): void {
+    $iValue = $this->oDataRegisters->iReg3;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg5) & 31);
+
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
+};
+
+
+ABadCafe\G8PHPhousand\Processor\Opcode\Template\TGenerator::compileTemplateHandler()
+$ B04 : 77109ac4fee1e8e7850f84acc4b5d0aaf153998f => return function(int $iOpcode): void {
+    $iValue = $this->oDataRegisters->iReg4;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg5) & 31);
+
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
+};
+
+
+ABadCafe\G8PHPhousand\Processor\Opcode\Template\TGenerator::compileTemplateHandler()
+$ B05 : 82ccd654761632635ed40ca59a124b9e6067c2bf => return function(int $iOpcode): void {
+    $iValue = $this->oDataRegisters->iReg5;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg5) & 31);
+
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
+};
+
+
+ABadCafe\G8PHPhousand\Processor\Opcode\Template\TGenerator::compileTemplateHandler()
+$ B06 : b11a20c3eefa587731b56f19367ab11e66fa5a32 => return function(int $iOpcode): void {
+    $iValue = $this->oDataRegisters->iReg6;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg5) & 31);
+
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
+};
+
+
+ABadCafe\G8PHPhousand\Processor\Opcode\Template\TGenerator::compileTemplateHandler()
+$ B07 : e6930b89f8d7f82ef02a1c724839ac67130523c2 => return function(int $iOpcode): void {
+    $iValue = $this->oDataRegisters->iReg7;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg5) & 31);
+
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
+};
+
+
+ABadCafe\G8PHPhousand\Processor\Opcode\Template\TGenerator::compileTemplateHandler()
+$ D00 : d482a867eb1351db5ce7667610f91c033ca46fb8 => return function(int $iOpcode): void {
+    $iValue = $this->oDataRegisters->iReg0;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg6) & 31);
+
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
+};
+
+
+ABadCafe\G8PHPhousand\Processor\Opcode\Template\TGenerator::compileTemplateHandler()
+$ D01 : 7dd5505e76bedbddfdc83dc94b6b52f35f70a544 => return function(int $iOpcode): void {
+    $iValue = $this->oDataRegisters->iReg1;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg6) & 31);
+
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
+};
+
+
+ABadCafe\G8PHPhousand\Processor\Opcode\Template\TGenerator::compileTemplateHandler()
+$ D02 : 09f95fe84d29fddf5dd854958c502cde6d573a5b => return function(int $iOpcode): void {
+    $iValue = $this->oDataRegisters->iReg2;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg6) & 31);
+
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
+};
+
+
+ABadCafe\G8PHPhousand\Processor\Opcode\Template\TGenerator::compileTemplateHandler()
+$ D03 : 700c6092fd1ef8d956da5d8d0b106c6dafe70e20 => return function(int $iOpcode): void {
+    $iValue = $this->oDataRegisters->iReg3;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg6) & 31);
+
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
+};
+
+
+ABadCafe\G8PHPhousand\Processor\Opcode\Template\TGenerator::compileTemplateHandler()
+$ D04 : eca77400f292391dcb73b58c8af46921768a2203 => return function(int $iOpcode): void {
+    $iValue = $this->oDataRegisters->iReg4;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg6) & 31);
+
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
+};
+
+
+ABadCafe\G8PHPhousand\Processor\Opcode\Template\TGenerator::compileTemplateHandler()
+$ D05 : a1e4fe2ee0d91b05b777db28dc8d687036c59e34 => return function(int $iOpcode): void {
+    $iValue = $this->oDataRegisters->iReg5;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg6) & 31);
+
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
+};
+
+
+ABadCafe\G8PHPhousand\Processor\Opcode\Template\TGenerator::compileTemplateHandler()
+$ D06 : 43b4992416badff84379af4ae336ee2c58142f67 => return function(int $iOpcode): void {
+    $iValue = $this->oDataRegisters->iReg6;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg6) & 31);
+
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
+};
+
+
+ABadCafe\G8PHPhousand\Processor\Opcode\Template\TGenerator::compileTemplateHandler()
+$ D07 : c3176f2b65c20f0eb574d53f3c382944723b03f0 => return function(int $iOpcode): void {
+    $iValue = $this->oDataRegisters->iReg7;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg6) & 31);
+
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
+};
+
+
+ABadCafe\G8PHPhousand\Processor\Opcode\Template\TGenerator::compileTemplateHandler()
+$ F00 : 0b19ff28e1ec54bc39ca80601f5dba9adde7dbc9 => return function(int $iOpcode): void {
+    $iValue = $this->oDataRegisters->iReg0;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg7) & 31);
+
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
+};
+
+
+ABadCafe\G8PHPhousand\Processor\Opcode\Template\TGenerator::compileTemplateHandler()
+$ F01 : 37b449f9563afdd707f28fdf3568a9dedec360fb => return function(int $iOpcode): void {
+    $iValue = $this->oDataRegisters->iReg1;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg7) & 31);
+
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
+};
+
+
+ABadCafe\G8PHPhousand\Processor\Opcode\Template\TGenerator::compileTemplateHandler()
+$ F02 : 2942d8f3bc1f1de32449ec4f0a01eb32ad693826 => return function(int $iOpcode): void {
+    $iValue = $this->oDataRegisters->iReg2;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg7) & 31);
+
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
+};
+
+
+ABadCafe\G8PHPhousand\Processor\Opcode\Template\TGenerator::compileTemplateHandler()
+$ F03 : cbc697debbd361e6865188221cedf1122577a7bf => return function(int $iOpcode): void {
+    $iValue = $this->oDataRegisters->iReg3;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg7) & 31);
+
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
+};
+
+
+ABadCafe\G8PHPhousand\Processor\Opcode\Template\TGenerator::compileTemplateHandler()
+$ F04 : 210e84ffccfb541747d9ca8ef75142b7b312d46f => return function(int $iOpcode): void {
+    $iValue = $this->oDataRegisters->iReg4;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg7) & 31);
+
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
+};
+
+
+ABadCafe\G8PHPhousand\Processor\Opcode\Template\TGenerator::compileTemplateHandler()
+$ F05 : 8330d952a343c1bc110a91f1b517f36cc2666ef9 => return function(int $iOpcode): void {
+    $iValue = $this->oDataRegisters->iReg5;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg7) & 31);
+
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
+};
+
+
+ABadCafe\G8PHPhousand\Processor\Opcode\Template\TGenerator::compileTemplateHandler()
+$ F06 : 89e300a4ace5be47ebbfc8800d29dcd7f8e69a4d => return function(int $iOpcode): void {
+    $iValue = $this->oDataRegisters->iReg6;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg7) & 31);
+
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
+};
+
+
+ABadCafe\G8PHPhousand\Processor\Opcode\Template\TGenerator::compileTemplateHandler()
+$ F07 : 815a800769e800e9dfd9499c687252059df6ee24 => return function(int $iOpcode): void {
+    $iValue = $this->oDataRegisters->iReg7;
+    $iTestBit = 1 << (($this->oDataRegisters->iReg7) & 31);
+
+    ($iValue & $iTestBit) ?
+        ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
+        ($this->iConditionRegister |= IRegister::CCR_ZERO);
+};
+
+Array
+(
+    [0] => 16
+    [1] => 17
+    [2] => 18
+    [3] => 19
+    [4] => 20
+    [5] => 21
+    [6] => 22
+    [7] => 23
+    [8] => 24
+    [9] => 25
+    [10] => 26
+    [11] => 27
+    [12] => 28
+    [13] => 29
+    [14] => 30
+    [15] => 31
+    [16] => 32
+    [17] => 33
+    [18] => 34
+    [19] => 35
+    [20] => 36
+    [21] => 37
+    [22] => 38
+    [23] => 39
+    [24] => 40
+    [25] => 41
+    [26] => 42
+    [27] => 43
+    [28] => 44
+    [29] => 45
+    [30] => 46
+    [31] => 47
+    [32] => 48
+    [33] => 49
+    [34] => 50
+    [35] => 51
+    [36] => 52
+    [37] => 53
+    [38] => 54
+    [39] => 55
+    [40] => 56
+    [41] => 57
+    [42] => 58
+    [43] => 59
+    [44] => 60
+)

@@ -14,12 +14,14 @@ declare(strict_types=1);
 
 namespace ABadCafe\G8PHPhousand\Processor\Opcode\Template;
 
+use ABadCafe\G8PHPhousand\Processor\TCache;
 
 trait TGenerator
 {
+    use TCache;
+
     /** @var array<string, callable> */
     protected array $aCompilerCache = [];
-
 
     protected function clearCompilerCache(): void
     {
@@ -31,13 +33,19 @@ trait TGenerator
      */
     protected function compileTemplateHandler(Params $oParams): callable
     {
+        // Depending on whether the jump/immediate caches are enabled
+        // we might generate different code. Add the status of those now.
+        $oParams->oAdditional->bUseJumpCache      = $this->jumpCacheEnabled();
+        $oParams->oAdditional->bUseImmediateCache = $this->immediateCacheEnabled();
+
         ob_start();
         include($oParams->sPath);
         $sCode = ob_get_clean();
         $sHash = sha1($sCode);
 
-        printf("\n%s()\n$%4X : %s => %s\n", __METHOD__, $oParams->iOpcode, $sHash, $sCode);
-
+        if ($oParams->bDumpCode) {
+            printf("\n%s()\n$%4X : %s => %s\n", __METHOD__, $oParams->iOpcode, $sHash, $sCode);
+        }
         return $this->aCompilerCache[$sHash] ?? ($this->aCompilerCache[$sHash] = eval(
             "namespace " . Params::EXECUTION_NAMESPACE . ";\n" . $sCode)
         );

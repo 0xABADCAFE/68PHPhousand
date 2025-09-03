@@ -12,35 +12,21 @@
 
 declare(strict_types=1);
 
-namespace ABadCafe\G8PHPhousand\Processor\Opcode;
-
-use ABadCafe\G8PHPhousand\Processor;
+namespace ABadCafe\G8PHPhousand;
 
 use LogicException;
 
-trait TSpecial
+error_reporting(-1);
+require  __DIR__ . '/../src/bootstrap.php';
+
+$oMemory = new Device\SparseRAM(0);
+
+$oProcessor = new class($oMemory) extends Processor\Base
 {
-    use Processor\TOpcode;
-
-    protected function initSpecialHandlers()
+    public function getName(): string
     {
-        $cUnhandled = function(int $iOpcode) {
-            throw new LogicException(sprintf('Unhandled special operation 0x%4X (TODO)', $iOpcode));
-        };
-
-        $this->addExactHandlers([
-            IPrefix::OP_ILLEGAL  => $cUnhandled,
-
-            IPrefix::OP_RESET    => function() {
-                // TODO - probably needs to be a bit more specific than this
-                $this->reset();
-            },
-
-            IPrefix::OP_NOP      => function() {
-                // Nothing yet
-            },
-
-        ]);
-
+        return 'Test CPU';
     }
-}
+};
+
+$oProcessor->dumpExactHandlerMap();

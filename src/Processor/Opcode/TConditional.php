@@ -75,9 +75,7 @@ trait TConditional
         $this->buildDBCCHandlers(IConditional::OP_DBLT, 'dblt');
         $this->buildDBCCHandlers(IConditional::OP_DBGT, 'dbgt');
         $this->buildDBCCHandlers(IConditional::OP_DBLE, 'dble');
-
     }
-
 
     private function buildBCCHandlers(int $iPrefix, string $sName)
     {
@@ -89,25 +87,25 @@ trait TConditional
 
         $aHandlers = [];
         // First special case handler for $00
-        $aHandlers[$iPrefix|0x00] = $this->compileTemplateHandler($oBraTemplate);
+        $aHandlers[$iPrefix | 0x00] = $this->compileTemplateHandler($oBraTemplate);
 
         // Handlers for $01-7F are the same
         $oBraTemplate->iOpcode = $iPrefix|0x01;
         $cBra = $this->compileTemplateHandler($oBraTemplate);
         for ($i = 0x01; $i < 0x80; ++$i) {
-            $aHandlers[$iPrefix|$i] = $cBra;
+            $aHandlers[$iPrefix | $i] = $cBra;
         }
 
         // Handlers for $80-$FE are the same
         $oBraTemplate->iOpcode = $iPrefix|0x80;
         $cBra = $this->compileTemplateHandler($oBraTemplate);
         for ($i = 0x80; $i < 0xFF; ++$i) {
-            $aHandlers[$iPrefix|$i] = $cBra;
+            $aHandlers[$iPrefix | $i] = $cBra;
         }
 
         // Special case for $FF
         $oBraTemplate->iOpcode = $iPrefix|0xFF;
-        $aHandlers[$iPrefix|0xFF] = $this->compileTemplateHandler($oBraTemplate);
+        $aHandlers[$iPrefix | 0xFF] = $this->compileTemplateHandler($oBraTemplate);
         $this->addExactHandlers($aHandlers);
     }
 
@@ -121,7 +119,7 @@ trait TConditional
         $this->addExactHandlers(
             array_fill_keys(
                 $this->generateForEAModeList(
-                    IEffectiveAddress::MODE_DATA_ADDRESSABLE,
+                    IEffectiveAddress::MODE_DATA_ALTERABLE,
                     $iPrefix
                 ),
                 $this->compileTemplateHandler($oSccTemplate)
@@ -137,7 +135,7 @@ trait TConditional
             []
         );
         $cHandler = $this->compileTemplateHandler($oSccTemplate);
-        $aHandlers = array_fill_keys(range($iPrefix, $iPrefix|7, 1), $cHandler);
+        $aHandlers = array_fill_keys(range($iPrefix, $iPrefix + 7, 1), $cHandler);
         $this->addExactHandlers($aHandlers);
     }
 }

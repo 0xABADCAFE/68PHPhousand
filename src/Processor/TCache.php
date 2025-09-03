@@ -12,35 +12,36 @@
 
 declare(strict_types=1);
 
-namespace ABadCafe\G8PHPhousand\Processor\Opcode;
+namespace ABadCafe\G8PHPhousand\Processor;
 
-use ABadCafe\G8PHPhousand\Processor;
-
-use LogicException;
-
-trait TSpecial
+/**
+ * Trait for opcode handler
+ */
+trait TCache
 {
-    use Processor\TOpcode;
+    /** @var array<int, int> */
+    protected ?array $aJumpCache = null;
 
-    protected function initSpecialHandlers()
+    /** @var array<int, int> */
+    protected ?array $aImmediateCache = null;
+
+    protected function enableJumpCache()
     {
-        $cUnhandled = function(int $iOpcode) {
-            throw new LogicException(sprintf('Unhandled special operation 0x%4X (TODO)', $iOpcode));
-        };
+        $this->aJumpCache = [];
+    }
 
-        $this->addExactHandlers([
-            IPrefix::OP_ILLEGAL  => $cUnhandled,
+    protected function enableImmediateCache()
+    {
+        $this->aImmediateCache = [];
+    }
 
-            IPrefix::OP_RESET    => function() {
-                // TODO - probably needs to be a bit more specific than this
-                $this->reset();
-            },
+    protected function jumpCacheEnabled(): bool
+    {
+        return null !== $this->aJumpCache;
+    }
 
-            IPrefix::OP_NOP      => function() {
-                // Nothing yet
-            },
-
-        ]);
-
+    protected function immediateCacheEnabled(): bool
+    {
+        return null !== $this->aImmediateCache;
     }
 }

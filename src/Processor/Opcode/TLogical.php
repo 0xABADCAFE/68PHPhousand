@@ -30,16 +30,21 @@ trait TLogical
         $this->buildORILogicHandlers();
         $this->buildANDILogicHandlers();
         $this->buildEORILogicHandlers();
+        $this->buildORLogicHandlers();
+        $this->buildANDLogicHandlers();
+        $this->buildNOTLogicHandlers();
     }
 
     private function buildORILogicHandlers()
     {
+        $aEAModes = $this->generateForEAModeList(IEffectiveAddress::MODE_DATA_ALTERABLE);
+
         // ORI Byte
         $this->addExactHandlers(
             array_fill_keys(
-                $this->generateForEAModeList(
-                    IEffectiveAddress::MODE_DATA_ADDRESSABLE,
-                    ILogical::OP_ORI_B
+                $this->mergePrefixForModeList(
+                    ILogical::OP_ORI_B,
+                    $aEAModes
                 ),
                 function(int $iOpcode) {
                     $iValue  = $this->oOutside->readByte($this->iProgramCounter + ISize::BYTE);
@@ -56,9 +61,9 @@ trait TLogical
         // ORI Word
         $this->addExactHandlers(
             array_fill_keys(
-                $this->generateForEAModeList(
-                    IEffectiveAddress::MODE_DATA_ADDRESSABLE,
-                    ILogical::OP_ORI_W
+                $this->mergePrefixForModeList(
+                    ILogical::OP_ORI_W,
+                    $aEAModes
                 ),
                 function(int $iOpcode) {
                     $iValue  = $this->oOutside->readWord($this->iProgramCounter);
@@ -75,9 +80,9 @@ trait TLogical
         // ORI Long
         $this->addExactHandlers(
             array_fill_keys(
-                $this->generateForEAModeList(
-                    IEffectiveAddress::MODE_DATA_ADDRESSABLE,
-                    ILogical::OP_ORI_L
+                $this->mergePrefixForModeList(
+                    ILogical::OP_ORI_L,
+                    $aEAModes
                 ),
                 function(int $iOpcode) {
                     $iValue  = $this->oOutside->readLong($this->iProgramCounter);
@@ -92,14 +97,110 @@ trait TLogical
         );
     }
 
+    private function buildORLogicHandlers()
+    {
+        $oORTemplate = new Template\Params(
+            0,
+            'operation/logic/or',
+            []
+        );
+
+        // First do the EA2D variants
+        $aPrefixes = [
+            ILogical::OP_OR_EA2D_B,
+            ILogical::OP_OR_EA2D_W,
+            ILogical::OP_OR_EA2D_L,
+        ];
+        $aEAModes = $this->generateForEAModeList(IEffectiveAddress::MODE_ALL_EXCEPT_AREGS);
+        foreach ($aPrefixes as $iPrefix) {
+            foreach (IRegister::DATA_REGS as $iDataReg) {
+                $oORTemplate->iOpcode = $iPrefix | ($iDataReg << 9);
+                $this->addExactHandlers(
+                    array_fill_keys(
+                        $this->mergePrefixForModeList($oORTemplate->iOpcode, $aEAModes),
+                        $this->compileTemplateHandler($oORTemplate)
+                    )
+                );
+            }
+        }
+
+        // Next do the D2EA variants
+        $aPrefixes = [
+            ILogical::OP_OR_D2EA_B,
+            ILogical::OP_OR_D2EA_W,
+            ILogical::OP_OR_D2EA_L,
+        ];
+        $aEAModes = $this->generateForEAModeList(IEffectiveAddress::MODE_MEM_ALTERABLE);
+        foreach ($aPrefixes as $iPrefix) {
+            foreach (IRegister::DATA_REGS as $iDataReg) {
+                $oORTemplate->iOpcode = $iPrefix | ($iDataReg << 9);
+                $this->addExactHandlers(
+                    array_fill_keys(
+                        $this->mergePrefixForModeList($oORTemplate->iOpcode, $aEAModes),
+                        $this->compileTemplateHandler($oORTemplate)
+                    )
+                );
+            }
+        }
+    }
+
+    private function buildANDLogicHandlers()
+    {
+        $oANDTemplate = new Template\Params(
+            0,
+            'operation/logic/and',
+            []
+        );
+
+        // First do the EA2D variants
+        $aPrefixes = [
+            ILogical::OP_AND_EA2D_B,
+            ILogical::OP_AND_EA2D_W,
+            ILogical::OP_AND_EA2D_L,
+        ];
+        $aEAModes = $this->generateForEAModeList(IEffectiveAddress::MODE_ALL_EXCEPT_AREGS);
+        foreach ($aPrefixes as $iPrefix) {
+            foreach (IRegister::DATA_REGS as $iDataReg) {
+                $oANDTemplate->iOpcode = $iPrefix | ($iDataReg << 9);
+                $this->addExactHandlers(
+                    array_fill_keys(
+                        $this->mergePrefixForModeList($oANDTemplate->iOpcode, $aEAModes),
+                        $this->compileTemplateHandler($oANDTemplate)
+                    )
+                );
+            }
+        }
+
+        // Next do the D2EA variants
+        $aPrefixes = [
+            ILogical::OP_AND_D2EA_B,
+            ILogical::OP_AND_D2EA_W,
+            ILogical::OP_AND_D2EA_L,
+        ];
+        $aEAModes = $this->generateForEAModeList(IEffectiveAddress::MODE_MEM_ALTERABLE);
+        foreach ($aPrefixes as $iPrefix) {
+            foreach (IRegister::DATA_REGS as $iDataReg) {
+                $oANDTemplate->iOpcode = $iPrefix | ($iDataReg << 9);
+                $this->addExactHandlers(
+                    array_fill_keys(
+                        $this->mergePrefixForModeList($oANDTemplate->iOpcode, $aEAModes),
+                        $this->compileTemplateHandler($oANDTemplate)
+                    )
+                );
+            }
+        }
+    }
+
     private function buildANDILogicHandlers()
     {
+        $aEAModes = $this->generateForEAModeList(IEffectiveAddress::MODE_DATA_ALTERABLE);
+
         // ANDI Byte
         $this->addExactHandlers(
             array_fill_keys(
-                $this->generateForEAModeList(
-                    IEffectiveAddress::MODE_DATA_ADDRESSABLE,
-                    ILogical::OP_ANDI_B
+                $this->mergePrefixForModeList(
+                    ILogical::OP_ANDI_B,
+                    $aEAModes
                 ),
                 function(int $iOpcode) {
                     $iValue  = $this->oOutside->readByte($this->iProgramCounter + ISize::BYTE);
@@ -116,9 +217,9 @@ trait TLogical
         // ANDI Word
         $this->addExactHandlers(
             array_fill_keys(
-                $this->generateForEAModeList(
-                    IEffectiveAddress::MODE_DATA_ADDRESSABLE,
-                    ILogical::OP_ANDI_W
+                $this->mergePrefixForModeList(
+                    ILogical::OP_ANDI_W,
+                    $aEAModes
                 ),
                 function(int $iOpcode) {
                     $iValue  = $this->oOutside->readWord($this->iProgramCounter);
@@ -135,9 +236,9 @@ trait TLogical
         // ANDI Long
         $this->addExactHandlers(
             array_fill_keys(
-                $this->generateForEAModeList(
-                    IEffectiveAddress::MODE_DATA_ADDRESSABLE,
-                    ILogical::OP_ANDI_L
+                $this->mergePrefixForModeList(
+                    ILogical::OP_ANDI_L,
+                    $aEAModes
                 ),
                 function(int $iOpcode) {
                     $iValue  = $this->oOutside->readLong($this->iProgramCounter);
@@ -154,12 +255,14 @@ trait TLogical
 
     private function buildEORILogicHandlers()
     {
+        $aEAModes = $this->generateForEAModeList(IEffectiveAddress::MODE_DATA_ALTERABLE);
+
         // EORI Byte
         $this->addExactHandlers(
             array_fill_keys(
-                $this->generateForEAModeList(
-                    IEffectiveAddress::MODE_DATA_ADDRESSABLE,
-                    ILogical::OP_EORI_B
+                $this->mergePrefixForModeList(
+                    ILogical::OP_EORI_B,
+                    $aEAModes
                 ),
                 function(int $iOpcode) {
                     $iValue  = $this->oOutside->readByte($this->iProgramCounter + ISize::BYTE);
@@ -176,9 +279,9 @@ trait TLogical
         // EORI Word
         $this->addExactHandlers(
             array_fill_keys(
-                $this->generateForEAModeList(
-                    IEffectiveAddress::MODE_DATA_ADDRESSABLE,
-                    ILogical::OP_EORI_W
+                $this->mergePrefixForModeList(
+                    ILogical::OP_EORI_W,
+                    $aEAModes
                 ),
                 function(int $iOpcode) {
                     $iValue  = $this->oOutside->readWord($this->iProgramCounter);
@@ -195,15 +298,71 @@ trait TLogical
         // EORI Long
         $this->addExactHandlers(
             array_fill_keys(
-                $this->generateForEAModeList(
-                    IEffectiveAddress::MODE_DATA_ADDRESSABLE,
-                    ILogical::OP_EORI_L
+                $this->mergePrefixForModeList(
+                    ILogical::OP_EORI_L,
+                    $aEAModes
                 ),
                 function(int $iOpcode) {
                     $iValue  = $this->oOutside->readLong($this->iProgramCounter);
                     $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
                     $this->iProgramCounter += ISize::LONG;
                     $iValue ^= $oEAMode->readLong();
+                    $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
+                    $this->updateNZLong($iValue);
+                    $oEAMode->writeLong($iValue);
+                }
+            )
+        );
+    }
+
+    private function buildNOTLogicHandlers()
+    {
+        $aEAModes = $this->generateForEAModeList(IEffectiveAddress::MODE_DATA_ALTERABLE);
+
+        // NOT Byte
+        $this->addExactHandlers(
+            array_fill_keys(
+                $this->mergePrefixForModeList(
+                    ILogical::OP_NOT_B,
+                    $aEAModes
+                ),
+                function(int $iOpcode) {
+                    $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
+                    $iValue = ~$oEAMode->readByte();
+                    $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
+                    $this->updateNZByte($iValue);
+                    $oEAMode->writeByte($iValue);
+                }
+            )
+        );
+
+        // NOT Word
+        $this->addExactHandlers(
+            array_fill_keys(
+                $this->mergePrefixForModeList(
+                    ILogical::OP_NOT_W,
+                    $aEAModes
+                ),
+                function(int $iOpcode) {
+                    $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
+                    $iValue = ~$oEAMode->readWord();
+                    $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
+                    $this->updateNZWord($iValue);
+                    $oEAMode->writeWord($iValue);
+                }
+            )
+        );
+
+        // NOT Long
+        $this->addExactHandlers(
+            array_fill_keys(
+                $this->mergePrefixForModeList(
+                    ILogical::OP_NOT_L,
+                    $aEAModes
+                ),
+                function(int $iOpcode) {
+                    $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
+                    $iValue = ~$oEAMode->readLong();
                     $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
                     $this->updateNZLong($iValue);
                     $oEAMode->writeLong($iValue);
@@ -259,4 +418,6 @@ trait TLogical
             },
         ]);
     }
+
+
 }

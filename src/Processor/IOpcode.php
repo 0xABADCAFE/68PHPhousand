@@ -46,6 +46,12 @@ interface IOpcode
     const MASK_BXW_REG     = 0b0111000000000000; // register
     const MASK_BXW_DISP    = 0b0000000011111111; // displacement
 
+    // For MASK_OP_SIZE
+    const OP_SIZE_B           = 0b0000000000000000;
+    const OP_SIZE_W           = 0b0000000001000000;
+    const OP_SIZE_L           = 0b0000000010000000;
+
+
     const REG_EA_D0 = IRegister::D0;
     const REG_EA_D1 = IRegister::D1;
     const REG_EA_D2 = IRegister::D2;

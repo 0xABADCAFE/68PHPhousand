@@ -22,89 +22,197 @@ trait TArithmetic
 
     protected function initArithmeticHandlers()
     {
-        $this->addPrefixHandlers([
+        $aEAModes = $this->generateForEAModeList(
+            Processor\IEffectiveAddress::MODE_DATA_ALTERABLE
+        );
+        $this->buildADDIHandlers($aEAModes);
+        $this->buildADDQHandlers($aEAModes);
+        $this->buildSUBIHandlers($aEAModes);
+        $this->buildSUBQHandlers($aEAModes);
+    }
 
-            // SUB Immediate
-            IPrefix::OP_SUBI_B => function(int $iOpcode) {
-                $iValue  = $this->oOutside->readByte($this->iProgramCounter + ISize::BYTE);
-                $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
-                $this->iProgramCounter += ISize::WORD;
-                $iValue -= $oEAMode->readByte();
-                $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
+    private function buildSUBIHandlers(array $aEAModes)
+    {
 
-                // TODO - C and V flags
+        // SUBI byte
+        $this->addExactHandlers(
+            array_fill_keys(
+                $this->mergePrefixForModeList(
+                    IArithmetic::OP_SUBI_B,
+                    $aEAModes
+                ),
+                function(int $iOpcode) {
+                    $iValue  = $this->oOutside->readByte($this->iProgramCounter + ISize::BYTE);
+                    $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
+                    $this->iProgramCounter += ISize::WORD;
+                    $iValue -= $oEAMode->readByte();
+                    $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
 
-                $this->updateNZByte($iValue);
-                $oEAMode->writeByte($iValue);
-            },
+                    // TODO - C and V flags
+                    $this->updateNZByte($iValue);
+                    $oEAMode->writeByte($iValue);
+                }
+            )
+        );
 
-            IPrefix::OP_SUBI_W => function(int $iOpcode) {
-                $iValue  = $this->oOutside->readWord($this->iProgramCounter);
-                $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
-                $this->iProgramCounter += ISize::WORD;
-                $iValue -= $oEAMode->readWord();
-                $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
+        // SUBI word
+        $this->addExactHandlers(
+            array_fill_keys(
+                $this->mergePrefixForModeList(
+                    IArithmetic::OP_SUBI_W,
+                    $aEAModes
+                ),
+                function(int $iOpcode) {
+                    $iValue  = $this->oOutside->readWord($this->iProgramCounter);
+                    $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
+                    $this->iProgramCounter += ISize::WORD;
+                    $iValue -= $oEAMode->readWord();
+                    $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
 
-                // TODO - C and V flags
+                    // TODO - C and V flags
+                    $this->updateNZWord($iValue);
+                    $oEAMode->writeWord($iValue);
+                }
+            )
+        );
 
-                $this->updateNZWord($iValue);
-                $oEAMode->writeWord($iValue);
-            },
+        // SUBI long
+        $this->addExactHandlers(
+            array_fill_keys(
+                $this->mergePrefixForModeList(
+                    IArithmetic::OP_SUBI_L,
+                    $aEAModes
+                ),
+                function(int $iOpcode) {
+                    $iValue  = $this->oOutside->readLong($this->iProgramCounter);
+                    $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
+                    $this->iProgramCounter += ISize::LONG;
+                    $iValue -= $oEAMode->readLong();
+                    $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
 
-            IPrefix::OP_SUBI_L => function(int $iOpcode) {
-                $iValue  = $this->oOutside->readLong($this->iProgramCounter);
-                $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
-                $this->iProgramCounter += ISize::LONG;
-                $iValue -= $oEAMode->readLong();
-                $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
+                    // TODO - C and V flags
+                    $this->updateNZLong($iValue);
+                    $oEAMode->writeLong($iValue);
+                }
+            )
+        );
+    }
 
-                // TODO - C and V flags
+    private function buildADDIHandlers(array $aEAModes)
+    {
+        // ADDI byte
+        $this->addExactHandlers(
+            array_fill_keys(
+                $this->mergePrefixForModeList(
+                    IArithmetic::OP_ADDI_B,
+                    $aEAModes
+                ),
+                function(int $iOpcode) {
+                    $iValue  = $this->oOutside->readByte($this->iProgramCounter + ISize::BYTE);
+                    $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
+                    $this->iProgramCounter += ISize::WORD;
+                    $iValue += $oEAMode->readByte();
+                    $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
 
-                $this->updateNZLong($iValue);
-                $oEAMode->writeLong($iValue);
-            },
+                    // TODO - C and V flags
+                    $this->updateNZByte($iValue);
+                    $oEAMode->writeByte($iValue);
+                }
+            )
+        );
 
+        // ADDI word
+        $this->addExactHandlers(
+            array_fill_keys(
+                $this->mergePrefixForModeList(
+                    IArithmetic::OP_ADDI_W,
+                    $aEAModes
+                ),
+                function(int $iOpcode) {
+                    $iValue  = $this->oOutside->readWord($this->iProgramCounter);
+                    $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
+                    $this->iProgramCounter += ISize::WORD;
+                    $iValue += $oEAMode->readWord();
+                    $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
 
-            // ADD Immediate
+                    // TODO - C and V flags
+                    $this->updateNZWord($iValue);
+                    $oEAMode->writeWord($iValue);
+                }
+            )
+        );
 
-            IPrefix::OP_ADDI_B => function(int $iOpcode) {
-                $iValue  = $this->oOutside->readByte($this->iProgramCounter + ISize::BYTE);
-                $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
-                $this->iProgramCounter += ISize::WORD;
-                $iValue += $oEAMode->readByte();
-                $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
+        // ADDI long
+        $this->addExactHandlers(
+            array_fill_keys(
+                $this->mergePrefixForModeList(
+                    IArithmetic::OP_ADDI_L,
+                    $aEAModes
+                ),
+                function(int $iOpcode) {
+                    $iValue  = $this->oOutside->readLong($this->iProgramCounter);
+                    $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
+                    $this->iProgramCounter += ISize::LONG;
+                    $iValue += $oEAMode->readLong();
+                    $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
 
-                // TODO - C and V flags
+                    // TODO - C and V flags
+                    $this->updateNZLong($iValue);
+                    $oEAMode->writeLong($iValue);
+                }
+            )
+        );
+    }
 
-                $this->updateNZByte($iValue);
-                $oEAMode->writeByte($iValue);
-            },
+    private function buildADDQHandlers(array $aEAModes)
+    {
+        $oADDQTemplate = new Template\Params(
+            0,
+            'operation/arithmetic/addq',
+            []
+        );
 
-            IPrefix::OP_ADDI_W => function(int $iOpcode) {
-                $iValue  = $this->oOutside->readWord($this->iProgramCounter);
-                $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
-                $this->iProgramCounter += ISize::WORD;
-                $iValue += $oEAMode->readWord();
-                $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
+        $aPrefixes = [
+            IArithmetic::OP_ADDQ_B,
+            IArithmetic::OP_ADDQ_W,
+            IArithmetic::OP_ADDQ_L,
+        ];
+        foreach ($aPrefixes as $iPrefix) {
+            for ($iImmediate = 0; $iImmediate < 8; ++$iImmediate) {
+                $oADDQTemplate->iOpcode = $iPrefix | ($iImmediate << 9);
+                $this->addExactHandlers(
+                    array_fill_keys(
+                        $this->mergePrefixForModeList($oADDQTemplate->iOpcode, $aEAModes),
+                        $this->compileTemplateHandler($oADDQTemplate)
+                    )
+                );
+            }
+        }
+    }
 
-                // TODO - C and V flags
+    private function buildSUBQHandlers(array $aEAModes)
+    {
+        $oSUBQTemplate = new Template\Params(
+            0,
+            'operation/arithmetic/subq',
+            []
+        );
 
-                $this->updateNZWord($iValue);
-                $oEAMode->writeWord($iValue);
-            },
-
-            IPrefix::OP_ADDI_L => function(int $iOpcode) {
-                $iValue  = $this->oOutside->readLong($this->iProgramCounter);
-                $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
-                $this->iProgramCounter += ISize::LONG;
-                $iValue += $oEAMode->readLong();
-                $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
-
-                // TODO - C and V flags
-
-                $this->updateNZLong($iValue);
-                $oEAMode->writeLong($iValue);
-            },
-        ]);
+        $aPrefixes = [
+            IArithmetic::OP_SUBQ_B,
+            IArithmetic::OP_SUBQ_W,
+            IArithmetic::OP_SUBQ_L,
+        ];
+        foreach ($aPrefixes as $iPrefix) {
+            for ($iImmediate = 0; $iImmediate < 8; ++$iImmediate) {
+                $oSUBQTemplate->iOpcode = $iPrefix | ($iImmediate << 9);
+                $this->addExactHandlers(
+                    array_fill_keys(
+                        $this->mergePrefixForModeList($oSUBQTemplate->iOpcode, $aEAModes),
+                        $this->compileTemplateHandler($oSUBQTemplate)
+                    )
+                );
+            }
+        }
     }
 }

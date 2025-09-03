@@ -62,10 +62,11 @@ interface IRegister
     //                               XNZVC
     public const CCR_CLEAR_Z  = 0b00011011;
 
-    //                               XNZVC
-    public const CCR_MASK_NV  = 0b00001010;
-    public const CCR_MASK_ZNV = 0b00001110;
-    public const CCR_MASK_ZC  = 0b00000101;
+    //                                XNZVC
+    public const CCR_MASK_NV   = 0b00001010;
+    public const CCR_MASK_ZNV  = 0b00001110;
+    public const CCR_MASK_ZC   = 0b00000101;
+    public const CCR_MASK_NZVC = 0b00001111;
 
     // SR Bits (upper byte of SR)
     public const SR_MASK_INT_MASK = 0b00000111;
