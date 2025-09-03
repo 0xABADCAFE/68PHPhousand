@@ -32,8 +32,9 @@ if (isset($aOpcacheStatus['jit'])) {
 
 $oMemory = new Device\CodeROM('68k/dbf.bin', 0x4);
 
-$oProcessor = new class($oMemory) extends Processor\Base
+$oProcessor = new class($oMemory, true) extends Processor\Base
 {
+
     public function getName(): string
     {
         return 'Benchmark CPU';

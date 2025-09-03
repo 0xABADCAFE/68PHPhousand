@@ -7,8 +7,6 @@
 
 assert(!empty($oParams), new \LogicException());
 
-$bUseJumpCache = true;
-
 ?>
 return function(int $iOpcode): void {
     $iReg   = &$this->oDataRegisters->aIndex[$iOpcode & IEffectiveAddress::MASK_BASE_REG];
@@ -19,7 +17,7 @@ return function(int $iOpcode): void {
         $this->iProgramCounter = ($this->iProgramCounter + ISize::WORD) & ISize::MASK_LONG;
     } else {
 <?php
-if ($bUseJumpCache) {
+if ($oParams->oAdditional->bUseJumpCache) {
 ?>
         $this->iProgramCounter = $this->aJumpCache[$this->iProgramCounter] ?? (
             $this->aJumpCache[$this->iProgramCounter] = (

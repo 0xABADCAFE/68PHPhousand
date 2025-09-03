@@ -18,18 +18,27 @@
         if (0xFFFF === $iCount) {
             $this->iProgramCounter = ($this->iProgramCounter + ISize::WORD) & ISize::MASK_LONG;
         } else {
-
-            $iJump = $this->aJumpCache[$this->iProgramCounter] ?? (
-                $this->aJumpCache[$this->iProgramCounter] = Sign::extWord(
-                    $this->oOutside->readWord($this->iProgramCounter)
+<?php
+if ($oParams->oAdditional->bUseJumpCache) {
+?>
+            $this->iProgramCounter = $this->aJumpCache[$this->iProgramCounter] ?? (
+                $this->aJumpCache[$this->iProgramCounter] = (
+                    (
+                        $this->iProgramCounter + Sign::extWord(
+                            $this->oOutside->readWord($this->iProgramCounter)
+                        )
+                    ) & ISize::MASK_LONG
                 )
             );
-            $this->iProgramCounter = ($this->iProgramCounter + $iJump) & ISize::MASK_LONG;
 <?php
-//             $this->iProgramCounter = (
-//                 $this->iProgramCounter + Sign::extWord($this->oOutside->readWord(
-//                     $this->iProgramCounter
-//                 ))
-//             ) & ISize::MASK_LONG;
+} else {
+?>
+            $this->iProgramCounter = (
+                $this->iProgramCounter + Sign::extWord($this->oOutside->readWord(
+                    $this->iProgramCounter
+                ))
+            ) & ISize::MASK_LONG;
+<?php
+}
 ?>
         }
