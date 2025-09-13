@@ -31,7 +31,7 @@ class Displacement extends Basic
 
     public function __construct(
         int& $iProgramCounter,
-        Processor\RegisterSet $oRegisters,
+        Processor\AddressRegisterSet $oRegisters,
         int $iBaseReg,
         Device\IBus $oOutside
     ) {

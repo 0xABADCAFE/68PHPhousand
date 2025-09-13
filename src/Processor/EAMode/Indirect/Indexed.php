@@ -33,8 +33,8 @@ class Indexed extends Basic
 
     public function __construct(
         int& $iProgramCounter,
-        Processor\RegisterSet $oAddressRegisters,
-        Processor\RegisterSet $oDataRegisters,
+        Processor\AddressRegisterSet $oAddressRegisters,
+        Processor\DataRegisterSet    $oDataRegisters,
         int $iBaseReg,
         Device\IBus $oOutside
     ) {

@@ -27,7 +27,7 @@ class Basic extends EAMode\Direct\Register
     use EAMode\TWithoutLatch;
 
     public function __construct(
-        Processor\RegisterSet $oRegisters,
+        Processor\AddressRegisterSet $oRegisters,
         int $iBaseReg,
         Device\IBus $oOutside
     ) {
