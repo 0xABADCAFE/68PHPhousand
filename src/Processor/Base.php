@@ -52,6 +52,9 @@ abstract class Base implements I68KProcessor, IOpcode, Opcode\IPrefix
             $this->enableImmediateCache();
         }
 
+        $iStartMem = memory_get_usage();
+        $fMark = microtime(true);
+
         // Install our opcode handlers.
         $this->clearCompilerCache();
         $this->initMoveHandlers();
@@ -62,6 +65,12 @@ abstract class Base implements I68KProcessor, IOpcode, Opcode\IPrefix
         $this->initConditionalHandlers();
         $this->initSpecialHandlers();
         $this->clearCompilerCache();
+
+        $fElapsed = microtime(true) - $fMark;
+        $iUsedMem = memory_get_usage() - $iStartMem;
+
+        echo "Handler setup took ", $fElapsed, " seconds using ", $iUsedMem, " bytes\n";
+
         $this->reportHandlerStats();
     }
 

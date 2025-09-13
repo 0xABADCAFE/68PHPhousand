@@ -47,6 +47,16 @@ interface IArithmetic
     //                    ----ddd-ssEAEAEA
     const OP_SUBQ_W   = 0b0101000101000000;
 
-    //                    ----ddd-ssEAEAEA
-    const OP_SUBQ_L   = 0b0101000110000000;
+    //                      ----ddd-ssEAEAEA
+    const OP_SUBQ_L     = 0b0101000110000000;
+
+    //                          dddmmmEAEAEA
+    const OP_ADD_EA2D_B = 0b1101000000000000;
+    const OP_ADD_EA2D_W = 0b1101000001000000;
+    const OP_ADD_EA2D_L = 0b1101000010000000;
+    //                          dddmmmEAEAEA
+    const OP_ADD_D2EA_B = 0b1101000100000000;
+    const OP_ADD_D2EA_W = 0b1101000101000000;
+    const OP_ADD_D2EA_L = 0b1101000110000000;
+
 }

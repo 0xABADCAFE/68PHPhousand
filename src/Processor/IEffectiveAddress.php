@@ -103,6 +103,10 @@ interface IEffectiveAddress
         ]
     ];
 
+    const MODE_ONLY_AREGS = [
+        self::MODE_A => IRegister::ADDR_REGS,
+    ];
+
     const MODE_ALL = [
         self::MODE_D    => IRegister::DATA_REGS,
         self::MODE_A    => IRegister::ADDR_REGS,

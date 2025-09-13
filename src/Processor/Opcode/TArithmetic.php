@@ -29,6 +29,8 @@ trait TArithmetic
         $this->buildADDQHandlers($aEAModes);
         $this->buildSUBIHandlers($aEAModes);
         $this->buildSUBQHandlers($aEAModes);
+        $this->buildADDEA2DHandlers();
+        $this->buildADDD2EAHandlers();
     }
 
     private function buildSUBIHandlers(array $aEAModes)
@@ -46,7 +48,7 @@ trait TArithmetic
                     $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
                     $this->iProgramCounter += ISize::WORD;
                     $iValue -= $oEAMode->readByte();
-                    $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
+                    $this->iConditionRegister &= Processor\IRegister::CCR_CLEAR_CV;
 
                     // TODO - C and V flags
                     $this->updateNZByte($iValue);
@@ -67,7 +69,7 @@ trait TArithmetic
                     $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
                     $this->iProgramCounter += ISize::WORD;
                     $iValue -= $oEAMode->readWord();
-                    $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
+                    $this->iConditionRegister &= Processor\IRegister::CCR_CLEAR_CV;
 
                     // TODO - C and V flags
                     $this->updateNZWord($iValue);
@@ -88,7 +90,7 @@ trait TArithmetic
                     $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
                     $this->iProgramCounter += ISize::LONG;
                     $iValue -= $oEAMode->readLong();
-                    $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
+                    $this->iConditionRegister &= Processor\IRegister::CCR_CLEAR_CV;
 
                     // TODO - C and V flags
                     $this->updateNZLong($iValue);
@@ -112,7 +114,7 @@ trait TArithmetic
                     $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
                     $this->iProgramCounter += ISize::WORD;
                     $iValue += $oEAMode->readByte();
-                    $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
+                    $this->iConditionRegister &= Processor\IRegister::CCR_CLEAR_CV;
 
                     // TODO - C and V flags
                     $this->updateNZByte($iValue);
@@ -133,7 +135,7 @@ trait TArithmetic
                     $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
                     $this->iProgramCounter += ISize::WORD;
                     $iValue += $oEAMode->readWord();
-                    $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
+                    $this->iConditionRegister &= Processor\IRegister::CCR_CLEAR_CV;
 
                     // TODO - C and V flags
                     $this->updateNZWord($iValue);
@@ -154,7 +156,7 @@ trait TArithmetic
                     $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
                     $this->iProgramCounter += ISize::LONG;
                     $iValue += $oEAMode->readLong();
-                    $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
+                    $this->iConditionRegister &= Processor\IRegister::CCR_CLEAR_CV;
 
                     // TODO - C and V flags
                     $this->updateNZLong($iValue);
@@ -210,6 +212,81 @@ trait TArithmetic
                     array_fill_keys(
                         $this->mergePrefixForModeList($oSUBQTemplate->iOpcode, $aEAModes),
                         $this->compileTemplateHandler($oSUBQTemplate)
+                    )
+                );
+            }
+        }
+    }
+
+    private function buildADDEA2DHandlers()
+    {
+        $aEAModes = $this->generateForEAModeList(
+            Processor\IEffectiveAddress::MODE_ALL_EXCEPT_AREGS
+        );
+
+        $aEAAregs = $this->generateForEAModeList(
+            Processor\IEffectiveAddress::MODE_ONLY_AREGS
+        );
+
+        $oADDTemplate = new Template\Params(
+            0,
+            'operation/arithmetic/add_ea2d',
+            []
+        );
+
+        $aPrefixes = [
+            IArithmetic::OP_ADD_EA2D_B,
+            IArithmetic::OP_ADD_EA2D_W,
+            IArithmetic::OP_ADD_EA2D_L,
+        ];
+
+        foreach (Processor\IRegister::DATA_REGS as $iReg) {
+            foreach ($aPrefixes as $iPrefix) {
+                $oADDTemplate->iOpcode = $iPrefix | ($iReg << Processor\IOpcode::REG_UP_SHIFT);
+                $this->addExactHandlers(
+                    array_fill_keys(
+                        $this->mergePrefixForModeList($oADDTemplate->iOpcode, $aEAModes),
+                        $this->compileTemplateHandler($oADDTemplate)
+                    )
+                );
+            }
+
+            // Address reg EA support word size only
+            $oADDTemplate->iOpcode = IArithmetic::OP_ADD_EA2D_W | ($iReg << Processor\IOpcode::REG_UP_SHIFT);
+            $this->addExactHandlers(
+                array_fill_keys(
+                    $this->mergePrefixForModeList($oADDTemplate->iOpcode, $aEAAregs),
+                    $this->compileTemplateHandler($oADDTemplate)
+                )
+            );
+        }
+    }
+
+    private function buildADDD2EAHandlers()
+    {
+        $aEAModes = $this->generateForEAModeList(
+            Processor\IEffectiveAddress::MODE_MEM_ALTERABLE
+        );
+
+        $oADDTemplate = new Template\Params(
+            0,
+            'operation/arithmetic/add_d2ea',
+            []
+        );
+
+        $aPrefixes = [
+            IArithmetic::OP_ADD_D2EA_B,
+            IArithmetic::OP_ADD_D2EA_W,
+            IArithmetic::OP_ADD_D2EA_L,
+        ];
+
+        foreach (Processor\IRegister::DATA_REGS as $iReg) {
+            foreach ($aPrefixes as $iPrefix) {
+                $oADDTemplate->iOpcode = $iPrefix | ($iReg << Processor\IOpcode::REG_UP_SHIFT);
+                $this->addExactHandlers(
+                    array_fill_keys(
+                        $this->mergePrefixForModeList($oADDTemplate->iOpcode, $aEAModes),
+                        $this->compileTemplateHandler($oADDTemplate)
                     )
                 );
             }
