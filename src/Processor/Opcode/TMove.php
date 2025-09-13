@@ -39,6 +39,7 @@ trait TMove
         $this->buildMOVEHandlers();
         $this->buildMOVEAHandlers();
         $this->buildMOVEQHandlers();
+        $this->buildSWAPHandlers();
     }
 
     protected function initMoveDstEAModes()
@@ -228,5 +229,22 @@ trait TMove
             );
 
         }
+    }
+
+    private function buildSWAPHandlers()
+    {
+        $oSwapTemplate = new Template\Params(
+            0,
+            'operation/move/swap',
+            []
+        );
+        $oSwapTemplate->bDumpCode = true;
+        $aHandlers = [];
+        foreach (IRegister::DATA_REGS as $iReg) {
+            $oSwapTemplate->iOpcode = IMove::OP_SWAP | $iReg;
+            $aHandlers[$oSwapTemplate->iOpcode] = $this->compileTemplateHandler($oSwapTemplate);
+        }
+
+        $this->addExactHandlers($aHandlers);
     }
 }
