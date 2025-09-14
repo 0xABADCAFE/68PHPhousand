@@ -25,14 +25,30 @@ trait TArithmetic
         $aEAModes = $this->generateForEAModeList(
             Processor\IEffectiveAddress::MODE_DATA_ALTERABLE
         );
+
         $this->buildADDIHandlers($aEAModes);
-        $this->buildADDQHandlers($aEAModes);
         $this->buildSUBIHandlers($aEAModes);
-        $this->buildSUBQHandlers($aEAModes);
-        $this->buildADDEA2DHandlers();
-        $this->buildADDD2EAHandlers();
-        $this->buildSUBEA2DHandlers();
-        $this->buildSUBD2EAHandlers();
+
+        $aEAAregs = $this->generateForEAModeList(
+            Processor\IEffectiveAddress::MODE_ONLY_AREGS
+        );
+
+        $this->buildADDQHandlers($aEAModes, $aEAAregs);
+        $this->buildSUBQHandlers($aEAModes, $aEAAregs);
+
+        $aEAModes = $this->generateForEAModeList(
+            Processor\IEffectiveAddress::MODE_ALL_EXCEPT_AREGS
+        );
+
+        $this->buildADDEA2DHandlers($aEAModes, $aEAAregs);
+        $this->buildSUBEA2DHandlers($aEAModes, $aEAAregs);
+
+        $aEAModes = $this->generateForEAModeList(
+            Processor\IEffectiveAddress::MODE_MEM_ALTERABLE
+        );
+
+        $this->buildADDD2EAHandlers($aEAModes);
+        $this->buildSUBD2EAHandlers($aEAModes);
 
     }
 
@@ -156,12 +172,14 @@ trait TArithmetic
         );
     }
 
-    private function buildADDQHandlers(array $aEAModes)
+    private function buildADDQHandlers(array $aEAModes, array $aEAAregs)
     {
         $oADDQTemplate = new Template\Params(
             0,
             'operation/arithmetic/addq',
-            []
+            [
+                'bNoCCR' => false
+            ]
         );
 
         $aPrefixes = [
@@ -180,14 +198,36 @@ trait TArithmetic
                 );
             }
         }
+
+        $oADDQTemplate->oAdditional->bNoCCR = true;
+
+        // Address registers are a special case
+        $aPrefixes = [
+            IArithmetic::OP_ADDQ_W,
+            IArithmetic::OP_ADDQ_L,
+        ];
+        foreach ($aPrefixes as $iPrefix) {
+            for ($iImmediate = 0; $iImmediate < 8; ++$iImmediate) {
+                $oADDQTemplate->iOpcode = $iPrefix | ($iImmediate << 9);
+                $this->addExactHandlers(
+                    array_fill_keys(
+                        $this->mergePrefixForModeList($oADDQTemplate->iOpcode, $aEAAregs),
+                        $this->compileTemplateHandler($oADDQTemplate)
+                    )
+                );
+            }
+        }
+
     }
 
-    private function buildSUBQHandlers(array $aEAModes)
+    private function buildSUBQHandlers(array $aEAModes, array $aEAAregs)
     {
         $oSUBQTemplate = new Template\Params(
             0,
             'operation/arithmetic/subq',
-            []
+            [
+                'bNoCCR' => false
+            ]
         );
 
         $aPrefixes = [
@@ -206,18 +246,30 @@ trait TArithmetic
                 );
             }
         }
+
+        $oSUBQTemplate->oAdditional->bNoCCR = true;
+
+        // Address registers are a special case
+        $aPrefixes = [
+            IArithmetic::OP_SUBQ_W,
+            IArithmetic::OP_SUBQ_L,
+        ];
+        foreach ($aPrefixes as $iPrefix) {
+            for ($iImmediate = 0; $iImmediate < 8; ++$iImmediate) {
+                $oSUBQTemplate->iOpcode = $iPrefix | ($iImmediate << 9);
+                $this->addExactHandlers(
+                    array_fill_keys(
+                        $this->mergePrefixForModeList($oSUBQTemplate->iOpcode, $aEAAregs),
+                        $this->compileTemplateHandler($oSUBQTemplate)
+                    )
+                );
+            }
+        }
+
     }
 
-    private function buildADDEA2DHandlers()
+    private function buildADDEA2DHandlers(array $aEAModes, array $aEAAregs)
     {
-        $aEAModes = $this->generateForEAModeList(
-            Processor\IEffectiveAddress::MODE_ALL_EXCEPT_AREGS
-        );
-
-        $aEAAregs = $this->generateForEAModeList(
-            Processor\IEffectiveAddress::MODE_ONLY_AREGS
-        );
-
         $oADDTemplate = new Template\Params(
             0,
             'operation/arithmetic/add_ea2d',
@@ -252,12 +304,8 @@ trait TArithmetic
         }
     }
 
-    private function buildADDD2EAHandlers()
+    private function buildADDD2EAHandlers(array $aEAModes)
     {
-        $aEAModes = $this->generateForEAModeList(
-            Processor\IEffectiveAddress::MODE_MEM_ALTERABLE
-        );
-
         $oADDTemplate = new Template\Params(
             0,
             'operation/arithmetic/add_d2ea',
@@ -284,16 +332,8 @@ trait TArithmetic
     }
 
 
-    private function buildSUBEA2DHandlers()
+    private function buildSUBEA2DHandlers(array $aEAModes, array $aEAAregs)
     {
-        $aEAModes = $this->generateForEAModeList(
-            Processor\IEffectiveAddress::MODE_ALL_EXCEPT_AREGS
-        );
-
-        $aEAAregs = $this->generateForEAModeList(
-            Processor\IEffectiveAddress::MODE_ONLY_AREGS
-        );
-
         $oSUBTemplate = new Template\Params(
             0,
             'operation/arithmetic/sub_ea2d',
@@ -328,12 +368,8 @@ trait TArithmetic
         }
     }
 
-    private function buildSUBD2EAHandlers()
+    private function buildSUBD2EAHandlers(array $aEAModes)
     {
-        $aEAModes = $this->generateForEAModeList(
-            Processor\IEffectiveAddress::MODE_MEM_ALTERABLE
-        );
-
         $oSUBTemplate = new Template\Params(
             0,
             'operation/arithmetic/sub_d2ea',
