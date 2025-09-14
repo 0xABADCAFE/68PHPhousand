@@ -1,9 +1,9 @@
 <?php
 
 /**
- * ADD_D2EA
+ * SUB_D2EA
  *
- * EA = EA + D
+ * EA = EA - D
  *
  */
 use ABadCafe\G8PHPhousand\Processor\IOpcode;
@@ -24,8 +24,8 @@ switch ($iSize) {
 ?>
     $iSrc  = $this->oDataRegisters->iReg<?= $iDataReg ?> & ISize::MASK_BYTE;
     $iDst  = $oEAMode->readByte();
-    $iRes  = $iSrc + $iDst;
-    $this->updateCCRMathByte($iSrc, $iDst, $iRes, true);
+    $iRes  = $iDst - $iSrc;
+    $this->updateCCRMathByte($iSrc, $iDst, $iRes, false);
     $oEAMode->writebyte($iRes);
 <?php
         break;
@@ -33,8 +33,8 @@ switch ($iSize) {
 ?>
     $iSrc  = $this->oDataRegisters->iReg<?= $iDataReg ?> & ISize::MASK_WORD;
     $iDst  = $oEAMode->readWord();
-    $iRes  = $iSrc + $iDst;
-    $this->updateCCRMathWord($iSrc, $iDst, $iRes, true);
+    $iRes  = $iDst - $iSrc;
+    $this->updateCCRMathWord($iSrc, $iDst, $iRes, false);
     $oEAMode->writeWord($iRes);
 <?php
         break;
@@ -42,10 +42,9 @@ switch ($iSize) {
 ?>
     $iSrc  = $this->oDataRegisters->iReg<?= $iDataReg ?> & ISize::MASK_LONG;
     $iDst  = $oEAMode->readLong();
-    $iRes  = $iSrc + $iDst;
-    $this->updateCCRMathLong($iSrc, $iDst, $iRes, true);
+    $iRes  = $iDst - $iSrc;
+    $this->updateCCRMathLong($iSrc, $iDst, $iRes, false);
     $oEAMode->writeLong($iRes);
-
 <?php
         break;
 }

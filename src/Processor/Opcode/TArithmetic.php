@@ -31,11 +31,13 @@ trait TArithmetic
         $this->buildSUBQHandlers($aEAModes);
         $this->buildADDEA2DHandlers();
         $this->buildADDD2EAHandlers();
+        $this->buildSUBEA2DHandlers();
+        $this->buildSUBD2EAHandlers();
+
     }
 
     private function buildSUBIHandlers(array $aEAModes)
     {
-
         // SUBI byte
         $this->addExactHandlers(
             array_fill_keys(
@@ -44,15 +46,13 @@ trait TArithmetic
                     $aEAModes
                 ),
                 function(int $iOpcode) {
-                    $iValue  = $this->oOutside->readByte($this->iProgramCounter + ISize::BYTE);
                     $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
+                    $iSrc    = $this->oOutside->readByte($this->iProgramCounter + ISize::BYTE);
+                    $iDst    = $oEAMode->readByte();
+                    $iRes    = $iDst - $iSrc;
                     $this->iProgramCounter += ISize::WORD;
-                    $iValue -= $oEAMode->readByte();
-                    $this->iConditionRegister &= Processor\IRegister::CCR_CLEAR_CV;
-
-                    // TODO - C and V flags
-                    $this->updateNZByte($iValue);
-                    $oEAMode->writeByte($iValue);
+                    $this->updateCCRMathByte($iSrc, $iDst, $iRes, false);
+                    $oEAMode->writeByte($iRes);
                 }
             )
         );
@@ -65,15 +65,13 @@ trait TArithmetic
                     $aEAModes
                 ),
                 function(int $iOpcode) {
-                    $iValue  = $this->oOutside->readWord($this->iProgramCounter);
                     $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
+                    $iSrc    = $this->oOutside->readWord($this->iProgramCounter);
+                    $iDst    = $oEAMode->readWord();
+                    $iRes    = $iDst - $iSrc;
                     $this->iProgramCounter += ISize::WORD;
-                    $iValue -= $oEAMode->readWord();
-                    $this->iConditionRegister &= Processor\IRegister::CCR_CLEAR_CV;
-
-                    // TODO - C and V flags
-                    $this->updateNZWord($iValue);
-                    $oEAMode->writeWord($iValue);
+                    $this->updateCCRMathWord($iSrc, $iDst, $iRes, false);
+                    $oEAMode->writeWord($iRes);
                 }
             )
         );
@@ -86,15 +84,13 @@ trait TArithmetic
                     $aEAModes
                 ),
                 function(int $iOpcode) {
-                    $iValue  = $this->oOutside->readLong($this->iProgramCounter);
                     $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
+                    $iSrc    = $this->oOutside->readLong($this->iProgramCounter);
+                    $iDst    = $oEAMode->readLong();
+                    $iRes    = $iDst - $iSrc;
                     $this->iProgramCounter += ISize::LONG;
-                    $iValue -= $oEAMode->readLong();
-                    $this->iConditionRegister &= Processor\IRegister::CCR_CLEAR_CV;
-
-                    // TODO - C and V flags
-                    $this->updateNZLong($iValue);
-                    $oEAMode->writeLong($iValue);
+                    $this->updateCCRMathLong($iSrc, $iDst, $iRes, false);
+                    $oEAMode->writeLong($iRes);
                 }
             )
         );
@@ -110,15 +106,13 @@ trait TArithmetic
                     $aEAModes
                 ),
                 function(int $iOpcode) {
-                    $iValue  = $this->oOutside->readByte($this->iProgramCounter + ISize::BYTE);
                     $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
+                    $iSrc    = $this->oOutside->readByte($this->iProgramCounter + ISize::BYTE);
+                    $iDst    = $oEAMode->readByte();
+                    $iRes    = $iDst + $iSrc;
                     $this->iProgramCounter += ISize::WORD;
-                    $iValue += $oEAMode->readByte();
-                    $this->iConditionRegister &= Processor\IRegister::CCR_CLEAR_CV;
-
-                    // TODO - C and V flags
-                    $this->updateNZByte($iValue);
-                    $oEAMode->writeByte($iValue);
+                    $this->updateCCRMathByte($iSrc, $iDst, $iRes, true);
+                    $oEAMode->writeByte($iRes);
                 }
             )
         );
@@ -131,15 +125,13 @@ trait TArithmetic
                     $aEAModes
                 ),
                 function(int $iOpcode) {
-                    $iValue  = $this->oOutside->readWord($this->iProgramCounter);
                     $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
+                    $iSrc    = $this->oOutside->readWord($this->iProgramCounter);
+                    $iDst    = $oEAMode->readWord();
+                    $iRes    = $iDst + $iSrc;
                     $this->iProgramCounter += ISize::WORD;
-                    $iValue += $oEAMode->readWord();
-                    $this->iConditionRegister &= Processor\IRegister::CCR_CLEAR_CV;
-
-                    // TODO - C and V flags
-                    $this->updateNZWord($iValue);
-                    $oEAMode->writeWord($iValue);
+                    $this->updateCCRMathWord($iSrc, $iDst, $iRes, true);
+                    $oEAMode->writeWord($iRes);
                 }
             )
         );
@@ -152,15 +144,13 @@ trait TArithmetic
                     $aEAModes
                 ),
                 function(int $iOpcode) {
-                    $iValue  = $this->oOutside->readLong($this->iProgramCounter);
                     $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
+                    $iSrc    = $this->oOutside->readLong($this->iProgramCounter);
+                    $iDst    = $oEAMode->readLong();
+                    $iRes    = $iDst + $iSrc;
                     $this->iProgramCounter += ISize::LONG;
-                    $iValue += $oEAMode->readLong();
-                    $this->iConditionRegister &= Processor\IRegister::CCR_CLEAR_CV;
-
-                    // TODO - C and V flags
-                    $this->updateNZLong($iValue);
-                    $oEAMode->writeLong($iValue);
+                    $this->updateCCRMathLong($iSrc, $iDst, $iRes, true);
+                    $oEAMode->writeLong($iRes);
                 }
             )
         );
@@ -292,4 +282,82 @@ trait TArithmetic
             }
         }
     }
+
+
+    private function buildSUBEA2DHandlers()
+    {
+        $aEAModes = $this->generateForEAModeList(
+            Processor\IEffectiveAddress::MODE_ALL_EXCEPT_AREGS
+        );
+
+        $aEAAregs = $this->generateForEAModeList(
+            Processor\IEffectiveAddress::MODE_ONLY_AREGS
+        );
+
+        $oSUBTemplate = new Template\Params(
+            0,
+            'operation/arithmetic/sub_ea2d',
+            []
+        );
+
+        $aPrefixes = [
+            IArithmetic::OP_SUB_EA2D_B,
+            IArithmetic::OP_SUB_EA2D_W,
+            IArithmetic::OP_SUB_EA2D_L,
+        ];
+
+        foreach (Processor\IRegister::DATA_REGS as $iReg) {
+            foreach ($aPrefixes as $iPrefix) {
+                $oSUBTemplate->iOpcode = $iPrefix | ($iReg << Processor\IOpcode::REG_UP_SHIFT);
+                $this->addExactHandlers(
+                    array_fill_keys(
+                        $this->mergePrefixForModeList($oSUBTemplate->iOpcode, $aEAModes),
+                        $this->compileTemplateHandler($oSUBTemplate)
+                    )
+                );
+            }
+
+            // Address reg EA support word size only
+            $oSUBTemplate->iOpcode = IArithmetic::OP_SUB_EA2D_W | ($iReg << Processor\IOpcode::REG_UP_SHIFT);
+            $this->addExactHandlers(
+                array_fill_keys(
+                    $this->mergePrefixForModeList($oSUBTemplate->iOpcode, $aEAAregs),
+                    $this->compileTemplateHandler($oSUBTemplate)
+                )
+            );
+        }
+    }
+
+    private function buildSUBD2EAHandlers()
+    {
+        $aEAModes = $this->generateForEAModeList(
+            Processor\IEffectiveAddress::MODE_MEM_ALTERABLE
+        );
+
+        $oSUBTemplate = new Template\Params(
+            0,
+            'operation/arithmetic/sub_d2ea',
+            []
+        );
+
+        $aPrefixes = [
+            IArithmetic::OP_SUB_D2EA_B,
+            IArithmetic::OP_SUB_D2EA_W,
+            IArithmetic::OP_SUB_D2EA_L,
+        ];
+
+        foreach (Processor\IRegister::DATA_REGS as $iReg) {
+            foreach ($aPrefixes as $iPrefix) {
+                $oSUBTemplate->iOpcode = $iPrefix | ($iReg << Processor\IOpcode::REG_UP_SHIFT);
+                $this->addExactHandlers(
+                    array_fill_keys(
+                        $this->mergePrefixForModeList($oSUBTemplate->iOpcode, $aEAModes),
+                        $this->compileTemplateHandler($oSUBTemplate)
+                    )
+                );
+            }
+        }
+    }
+
+
 }

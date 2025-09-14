@@ -59,4 +59,13 @@ interface IArithmetic
     const OP_ADD_D2EA_W = 0b1101000101000000;
     const OP_ADD_D2EA_L = 0b1101000110000000;
 
+    //                          dddmmmEAEAEA
+    const OP_SUB_EA2D_B = 0b1001000000000000;
+    const OP_SUB_EA2D_W = 0b1001000001000000;
+    const OP_SUB_EA2D_L = 0b1001000010000000;
+    //                          dddmmmEAEAEA
+    const OP_SUB_D2EA_B = 0b1001000100000000;
+    const OP_SUB_D2EA_W = 0b1001000101000000;
+    const OP_SUB_D2EA_L = 0b1001000110000000;
+
 }
