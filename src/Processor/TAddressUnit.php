@@ -52,7 +52,7 @@ trait TAddressUnit
         // Address Register direct aN [001 nnn]
         for ($iReg = IRegister::A0; $iReg <= IRegister::A7; ++$iReg) {
             $this->aSrcEAModes[IOpcode::LSB_EA_A|$iReg] = new EAMode\Direct\AddressRegister(
-                $this->oDataRegisters,
+                $this->oAddressRegisters,
                 $iReg
             );
         }
@@ -68,28 +68,43 @@ trait TAddressUnit
 
 
         // Address Register indirect, post increment (aN)+ [011 nnn]
-        for ($iReg = IRegister::A0; $iReg <= IRegister::A7; ++$iReg) {
+        for ($iReg = IRegister::A0; $iReg <= IRegister::A6; ++$iReg) {
             $this->aSrcEAModes[IOpcode::LSB_EA_AIPI|$iReg] = new EAMode\Indirect\PostIncrement(
-                $this->oDataRegisters,
+                $this->oAddressRegisters,
                 $iReg,
                 $this->oOutside
             );
         }
 
+        // A7 (aka SP) is a special case here...
+        $this->aSrcEAModes[IOpcode::LSB_EA_AIPI|IRegister::SP] = new EAMode\Indirect\PostIncrementSP(
+            $this->oAddressRegisters,
+            IRegister::SP,
+            $this->oOutside
+        );
+
+
         // Address Register indirect, pre decrement -(aN) [100 nnn]
-        for ($iReg = IRegister::A0; $iReg <= IRegister::A7; ++$iReg) {
+        for ($iReg = IRegister::A0; $iReg <= IRegister::A6; ++$iReg) {
             $this->aSrcEAModes[IOpcode::LSB_EA_AIPD|$iReg] = new EAMode\Indirect\PreDecrement(
-                $this->oDataRegisters,
+                $this->oAddressRegisters,
                 $iReg,
                 $this->oOutside
             );
         }
+
+        $this->aSrcEAModes[IOpcode::LSB_EA_AIPD|IRegister::SP] = new EAMode\Indirect\PreDecrementSP(
+            $this->oAddressRegisters,
+            IRegister::SP,
+            $this->oOutside
+        );
+
 
         // Address Register indirect with displacement d16(aN) [101 nnn]
         for ($iReg = IRegister::A0; $iReg <= IRegister::A7; ++$iReg) {
             $this->aSrcEAModes[IOpcode::LSB_EA_AD|$iReg] = new EAMode\Indirect\Displacement(
                 $this->iProgramCounter,
-                $this->oDataRegisters,
+                $this->oAddressRegisters,
                 $iReg,
                 $this->oOutside
             );
@@ -99,7 +114,7 @@ trait TAddressUnit
         for ($iReg = IRegister::A0; $iReg <= IRegister::A7; ++$iReg) {
             $this->aSrcEAModes[IOpcode::LSB_EA_AD|$iReg] = new EAMode\Indirect\Indexed(
                 $this->iProgramCounter,
-                $this->oDataRegisters,
+                $this->oAddressRegisters,
                 $this->oDataRegisters,
                 $iReg,
                 $this->oOutside

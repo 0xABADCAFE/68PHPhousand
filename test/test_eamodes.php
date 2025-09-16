@@ -19,7 +19,7 @@ use ABadCafe\G8PHPhousand\Device;
 
 require 'bootstrap.php';
 
-$oDataRegisters    = new Processor\RegisterSet();
+$oDataRegisters    = new Processor\DataRegisterSet();
 
 echo "Testing Data Register Direct...";
 
@@ -69,7 +69,7 @@ echo "OK\n";
 
 echo "Testing Address Register Direct...";
 
-$oAddressRegisters = new Processor\RegisterSet();
+$oAddressRegisters = new Processor\AddressRegisterSet();
 
 // Test Address Register Direct mode.
 $oEAModeAddressRegister = new Processor\EAMode\Direct\AddressRegister(

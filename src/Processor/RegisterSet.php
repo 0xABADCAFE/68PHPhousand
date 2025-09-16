@@ -22,7 +22,7 @@ use ValueError;
  * There is also an array which indexes these by reference so that they can be accessed
  * by bitfield indexes in opcodes etc.
  */
-class RegisterSet
+abstract class RegisterSet
 {
     // Public or direct access within the processor logic
     public int $iReg0 = 0;

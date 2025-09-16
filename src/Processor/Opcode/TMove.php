@@ -39,6 +39,7 @@ trait TMove
         $this->buildMOVEHandlers();
         $this->buildMOVEAHandlers();
         $this->buildMOVEQHandlers();
+        $this->buildSWAPHandlers();
     }
 
     protected function initMoveDstEAModes()
@@ -185,6 +186,7 @@ trait TMove
 
     private function buildMOVEQHandlers()
     {
+
         // LSB is immediate -128 to 127
         $cZeroHandler = function(int $iOpcode) {
             $this->oDataRegisters->aIndex[
@@ -228,5 +230,40 @@ trait TMove
             );
 
         }
+
+
+//         $oMoveTemplate = new Template\Params(
+//             0,
+//             'operation/move/moveq',
+//             []
+//         );
+//
+//         foreach (IRegister::DATA_REGS as $iDataReg) {
+//             $iPrefix = IMove::OP_MOVEQ | ($iDataReg << IOpcode::REG_UP_SHIFT);
+//             foreach(range($iPrefix, $iPrefix + 0xFF) as $iOpcode) {
+//                 $oMoveTemplate->iOpcode = $iOpcode;
+//                 $aHandlers[$oMoveTemplate->iOpcode] = $this->compileTemplateHandler(
+//                     $oMoveTemplate
+//                 );
+//             }
+//         }
+
+    }
+
+    private function buildSWAPHandlers()
+    {
+        $oSwapTemplate = new Template\Params(
+            0,
+            'operation/move/swap',
+            []
+        );
+        //$oSwapTemplate->bDumpCode = true;
+        $aHandlers = [];
+        foreach (IRegister::DATA_REGS as $iReg) {
+            $oSwapTemplate->iOpcode = IMove::OP_SWAP | $iReg;
+            $aHandlers[$oSwapTemplate->iOpcode] = $this->compileTemplateHandler($oSwapTemplate);
+        }
+
+        $this->addExactHandlers($aHandlers);
     }
 }
