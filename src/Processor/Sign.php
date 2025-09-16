@@ -49,10 +49,10 @@ class Sign
      * @param int<0, 4294967295>
      * @return int<-2147483648, 2147483647>
      */
-    public static function extLong(int $iWord): int
+    public static function extLong(int $iLong): int
     {
-        return $iByte & ISize::SIGN_BIT_LONG ?
-            $iByte | self::EXT_LONG :
-            $iByte & ISize::MASK_LONG;
+        return $iLong & ISize::SIGN_BIT_LONG ?
+            $iLong | self::EXT_LONG :
+            $iLong & ISize::MASK_LONG;
     }
 }

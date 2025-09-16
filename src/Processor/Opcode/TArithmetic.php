@@ -50,6 +50,12 @@ trait TArithmetic
         $this->buildADDD2EAHandlers($aEAModes);
         $this->buildSUBD2EAHandlers($aEAModes);
 
+        $aEAModes = $this->generateForEAModeList(
+            Processor\IEffectiveAddress::MODE_ALL
+        );
+        $this->buildADDEA2AHandlers($aEAModes);
+        $this->buildSUBEA2AHandlers($aEAModes);
+
     }
 
     private function buildSUBIHandlers(array $aEAModes)
@@ -331,6 +337,31 @@ trait TArithmetic
         }
     }
 
+    private function buildADDEA2AHandlers(array $aEAModes)
+    {
+        $oADDTemplate = new Template\Params(
+            0,
+            'operation/arithmetic/add_ea2a',
+            []
+        );
+
+        $aPrefixes = [
+            IArithmetic::OP_ADD_EA2A_W,
+            IArithmetic::OP_ADD_EA2A_L,
+        ];
+
+        foreach (Processor\IRegister::ADDR_REGS as $iReg) {
+            foreach ($aPrefixes as $iPrefix) {
+                $oADDTemplate->iOpcode = $iPrefix | ($iReg << Processor\IOpcode::REG_UP_SHIFT);
+                $this->addExactHandlers(
+                    array_fill_keys(
+                        $this->mergePrefixForModeList($oADDTemplate->iOpcode, $aEAModes),
+                        $this->compileTemplateHandler($oADDTemplate)
+                    )
+                );
+            }
+        }
+    }
 
     private function buildSUBEA2DHandlers(array $aEAModes, array $aEAAregs)
     {
@@ -365,6 +396,32 @@ trait TArithmetic
                     $this->compileTemplateHandler($oSUBTemplate)
                 )
             );
+        }
+    }
+
+    private function buildSUBEA2AHandlers(array $aEAModes)
+    {
+        $oSUBTemplate = new Template\Params(
+            0,
+            'operation/arithmetic/sub_ea2a',
+            []
+        );
+
+        $aPrefixes = [
+            IArithmetic::OP_SUB_EA2A_W,
+            IArithmetic::OP_SUB_EA2A_L,
+        ];
+
+        foreach (Processor\IRegister::ADDR_REGS as $iReg) {
+            foreach ($aPrefixes as $iPrefix) {
+                $oSUBTemplate->iOpcode = $iPrefix | ($iReg << Processor\IOpcode::REG_UP_SHIFT);
+                $this->addExactHandlers(
+                    array_fill_keys(
+                        $this->mergePrefixForModeList($oSUBTemplate->iOpcode, $aEAModes),
+                        $this->compileTemplateHandler($oSUBTemplate)
+                    )
+                );
+            }
         }
     }
 
