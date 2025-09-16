@@ -14,8 +14,6 @@ if (0 === $iImmediate) {
     $iImmediate = 8;
 }
 
-// TODO CV flags
-
 ?>
 return function(int $iOpcode): void {
     $oEAMode = $this->aDstEAModes[$iOpcode & 63];
@@ -24,27 +22,38 @@ return function(int $iOpcode): void {
 switch ($iSize) {
     case IOpcode::OP_SIZE_B:
 ?>
-    $iValue = $oEAMode->readByte() - <?= $iImmediate ?>;
-
-    $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
-    $this->updateNZByte($iValue);
-    $oEAMode->writeByte($iValue);
+    $iDst = $oEAMode->readByte();
+    $iRes = $iDst - <?= $iImmediate ?>;
+    $this->updateCCRMathByte(<?= $iImmediate ?>, $iDst, $iRes, false);
+    $oEAMode->writeByte($iRes);
 <?php
         break;
     case IOpcode::OP_SIZE_W:
 ?>
-    $iValue = $oEAMode->readWord() - <?= $iImmediate ?>;
-    $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
-    $this->updateNZWord($iValue);
-    $oEAMode->writeWord($iValue);
+    $iDst = $oEAMode->readWord();
+    $iRes = $iDst - <?= $iImmediate ?>;
+<?php
+    if (!$oParams->oAdditional->bNoCCR) {
+?>
+    $this->updateCCRMathWord(<?= $iImmediate ?>, $iDst, $iRes, false);
+<?php
+    }
+?>
+    $oEAMode->writeWord($iRes);
 <?php
         break;
     case IOpcode::OP_SIZE_L:
 ?>
-    $iValue = $oEAMode->readLong() - <?= $iImmediate ?>;
-    $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
-    $this->updateNZLong($iValue);
-    $oEAMode->writeLong($iValue);
+    $iDst = $oEAMode->readLong();
+    $iRes = $iDst - <?= $iImmediate ?>;
+<?php
+    if (!$oParams->oAdditional->bNoCCR) {
+?>
+    $this->updateCCRMathLong(<?= $iImmediate ?>, $iDst, $iRes, false);
+<?php
+    }
+?>
+    $oEAMode->writeLong($iRes);
 <?php
         break;
 }
