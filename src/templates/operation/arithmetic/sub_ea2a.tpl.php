@@ -17,9 +17,9 @@ $iAddressReg = (($oParams->iOpcode & IOpcode::MASK_REG_UPPER) >> IOpcode::REG_UP
 ?>
 return function(int $iOpcode): void {
     $oEAMode = $this->aDstEAModes[$iOpcode & 63];
-    $iReg    = &$this->oAddressRegisters->iReg<?= $iDataReg ?>;
+    $iReg    = &$this->oAddressRegisters->iReg<?= $iAddressReg ?>;
 <?php
-switch ($iSize) {
+switch ($iMode) {
     //case IOpcode::OP_SIZE_W:
     case 0b011: // Word
 
