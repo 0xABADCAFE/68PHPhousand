@@ -32,8 +32,19 @@ trait TShifter
         $this->buildRORShifterHandlers();
         $this->buildROXLShifterHandlers();
         $this->buildROXRShifterHandlers();
-
     }
+
+//     private function buildShifterHandlers(
+//         string $sTemplate,
+//         array  $aImmPrefixes,
+//         array  $aDynPrefixes,
+//         int    $iEAPrefix,
+//         callable $cEAHandler
+//     ) {
+//         $this->buildShifterEAHandler($iEAPrefix, $cEAHandler);
+//         $this->buildShifterImmHandlers($aImmPrefixes, $sTemplate);
+//         $this->buildShifterDynHandlers($aDynPrefixes, $sTemplate);
+//     }
 
     private function buildLSLShifterHandlers()
     {
