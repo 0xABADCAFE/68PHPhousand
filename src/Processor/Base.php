@@ -35,6 +35,7 @@ abstract class Base implements I68KProcessor, IOpcode, Opcode\IPrefix
     use Opcode\TLogical;
     use Opcode\TSingleBit;
     use Opcode\TArithmetic;
+    use Opcode\TShifter;
     use Opcode\TFlow;
     use Opcode\TConditional;
     use Opcode\TSpecial;
@@ -61,6 +62,7 @@ abstract class Base implements I68KProcessor, IOpcode, Opcode\IPrefix
         $this->initLogicalHandlers();
         $this->initSingleBitHandlers();
         $this->initArithmeticHandlers();
+        $this->initShifterHandlers();
         $this->initFlowHandlers();
         $this->initConditionalHandlers();
         $this->initSpecialHandlers();
