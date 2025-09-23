@@ -1,7 +1,7 @@
 <?php
 
 /**
- * LSL <ea>
+ * LSL #d,dN
  *
  */
 use ABadCafe\G8PHPhousand\Processor\IOpcode;

@@ -22,6 +22,39 @@ use ABadCafe\G8PHPhousand\Processor\IOpcode;
  */
 interface IShifter
 {
+    // ASL immediate
+    //                          iiiLssI00yyy - asl.b/w/l #i,dy i = 1-8
+    const OP_ASL_ID_B   = 0b1110000100000000;
+    const OP_ASL_ID_W   = 0b1110000101000000;
+    const OP_ASL_ID_L   = 0b1110000110000000;
+
+    // ASL dynamic
+    //                          xxxLssR00yyy - asl.b/w/l dx,dy x mod 64
+    const OP_ASL_DD_B   = 0b1110000100100000;
+    const OP_ASL_DD_W   = 0b1110000101100000;
+    const OP_ASL_DD_L   = 0b1110000110100000;
+
+    // ASL Mem
+    //                          000R11EAEAEA - asl(.w) <ea>
+    const OP_ASL_M_W    = 0b1110000011000000;
+
+    // ASR immediate
+    //                          iiiRssI00yyy - asl.b/w/l #i,dy i = 1-8
+    const OP_ASR_ID_B   = 0b1110000000000000;
+    const OP_ASR_ID_W   = 0b1110000001000000;
+    const OP_ASR_ID_L   = 0b1110000010000000;
+
+    // ASR dynamic
+    //                          xxxRssR00yyy - asl.b/w/l dx,dy x mod 64
+    const OP_ASR_DD_B   = 0b1110000000100000;
+    const OP_ASR_DD_W   = 0b1110000001100000;
+    const OP_ASR_DD_L   = 0b1110000010100000;
+
+    // ASR Mem
+    //                          000R11EAEAEA - asr(.w) <ea>
+    const OP_ASR_M_W    = 0b1110000011000000;
+
+
     // LSL immediate
     //                          iiiLssI01yyy - lsl.b/w/l #i,dy i = 1-8
     const OP_LSL_ID_B   = 0b1110000100001000;
@@ -35,7 +68,7 @@ interface IShifter
     const OP_LSL_DD_L   = 0b1110000110101000;
 
     // LSL Mem
-    //                          001L11EAEAEA - lsr(.w) <ea>
+    //                          001L11EAEAEA - lsl(.w) <ea>
     const OP_LSL_M_W    = 0b1110001111000000;
 
     // LSR immediate
