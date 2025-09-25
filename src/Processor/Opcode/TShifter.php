@@ -205,7 +205,16 @@ trait TShifter
         $this->buildShifterEAHandler(
             IShifter::OP_ROL_M_W,
             function (int $iOpcode) {
-                // TODO
+                // Memory shifts are word sized, 1 bit at a time
+                $oEAMode = $this->aDstEAModes[$iOpcode & 63];
+                $iValue  = $oEAMode->readWord();
+                $iValue  = ($iValue << 1) | ($iValue >> 15);
+                $this->iConditionRegister &= IRegister::CCR_CLEAR_XCV;
+                $this->updateNZWord($iValue);
+                $this->iConditionRegister |= (
+                    ($iValue & 0x10000) ? IRegister::CCR_MASK_XC : 0
+                );
+                $oEAMode->writeWord($iValue);
             }
         );
         $this->buildShifterImmHandlers(
@@ -231,7 +240,17 @@ trait TShifter
         $this->buildShifterEAHandler(
             IShifter::OP_ROR_M_W,
             function (int $iOpcode) {
-                // TODO
+                // Memory shifts are word sized, 1 bit at a time
+                $oEAMode = $this->aDstEAModes[$iOpcode & 63];
+                $iValue  = $oEAMode->readWord();
+                $iValue  = ($iValue >> 1)|($iValue << 15);
+                $this->iConditionRegister &= IRegister::CCR_CLEAR_XCV;
+                $this->updateNZWord($iValue);
+                $this->iConditionRegister |= (
+                    ($iValue & 0x10000) ? IRegister::CCR_MASK_XC : 0
+                );
+                $oEAMode->writeWord($iValue);
+
             }
         );
 
