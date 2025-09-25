@@ -42,6 +42,7 @@ trait TArithmetic
 
         $this->buildADDEA2DHandlers($aEAModes, $aEAAregs);
         $this->buildSUBEA2DHandlers($aEAModes, $aEAAregs);
+        $this->buildMULXHandlers($aEAModes);
 
         $aEAModes = $this->generateForEAModeList(
             Processor\IEffectiveAddress::MODE_MEM_ALTERABLE
@@ -55,6 +56,44 @@ trait TArithmetic
         );
         $this->buildADDEA2AHandlers($aEAModes);
         $this->buildSUBEA2AHandlers($aEAModes);
+    }
+
+    private function buildMULXHandlers(array $aEAModes)
+    {
+        $this->addExactHandlers(
+            array_fill_keys(
+                $this->mergePrefixForModeList(
+                    IArithmetic::OP_MULS_W,
+                    $aEAModes
+                ),
+                function(int $iOpcode) {
+                    $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
+                    $iReg    = &$this->oDataRegisters->aIndex[($iOpcode >> IOpcode::IMM_UP_SHIFT) & 7];
+                    $iValue  = Sign::extWord($iReg) * Sign::extWord($oEAMode->readWord());
+                    $iReg    = $iValue & ISize::MASK_LONG;
+                    $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
+                    $this->updateNZLong($iValue);
+                    $oEAMode->writeByte($iRes);
+                }
+            )
+        );
+        $this->addExactHandlers(
+            array_fill_keys(
+                $this->mergePrefixForModeList(
+                    IArithmetic::OP_MULU_W,
+                    $aEAModes
+                ),
+                function(int $iOpcode) {
+                    $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
+                    $iReg    = &$this->oDataRegisters->aIndex[($iOpcode >> IOpcode::IMM_UP_SHIFT) & 7];
+                    $iValue  = $iReg * $oEAMode->readWord();
+                    $iReg    = $iValue & ISize::MASK_LONG;
+                    $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
+                    $this->updateNZLong($iValue);
+                    $oEAMode->writeByte($iRes);
+                }
+            )
+        );
 
     }
 

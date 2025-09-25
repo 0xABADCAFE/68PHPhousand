@@ -78,4 +78,9 @@ interface IArithmetic
     const OP_SUB_D2EA_W = 0b1001000101000000;
     const OP_SUB_D2EA_L = 0b1001000110000000;
 
+    //                          rrr111EAEAEA
+    const OP_MULS_W     = 0b1100000111000000;
+
+    //                          rrr011EAEAEA
+    const OP_MULU_W     = 0b1100000011000000;
 }
