@@ -1,5 +1,5 @@
-Handler setup took 0.065912008285522 seconds using 4433128 bytes
-33778 Exact and 0 Prefix handlers defined
+Handler setup took 0.13182783126831 seconds using 8889232 bytes
+37144 Exact and 0 Prefix handlers defined
 
 
       |00000000000000001111111111111111222222222222222233333333333333334444444444444444555555555555555566666666666666667777777777777777|
@@ -593,43 +593,43 @@ $DF80 |----------------XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX------XXXXXXXXX
       |00000000000000001111111111111111222222222222222233333333333333334444444444444444555555555555555566666666666666667777777777777777|
       |0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF|
       |                                                                                                                                |
-$E000 |--------------------------------------------------------------------------------------------------------------------------------|
-$E080 |--------------------------------------------------------------------------------------------------------------------------------|
-$E100 |--------------------------------------------------------------------------------------------------------------------------------|
-$E180 |--------------------------------------------------------------------------------------------------------------------------------|
-$E200 |--------------------------------------------------------------------------------------------------------------------------------|
-$E280 |--------------------------------------------------------------------------------------------------------------------------------|
-$E300 |--------------------------------------------------------------------------------------------------------------------------------|
-$E380 |--------------------------------------------------------------------------------------------------------------------------------|
-$E400 |--------------------------------------------------------------------------------------------------------------------------------|
-$E480 |--------------------------------------------------------------------------------------------------------------------------------|
-$E500 |--------------------------------------------------------------------------------------------------------------------------------|
-$E580 |--------------------------------------------------------------------------------------------------------------------------------|
-$E600 |--------------------------------------------------------------------------------------------------------------------------------|
-$E680 |--------------------------------------------------------------------------------------------------------------------------------|
-$E700 |--------------------------------------------------------------------------------------------------------------------------------|
-$E780 |--------------------------------------------------------------------------------------------------------------------------------|
+$E000 |XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX|
+$E080 |XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX----------------XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX------|
+$E100 |XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX|
+$E180 |XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX----------------------------------------------------------------|
+$E200 |XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX|
+$E280 |XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX----------------XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX------|
+$E300 |XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX|
+$E380 |XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX----------------XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX------|
+$E400 |XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX|
+$E480 |XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX----------------XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX------|
+$E500 |XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX|
+$E580 |XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX----------------XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX------|
+$E600 |XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX|
+$E680 |XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX----------------XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX------|
+$E700 |XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX|
+$E780 |XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX----------------XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX------|
 
 
       |00000000000000001111111111111111222222222222222233333333333333334444444444444444555555555555555566666666666666667777777777777777|
       |0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF0123456789ABCDEF|
       |                                                                                                                                |
-$E800 |--------------------------------------------------------------------------------------------------------------------------------|
-$E880 |--------------------------------------------------------------------------------------------------------------------------------|
-$E900 |--------------------------------------------------------------------------------------------------------------------------------|
-$E980 |--------------------------------------------------------------------------------------------------------------------------------|
-$EA00 |--------------------------------------------------------------------------------------------------------------------------------|
-$EA80 |--------------------------------------------------------------------------------------------------------------------------------|
-$EB00 |--------------------------------------------------------------------------------------------------------------------------------|
-$EB80 |--------------------------------------------------------------------------------------------------------------------------------|
-$EC00 |--------------------------------------------------------------------------------------------------------------------------------|
-$EC80 |--------------------------------------------------------------------------------------------------------------------------------|
-$ED00 |--------------------------------------------------------------------------------------------------------------------------------|
-$ED80 |--------------------------------------------------------------------------------------------------------------------------------|
-$EE00 |--------------------------------------------------------------------------------------------------------------------------------|
-$EE80 |--------------------------------------------------------------------------------------------------------------------------------|
-$EF00 |--------------------------------------------------------------------------------------------------------------------------------|
-$EF80 |--------------------------------------------------------------------------------------------------------------------------------|
+$E800 |XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX|
+$E880 |XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX----------------------------------------------------------------|
+$E900 |XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX|
+$E980 |XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX----------------------------------------------------------------|
+$EA00 |XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX|
+$EA80 |XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX----------------------------------------------------------------|
+$EB00 |XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX|
+$EB80 |XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX----------------------------------------------------------------|
+$EC00 |XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX|
+$EC80 |XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX----------------------------------------------------------------|
+$ED00 |XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX|
+$ED80 |XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX----------------------------------------------------------------|
+$EE00 |XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX|
+$EE80 |XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX----------------------------------------------------------------|
+$EF00 |XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX|
+$EF80 |XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX----------------------------------------------------------------|
 
 
       |00000000000000001111111111111111222222222222222233333333333333334444444444444444555555555555555566666666666666667777777777777777|
