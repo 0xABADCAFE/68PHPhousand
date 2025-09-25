@@ -26,6 +26,9 @@ trait TShifter
 
     protected function initShifterHandlers()
     {
+        $this->buildASLShifterHandlers();
+        $this->buildASRShifterHandlers();
+
         $this->buildLSLShifterHandlers();
         $this->buildLSRShifterHandlers();
         $this->buildROLShifterHandlers();
@@ -45,6 +48,83 @@ trait TShifter
 //         $this->buildShifterImmHandlers($aImmPrefixes, $sTemplate);
 //         $this->buildShifterDynHandlers($aDynPrefixes, $sTemplate);
 //     }
+
+
+    private function buildASLShifterHandlers()
+    {
+        $this->buildShifterEAHandler(
+            IShifter::OP_ASL_M_W,
+            function (int $iOpcode) {
+                // Memory shifts are word sized, 1 bit at a time
+                $oEAMode = $this->aDstEAModes[$iOpcode & 63];
+                $iValue  = $oEAMode->readWord() << 1;
+                $this->iConditionRegister &= IRegister::CCR_CLEAR_XCV;
+                $this->updateNZWord($iValue);
+                // TODO Overflow
+                $this->iConditionRegister |= (
+                    ($iValue & 0x10000) ? IRegister::CCR_MASK_XC : 0
+                );
+                $oEAMode->writeWord($iValue);
+            }
+        );
+
+        $this->buildShifterImmHandlers(
+            [
+                IShifter::OP_ASL_ID_B,
+                IShifter::OP_ASL_ID_W,
+                IShifter::OP_ASL_ID_L,
+            ],
+            'asl'
+        );
+
+        $this->buildShifterDynHandlers(
+            [
+                IShifter::OP_ASL_DD_B,
+                IShifter::OP_ASL_DD_W,
+                IShifter::OP_ASL_DD_L,
+            ],
+            'asl'
+        );
+    }
+
+    private function buildASRShifterHandlers()
+    {
+        $this->buildShifterEAHandler(
+            IShifter::OP_ASR_M_W,
+            function (int $iOpcode) {
+                // Memory shifts are word sized, 1 bit at a time
+                $oEAMode = $this->aDstEAModes[$iOpcode & 63];
+                $iValue  = $oEAMode->readWord();
+                $iLSB    = $iValue & 1;
+                $iValue >>= 1;
+                $this->iConditionRegister &= IRegister::CCR_CLEAR_XCV;
+                $this->updateNZWord($iValue);
+                // TODO Overflow
+                $this->iConditionRegister |= (
+                    $iLSB ? IRegister::CCR_MASK_XC : 0
+                );
+                $oEAMode->writeWord($iValue);
+            }
+        );
+
+        $this->buildShifterImmHandlers(
+            [
+                IShifter::OP_ASR_ID_B,
+                IShifter::OP_ASR_ID_W,
+                IShifter::OP_ASR_ID_L,
+            ],
+            'asr'
+        );
+
+        $this->buildShifterDynHandlers(
+            [
+                IShifter::OP_ASR_DD_B,
+                IShifter::OP_ASR_DD_W,
+                IShifter::OP_ASR_DD_L,
+            ],
+            'asr'
+        );
+    }
 
     private function buildLSLShifterHandlers()
     {
