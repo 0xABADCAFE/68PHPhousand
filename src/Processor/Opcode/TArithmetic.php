@@ -73,7 +73,6 @@ trait TArithmetic
                     $iReg    = $iValue & ISize::MASK_LONG;
                     $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
                     $this->updateNZLong($iValue);
-                    $oEAMode->writeByte($iRes);
                 }
             )
         );
@@ -90,7 +89,6 @@ trait TArithmetic
                     $iReg    = $iValue & ISize::MASK_LONG;
                     $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
                     $this->updateNZLong($iValue);
-                    $oEAMode->writeByte($iRes);
                 }
             )
         );
