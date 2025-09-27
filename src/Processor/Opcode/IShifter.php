@@ -35,8 +35,8 @@ interface IShifter
     const OP_ASL_DD_L   = 0b1110000110100000;
 
     // ASL Mem
-    //                          000R11EAEAEA - asl(.w) <ea>
-    const OP_ASL_M_W    = 0b1110000011000000;
+    //                          000L11EAEAEA - asl(.w) <ea>
+    const OP_ASL_M_W    = 0b1110000111000000;
 
     // ASR immediate
     //                          iiiRssI00yyy - asl.b/w/l #i,dy i = 1-8
