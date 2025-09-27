@@ -18,6 +18,7 @@ use ABadCafe\G8PHPhousand\IDevice;
 use ABadCafe\G8PHPhousand\Processor\ISize;
 use LengthException;
 use DomainException;
+use LogicException;
 
 /**
  * CodeROM
