@@ -71,6 +71,8 @@ interface IOpcode
     const REG_EA_A7 = IRegister::A7;
 
     // Values for registers encoded in bits 9-11
+    const IMM_UP_SHIFT = 9;
+
     const REG_UP_SHIFT = 9;
     const REG_UP_D0 = IRegister::D0 << self::REG_UP_SHIFT;
     const REG_UP_D1 = IRegister::D1 << self::REG_UP_SHIFT;
