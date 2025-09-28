@@ -19,45 +19,35 @@ use ABadCafe\G8PHPhousand\Device;
 
 use LogicException;
 
-class CPU extends Processor\Base
+class CachedCPU extends CPU
 {
     public function __construct(Device\IBus $oOutside)
     {
-        parent::__construct($oOutside, false);
+        parent __construct($oOutside, true);
     }
 
     public function getName(): string
     {
-        return 'TestHarness CPU';
-    }
-
-    public function getOutside(): Device\IBus
-    {
-        return $this->oOutside;
-    }
-
-    public function executeTimed(int $iAddress): \stdClass
-    {
-        $fTime = -microtime(true);
-        $iCount = $this->execute($iAddress);
-        $fTime += microtime(true);
-        return (object)[
-            'iCount' => $iCount,
-            'fTime'  => $fTime
-        ];
+        return 'TestHarness CPU (Cached)';
     }
 
     public function execute(int $iAddress): int
     {
         $this->iProgramCounter = $iAddress;
         $iCount = 0;
-
         try {
-            while(true) {
-                $iOpcode = $this->oOutside->readWord($this->iProgramCounter);
+            $aInstCache = [];
+
+            for(;;) {
+                $iOpcode = $aInstCache[$this->iProgramCounter] ?? (
+                    $aInstCache[$this->iProgramCounter] = $this->oOutside->readWord(
+                        $this->iProgramCounter
+                    )
+                );
                 $this->iProgramCounter += Processor\ISize::WORD;
                 $this->aExactHandler[$iOpcode]($iOpcode);
                 ++$iCount;
+
             };
         } catch (LogicException $oError) {
 

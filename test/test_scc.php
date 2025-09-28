@@ -21,30 +21,11 @@ use LogicException;
 
 require 'bootstrap.php';
 
-$oMemory = new Device\Memory(64, 0);
-
-$oProcessor = new class($oMemory) extends Processor\Base
+$oProcessor = new class(new Device\Memory\SparseRAM()) extends Processor\Base
 {
     public function getName(): string
     {
         return 'Test CPU';
-    }
-
-    public function getMemory(): Device\Memory
-    {
-        return $this->oOutside;
-    }
-
-    /** Expose the indexed data regs for testing */
-    public function getDataRegs(): array
-    {
-        return $this->oDataRegisters->aIndex;
-    }
-
-    /** Expose the indexed addr regs for testing */
-    public function getAddrRegs(): array
-    {
-        return $this->oAddressRegisters->aIndex;
     }
 
     public function executeAt(int $iAddress): void
@@ -60,7 +41,6 @@ $oProcessor = new class($oMemory) extends Processor\Base
 
         $cHandler($iOpcode);
     }
-
 
     public function testCCRBit(
         string $sDescription,

@@ -19,6 +19,25 @@ use LogicException;
 error_reporting(-1);
 require  __DIR__ . '/../src/bootstrap.php';
 
-$oProcessor = new TestHarness\CPU(new Device\NullDevice());
+echo "Benchmarking DBF loop\n";
 
-$oProcessor->dumpExactHandlerMap();
+$aOpcacheStatus = opcache_get_status();
+if (isset($aOpcacheStatus['jit'])) {
+    echo "JIT parameters: ";
+    print_r($aOpcacheStatus['jit']);
+} else {
+    echo "JIT mode disabled\n";
+}
+
+const BASE_ADDRESS = 0x4;
+
+$oObjectCode = (new TestHarness\Assembler\Vasmm68k())->assemble("
+	move.w #-1,d0
+.loop:
+	dbra d0,.loop
+	rts
+",
+    BASE_ADDRESS
+);
+
+

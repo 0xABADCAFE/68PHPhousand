@@ -12,13 +12,27 @@
 
 declare(strict_types=1);
 
-namespace ABadCafe\G8PHPhousand;
+namespace ABadCafe\G8PHPhousand\Device;
 
-use LogicException;
+use ABadCafe\G8PHPhousand\IDevice;
 
-error_reporting(-1);
-require  __DIR__ . '/../src/bootstrap.php';
+use DomainException;
+use ValueError;
+use function str_repeat;
 
-$oProcessor = new TestHarness\CPU(new Device\NullDevice());
+/**
+ * IBus extension interface for memory block implementations.
+ */
+interface IMemory extends IBus
+{
+    /**
+     * Returns the base physical address of the memory block.
+     */
+    public function getBaseAddress(): int;
 
-$oProcessor->dumpExactHandlerMap();
+    /**
+     * Returns the length, in bytes, of the memory block.
+     */
+    public function getLength(): int;
+
+}

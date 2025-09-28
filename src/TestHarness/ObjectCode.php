@@ -12,13 +12,20 @@
 
 declare(strict_types=1);
 
-namespace ABadCafe\G8PHPhousand;
+namespace ABadCafe\G8PHPhousand\TestHarness;
 
-use LogicException;
+use ABadCafe\G8PHPhousand\Device;
 
-error_reporting(-1);
-require  __DIR__ . '/../src/bootstrap.php';
+class ObjectCode
+{
+    public string $sCode;
+    public int    $iBaseAddress;
 
-$oProcessor = new TestHarness\CPU(new Device\NullDevice());
+    public function __construct(string $sCode, int $iBaseAddress)
+    {
+        $this->sCode = $sCode;
+        $this->iBaseAddress = $iBaseAddress;
+    }
+}
 
-$oProcessor->dumpExactHandlerMap();
+

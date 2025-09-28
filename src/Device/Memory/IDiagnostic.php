@@ -12,13 +12,22 @@
 
 declare(strict_types=1);
 
-namespace ABadCafe\G8PHPhousand;
+namespace ABadCafe\G8PHPhousand\Device\Memory;
 
-use LogicException;
+use ABadCafe\G8PHPhousand\Device;
 
-error_reporting(-1);
-require  __DIR__ . '/../src/bootstrap.php';
+use DomainException;
+use ValueError;
+use function str_repeat;
 
-$oProcessor = new TestHarness\CPU(new Device\NullDevice());
+/**
+ * Raw Binary memory. Memory is implemented as a direct string
+ */
+interface IDiagnostic
+{
+    /**
+     * Returns a hex dump of the memory
+     */
+    public function getHexDump(int $iAddress, int $iLength): string;
 
-$oProcessor->dumpExactHandlerMap();
+}

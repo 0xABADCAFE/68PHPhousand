@@ -172,6 +172,7 @@ if (isset($aOpcacheStatus['jit'])) {
     echo "JIT mode disabled\n";
 }
 
-benchmark(new Device\Memory(MEM_SIZE, 0));
-benchmark(new Device\SparseRAM(MEM_SIZE));
+benchmark(new Device\Memory\BinaryRAM(MEM_SIZE, 0));
+benchmark(new Device\Memory\SparseRAM());
+benchmark(new Device\Memory\SparseWordRAM());
 

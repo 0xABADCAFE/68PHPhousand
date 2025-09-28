@@ -12,53 +12,38 @@
 
 declare(strict_types=1);
 
-namespace ABadCafe\G8PHPhousand\Device;
+namespace ABadCafe\G8PHPhousand\Device\Memory;
 
-use ABadCafe\G8PHPhousand\IDevice;
 use ABadCafe\G8PHPhousand\Processor\ISize;
-use LengthException;
+use ABadCafe\G8PHPhousand\Device;
+
 use DomainException;
-use LogicException;
+use ValueError;
 
 /**
- * CodeROM
+ * Sparse word array implementation. This uses a regular PHP associative array of
+ * word values that are set on first access (zero if a read). All access sizes are
+ * supported but the implementation is tuned for 16-bit word access.
  *
- * Manages a read only set of data. Optimised for word access, data are assumed to be code.
+ * Alignment is silently enforced to word size.
  */
-class CodeROM implements IBus
+class SparseWordRAM implements Device\IMemory
 {
-    private array $aWords = [];
+    protected array $aWords = [];
 
-    public function __construct(string $sFile, int $iBaseAddress = 0)
+    public function __construct()
     {
-        assert(!empty($sFile), new DomainException('No ROM file specified'));
-        assert(0 === ($iBaseAddress & 1), new LogicException('Misaligned ROM Base Address'));
-        $sData = file_get_contents($sFile);
-        if (empty($sData)) {
-            throw new LengthException('Empty ROM file');
-        }
-        // Make sure the data is an even length
-
-        $iLength = strlen($sData);
-
-        if ($iLength & 1) {
-            ++$iLength;
-            $sData .= "\0";
-        }
-        $this->aWords = array_combine(
-            range($iBaseAddress, $iBaseAddress + $iLength - ISize::WORD, ISize::WORD),
-            array_values(unpack('n*', $sData))
-        );
+        $this->hardReset();
     }
 
     public function getBaseAddress(): int
     {
-        return $this->iBaseAddress;
+        return 0;
     }
 
     public function getLength(): int
     {
-        return $this->iLength;
+        return 1<<32;
     }
 
     /**
@@ -66,7 +51,7 @@ class CodeROM implements IBus
      */
     public function getName(): string
     {
-        return 'CodeROM';
+        return 'SparseRAM (array<int, int<0,65536>>)';
     }
 
     /**
@@ -82,6 +67,7 @@ class CodeROM implements IBus
      */
     public function hardReset(): self
     {
+        $this->aWords = [];
         return $this;
     }
 
@@ -91,7 +77,7 @@ class CodeROM implements IBus
     public function readByte(int $iAddress): int
     {
         $iWord = $this->readWord($iAddress);
-        return ($iAddress & 1) ? ($iWord & ISize::MASK_BYTE) : (($iWord >> 8) & $iMaskByte);
+        return ($iAddress & 1) ? ($iWord & ISize::MASK_BYTE) : (($iWord >> 8) & ISize::MASK_BYTE);
     }
 
     /**
@@ -99,7 +85,8 @@ class CodeROM implements IBus
      */
     public function readWord(int $iAddress): int
     {
-        return $this->aWords[$iAddress & 0xFFFFFFFE] ?? 0;
+        $iAddress &= 0xFFFFFFFE;
+        return $this->aWords[$iAddress] ?? ($this->aWords[$iAddress] = 0);
     }
 
     /**
@@ -107,7 +94,9 @@ class CodeROM implements IBus
      */
     public function readLong(int $iAddress): int
     {
-        return ($this->readWord($iAddress) << 16) | $this->readWord($iAddress + ISize::WORD);
+        return
+            ($this->readWord($iAddress) << 16) |
+            $this->readWord($iAddress + ISize::WORD);
     }
 
     /**
@@ -115,6 +104,15 @@ class CodeROM implements IBus
      */
     public function writeByte(int $iAddress, int $iValue): void
     {
+        $iWord = $this->readWord($iAddress);
+        if ($iAddress & 1) {
+            $this->aWords[
+                $iAddress & 0xFFFFFFFE
+            ] = ($iWord & 0xFF00) | ($iValue & ISize::MASK_BYTE);
+        } else {
+            $this->aWords[$iAddress] =
+                ($iWord & 0x00FF) | (($iValue & ISize::MASK_BYTE) << 8);
+        }
     }
 
     /**
@@ -122,6 +120,7 @@ class CodeROM implements IBus
      */
     public function writeWord(int $iAddress, int $iValue): void
     {
+        $this->aWords[$iAddress & 0xFFFFFFFE] = $iValue & ISize::MASK_WORD;
     }
 
     /**
@@ -129,10 +128,8 @@ class CodeROM implements IBus
      */
     public function writeLong(int $iAddress, int $iValue): void
     {
+        $this->writeWord($iAddress, $iValue >> 16);
+        $this->writeWord($iAddress + ISize::WORD, $iValue);
     }
 
-    public function getDump($iAddress, $iLength): string
-    {
-        return '';
-    }
 }

@@ -29,8 +29,18 @@ if (isset($aOpcacheStatus['jit'])) {
     echo "JIT mode disabled\n";
 }
 
+const BASE_ADDRESS = 0x4;
 
-$oMemory = new Device\CodeROM('68k/dbf.bin', 0x4);
+$oObjectCode = (new TestHarness\Assembler\Vasmm68k())->assemble("
+	move.w #-1,d0
+.loop:
+	dbra d0,.loop
+	rts
+",
+    BASE_ADDRESS
+);
+
+$oMemory = new Device\Memory\CodeROM($oObjectCode->sCode, $oObjectCode->iBaseAddress);
 
 $oProcessor = new class($oMemory, true) extends Processor\Base
 {

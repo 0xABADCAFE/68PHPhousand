@@ -15,9 +15,10 @@ declare(strict_types=1);
 namespace ABadCafe\G8PHPhousand\TestHarness\Assembler;
 
 use ABadCafe\G8PHPhousand\TestHarness\IAssembler;
-use ABadCafe\G8PHPhousand\Device;
+use ABadCafe\G8PHPhousand\TestHarness\ObjectCode;
 
 use RuntimeExcepction;
+use LogicException;
 
 /**
  * Simple implementaiton of IAssembler that wraps around an existing installation of the
@@ -47,12 +48,23 @@ class Vasmm68k implements IAssembler
         $this->sBinPath = $sPath;
     }
 
-    public function assemble(string $sSourceCode): Device\IBus
+    public function assemble(string $sSourceCode, int $iBaseAddress): ObjectCode
     {
+        if ($iBaseAddress & 1) {
+            throw new LogicException('Misaligned base address ' . $iBaseAddress);
+        }
         $sSource = tempnam($this->sTmpDir, 'src_');
         $sTarget = tempnam($this->sTmpDir, 'bin_');
 
         try {
+            if ($iBaseAddress) {
+                $sSourceCode = sprintf(
+                    "\torg $%08X\n%s",
+                    $iBaseAddress,
+                    $sSourceCode
+                );
+            }
+
             file_put_contents($sSource, $sSourceCode);
             $sCommand = sprintf(
                 "%s %s -Fbin -o %s\n",
@@ -64,7 +76,7 @@ class Vasmm68k implements IAssembler
             if (empty($sResult)) {
                 throw new RuntimeException('Failed to assemble source');
             }
-            return new Device\CodeROM($sTarget);
+            return new ObjectCode(file_get_contents($sTarget), $iBaseAddress);
         } finally {
             unlink($sSource);
             unlink($sTarget);

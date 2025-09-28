@@ -12,13 +12,28 @@
 
 declare(strict_types=1);
 
-namespace ABadCafe\G8PHPhousand;
+namespace ABadCafe\G8PHPhousand\Device;
 
-use LogicException;
+use ABadCafe\G8PHPhousand\IDevice;
 
-error_reporting(-1);
-require  __DIR__ . '/../src/bootstrap.php';
+use \LogicException;
 
-$oProcessor = new TestHarness\CPU(new Device\NullDevice());
+/**
+ * Union interface for read/write
+ */
+class PageMap implements IBus
+{
+    private int $iPageSize;
 
-$oProcessor->dumpExactHandlerMap();
+    const MIN_SIZE_EXP = 8;
+    const MAX_SIZE_EXP = 16;
+
+    public function ___construct(int $iPageSizeExp)
+    {
+        assert($iPageSizeExp >= self::MIN_SIZE_EXP && $iPageSizeExp <= self::MAX_SIZE_EXP, new LogicException());
+
+        $this->iPageSize = 1 << $iPageSizeExp;
+    }
+}
+
+
