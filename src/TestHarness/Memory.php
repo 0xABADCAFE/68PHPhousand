@@ -1,4 +1,4 @@
-./<?php
+<?php
 
 /**
  *       _/_/_/    _/_/    _/_/_/   _/    _/  _/_/_/   _/                                                            _/
@@ -20,25 +20,25 @@ use ABadCafe\G8PHPhousand\Device;
 use LogicException;
 
 /**
- * Simple Memory implementation used for diagnostic testing. Based on the SparseWordRAM,
- * includes facilities for placing object code into memory for execution.
+ * Simple sparse memory wrapper
  */
-class Memory extends Device\Memory\SparseWordRAM
+class Memory
 {
-    public function loadObjectCode($oObjectCode): void
+    public static function loadObjectCode(Device\IMemory $oMemory, ObjectCode $oObjectCode): void
     {
-        $iLength = strlen($oObjectCode->sCode);
-        $aWords = array_combine(
-            range(
-                $oObjectCode->iBaseAddress,
-                $oObjectCode->iBaseAddress + $iLength - ISize::WORD,
-                ISize::WORD
-            ),
-            array_values(unpack('n*', $oObjectCode->sCode))
-        );
-
-        // Ensure the loaded code overwrites the expected address range
-        $this->aWords = $aWords + $this->aWords;
+        $iLength  = strlen($oObjectCode->sCode);
+        $iAddress = $oObjectCode->iBaseAddress;
+        for ($i = 0; $i < $iLength; ++$i) {
+            $oMemory->writeByte($iAddress++, $objectCode->sCode[$i]);
+        }
     }
 
+    public static function getHexDump(Device\IMemory $oMemory, int $iAddress, int $iLength): string
+    {
+        $sResult = '';
+        while ($iLength--) {
+            $sResult .= Device\IByteConv::AHEX[$oMemory->readByte($iAddress++)];
+        }
+        return $sResult;
+    }
 }

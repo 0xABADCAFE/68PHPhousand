@@ -30,7 +30,6 @@ const CLASS_MAP = [
   'ABadCafe\\G8PHPhousand\\Device\\IByteConv' => '/Device/IByteConv.php',
   'ABadCafe\\G8PHPhousand\\Device\\IReadable' => '/Device/IReadable.php',
   'ABadCafe\\G8PHPhousand\\Device\\PageMap' => '/Device/PageMap.php',
-  'ABadCafe\\G8PHPhousand\\Device\\Memory' => '/Device/Memory.php',
   'ABadCafe\\G8PHPhousand\\Device\\Memory\\BinaryRAM' => '/Device/Memory/BinaryRAM.php',
   'ABadCafe\\G8PHPhousand\\Device\\Memory\\SparseWordRAM' => '/Device/Memory/SparseWordRAM.php',
   'ABadCafe\\G8PHPhousand\\Device\\Memory\\SparseRAM' => '/Device/Memory/SparseRAM.php',

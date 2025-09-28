@@ -25,7 +25,7 @@ $oProcessor = new class extends Processor\Base
 {
     public function __construct()
     {
-        parent::__construct(new Device\Memory(64, 0));
+        parent::__construct(new Device\Memory\BinaryRAM(64, 0));
     }
 
     public function getName(): string
@@ -33,7 +33,7 @@ $oProcessor = new class extends Processor\Base
         return 'Test CPU';
     }
 
-    public function getMemory(): Device\Memory
+    public function getMemory(): Device\IMemory
     {
         return $this->oOutside;
     }

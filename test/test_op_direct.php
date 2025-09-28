@@ -21,7 +21,7 @@ use LogicException;
 
 require 'bootstrap.php';
 
-$oMemory = new Device\Memory(64, 0);
+$oMemory = new Device\Memory\BinaryRAM(64, 0);
 
 $oProcessor = new class($oMemory) extends Processor\Base
 {
@@ -30,7 +30,7 @@ $oProcessor = new class($oMemory) extends Processor\Base
         return 'Test CPU';
     }
 
-    public function getMemory(): Device\Memory
+    public function getMemory(): Device\IMemory
     {
         return $this->oOutside;
     }
