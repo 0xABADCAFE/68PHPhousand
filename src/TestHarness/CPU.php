@@ -36,6 +36,30 @@ class CPU extends Processor\Base
         return $this->oOutside;
     }
 
+    public function getDataRegisters(): Processor\DataRegisterSet
+    {
+        return $this->oDataRegisters;
+    }
+
+    public function getAddressRegisters(): Processor\AddressRegisterSet
+    {
+        return $this->oAddressRegisters;
+    }
+
+    public function executeAt(int $iAddress): void
+    {
+        assert($iAddress >= 0, new LogicException('Invalid start address'));
+        $this->iProgramCounter = $iAddress;
+        $iOpcode = $this->oOutside->readWord($this->iProgramCounter);
+        $this->iProgramCounter += Processor\ISize::WORD;
+
+        $cHandler = $this->aExactHandler[$iOpcode] ??
+            $this->aPrefixHandler[$iOpcode & Processor\IOpcode::MASK_OP_PREFIX] ??
+            throw new LogicException('Unhandled Opcode ' . $iOpcode);
+
+        $cHandler($iOpcode);
+    }
+
     public function executeTimed(int $iAddress): \stdClass
     {
         $fTime = -microtime(true);

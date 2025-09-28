@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace ABadCafe\G8PHPhousand\Test;
 
+use ABadCafe\G8PHPhousand\TestHarness;
 use ABadCafe\G8PHPhousand\Processor;
 use ABadCafe\G8PHPhousand\Device;
 
@@ -23,44 +24,7 @@ require 'bootstrap.php';
 
 $oMemory = new Device\Memory\BinaryRAM(64, 0);
 
-$oProcessor = new class($oMemory) extends Processor\Base
-{
-    public function getName(): string
-    {
-        return 'Test CPU';
-    }
-
-    public function getMemory(): Device\IMemory
-    {
-        return $this->oOutside;
-    }
-
-    /** Expose the indexed data regs for testing */
-    public function getDataRegs(): array
-    {
-        return $this->oDataRegisters->aIndex;
-    }
-
-    /** Expose the indexed addr regs for testing */
-    public function getAddrRegs(): array
-    {
-        return $this->oAddressRegisters->aIndex;
-    }
-
-    public function executeAt(int $iAddress): void
-    {
-        assert($iAddress >= 0, new LogicException('Invalid start address'));
-        $this->iProgramCounter = $iAddress;
-        $iOpcode = $this->oOutside->readWord($this->iProgramCounter);
-        $this->iProgramCounter += Processor\ISize::WORD;
-
-        $cHandler = $this->aExactHandler[$iOpcode] ??
-            $this->aPrefixHandler[$iOpcode & Processor\IOpcode::MASK_OP_PREFIX] ??
-            throw new LogicException('Unhandled Opcode ' . $iOpcode);
-
-        $cHandler($iOpcode);
-    }
-};
+$oProcessor = new TestHarness\CPU($oMemory);
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////
 
