@@ -33,7 +33,6 @@ trait TFlow
         $this->addExactHandlers([
             IPrefix::OP_STOP     => $cUnhandled,
             IPrefix::OP_RTE      => $cUnhandled,
-            IPrefix::OP_RTS      => $cUnhandled,
             IPrefix::OP_TRAPV    => $cUnhandled,
             IPrefix::OP_RTR      => $cUnhandled,
         ]);
@@ -64,13 +63,26 @@ trait TFlow
                 function(int $iOpcode) {
                     $this->oAddressRegisters->iReg7 -= ISize::LONG;
                     $this->oAddressRegisters->iReg7 &= ISize::MASK_LONG;
-                    $this->oOutside->writeLong($this->iProgramCounter);
+                    $this->oOutside->writeLong(
+                        $this->oAddressRegisters->iReg7,
+                        $this->iProgramCounter
+                    );
                     $oEAMode  = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
                     $this->iProgramCounter = $oEAMode->readLong();
                 }
             )
         );
 
+        // OP_RTS
+        $this->addExactHandlers([
+            IFlow::OP_RTS => function(int $iOpcode) {
+                $this->iProgramCounter = $this->oOutside->readLong(
+                    $this->oAddressRegisters->iReg7
+                );
+                $this->oAddressRegisters->iReg7 += ISize::LONG;
+                $this->oAddressRegisters->iReg7 &= ISize::MASK_LONG;
+            }
+        ]);
     }
 
 }
