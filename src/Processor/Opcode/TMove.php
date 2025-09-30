@@ -40,6 +40,7 @@ trait TMove
         $this->buildMOVEAHandlers();
         $this->buildMOVEQHandlers();
         $this->buildSWAPHandlers();
+        $this->buildEXGHandlers();
     }
 
     protected function initMoveDstEAModes()
@@ -230,24 +231,6 @@ trait TMove
             );
 
         }
-
-
-//         $oMoveTemplate = new Template\Params(
-//             0,
-//             'operation/move/moveq',
-//             []
-//         );
-//
-//         foreach (IRegister::DATA_REGS as $iDataReg) {
-//             $iPrefix = IMove::OP_MOVEQ | ($iDataReg << IOpcode::REG_UP_SHIFT);
-//             foreach(range($iPrefix, $iPrefix + 0xFF) as $iOpcode) {
-//                 $oMoveTemplate->iOpcode = $iOpcode;
-//                 $aHandlers[$oMoveTemplate->iOpcode] = $this->compileTemplateHandler(
-//                     $oMoveTemplate
-//                 );
-//             }
-//         }
-
     }
 
     private function buildSWAPHandlers()
@@ -264,6 +247,34 @@ trait TMove
             $aHandlers[$oSwapTemplate->iOpcode] = $this->compileTemplateHandler($oSwapTemplate);
         }
 
+        $this->addExactHandlers($aHandlers);
+    }
+
+    private function buildEXGHandlers()
+    {
+        $oEXGTemplate = new Template\Params(
+            0,
+            'operation/move/exg',
+            [
+                'iMode' => 0
+            ]
+        );
+        //$oEXGTemplate->bDumpCode = true;
+        $aHandlers = [];
+        $aModes = [
+            IMove::OP_EXG_DD,
+            IMove::OP_EXG_AA,
+            IMove::OP_EXG_DA,
+        ];
+        foreach ($aModes as $iMode) {
+            $oEXGTemplate->oAdditional->iMode = $iMode;
+            foreach (IRegister::DATA_REGS as $iXReg) {
+                foreach (IRegister::DATA_REGS as $iYReg) {
+                    $oEXGTemplate->iOpcode = $iMode | ($iXReg << IOpcode::REG_UP_SHIFT) | $iYReg;
+                    $aHandlers[$oEXGTemplate->iOpcode] = $this->compileTemplateHandler($oEXGTemplate);
+                }
+            }
+        }
         $this->addExactHandlers($aHandlers);
     }
 }
