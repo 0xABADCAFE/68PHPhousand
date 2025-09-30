@@ -30,4 +30,5 @@ interface IFlow
 
     //                              EAEAEA
     const OP_JMP      = 0b0100111011000000;
+    const OP_JSR      = 0b0100111010000000;
 }

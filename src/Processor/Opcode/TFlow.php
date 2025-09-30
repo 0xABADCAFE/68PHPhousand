@@ -15,6 +15,7 @@ declare(strict_types=1);
 namespace ABadCafe\G8PHPhousand\Processor\Opcode;
 
 use ABadCafe\G8PHPhousand\Processor;
+use ABadCafe\G8PHPhousand\Processor\ISize;
 use ABadCafe\G8PHPhousand\Processor\IEffectiveAddress;
 
 use LogicException;
@@ -37,11 +38,14 @@ trait TFlow
             IPrefix::OP_RTR      => $cUnhandled,
         ]);
 
+
+        // JMP
+        $aCtrlModes = $this->generateForEAModeList(IEffectiveAddress::MODE_CONTROL);
         $this->addExactHandlers(
             array_fill_keys(
                 $this->mergePrefixForModeList(
                     IFlow::OP_JMP,
-                    $this->generateForEAModeList(IEffectiveAddress::MODE_CONTROL)
+                    $aCtrlModes
                 ),
                 function(int $iOpcode) {
                     $oEAMode  = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
@@ -50,6 +54,22 @@ trait TFlow
             )
         );
 
+        // JSR
+        $this->addExactHandlers(
+            array_fill_keys(
+                $this->mergePrefixForModeList(
+                    IFlow::OP_JSR,
+                    $aCtrlModes
+                ),
+                function(int $iOpcode) {
+                    $this->oAddressRegisters->iReg7 -= ISize::LONG;
+                    $this->oAddressRegisters->iReg7 &= ISize::MASK_LONG;
+                    $this->oOutside->writeLong($this->iProgramCounter);
+                    $oEAMode  = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
+                    $this->iProgramCounter = $oEAMode->readLong();
+                }
+            )
+        );
 
     }
 
