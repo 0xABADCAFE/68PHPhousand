@@ -12,18 +12,18 @@
 
 declare(strict_types=1);
 
-namespace ABadCafe\G8PHPhousand\Device;
+namespace ABadCafe\G8PHPhousand\Device\Memory;
 
-use ABadCafe\G8PHPhousand\IDevice;
+use ABadCafe\G8PHPhousand\Device;
 
 use DomainException;
 use ValueError;
 use function str_repeat;
 
 /**
- * Root interface for write accessible devices. All accesses are considered unsigned.
+ * Raw Binary memory. Memory is implemented as a direct string
  */
-class Memory implements IBus
+class BinaryRAM implements Device\IMemory
 {
     public  const MIN_ALIGNMENT = 4;
 
@@ -101,7 +101,7 @@ class Memory implements IBus
             $iAddress <= $this->iTopAddress,
             new DomainException('Read byte out of range')
         );
-        return IByteConv::AORD[$this->sData[$iAddress - $this->iBaseAddress]];
+        return Device\IByteConv::AORD[$this->sData[$iAddress - $this->iBaseAddress]];
     }
 
     /**
@@ -116,8 +116,8 @@ class Memory implements IBus
             new DomainException('Read word out of range')
         );
         return
-            IByteConv::AORD[$this->sData[$iOffset]] << 8 |
-            IByteConv::AORD[$this->sData[$iOffset + 1]
+            Device\IByteConv::AORD[$this->sData[$iOffset]] << 8 |
+            Device\IByteConv::AORD[$this->sData[$iOffset + 1]
         ];
     }
 
@@ -134,10 +134,10 @@ class Memory implements IBus
         );
 
         return
-            IByteConv::AORD[$this->sData[$iOffset]]     << 24 |
-            IByteConv::AORD[$this->sData[$iOffset + 1]] << 16 |
-            IByteConv::AORD[$this->sData[$iOffset + 2]] <<  8 |
-            IByteConv::AORD[$this->sData[$iOffset + 3]]
+            Device\IByteConv::AORD[$this->sData[$iOffset]]     << 24 |
+            Device\IByteConv::AORD[$this->sData[$iOffset + 1]] << 16 |
+            Device\IByteConv::AORD[$this->sData[$iOffset + 2]] <<  8 |
+            Device\IByteConv::AORD[$this->sData[$iOffset + 3]]
         ;
     }
 
@@ -152,7 +152,7 @@ class Memory implements IBus
             new DomainException('Write byte out of range')
         );
         assert(0 == ($iValue & ~0xFF), new ValueError('Illegal byte value'));
-        $this->sData[$iAddress - $this->iBaseAddress] = IByteConv::ACHR[$iValue];
+        $this->sData[$iAddress - $this->iBaseAddress] = Device\IByteConv::ACHR[$iValue];
     }
 
     /**
@@ -167,8 +167,8 @@ class Memory implements IBus
             new DomainException('Write word out of range')
         );
         assert(0 == ($iValue & ~0xFFFF), new ValueError('Illegal word value'));
-        $this->sData[$iOffset]     = IByteConv::ACHR[($iValue >> 8) & 0xFF];
-        $this->sData[$iOffset + 1] = IByteConv::ACHR[$iValue        & 0xFF];
+        $this->sData[$iOffset]     = Device\IByteConv::ACHR[($iValue >> 8) & 0xFF];
+        $this->sData[$iOffset + 1] = Device\IByteConv::ACHR[$iValue        & 0xFF];
     }
 
     /**
@@ -183,20 +183,10 @@ class Memory implements IBus
             new DomainException('Write long out of range')
         );
         assert(0 == ($iValue & ~0xFFFFFFFF), new ValueError('Illegal long value'));
-        $this->sData[$iOffset] = IByteConv::ACHR[($iValue >> 24)     & 0xFF];
-        $this->sData[$iOffset + 1] = IByteConv::ACHR[($iValue >> 16) & 0xFF];
-        $this->sData[$iOffset + 2] = IByteConv::ACHR[($iValue >> 8)  & 0xFF];
-        $this->sData[$iOffset + 3] = IByteConv::ACHR[$iValue         & 0xFF];
-    }
-
-    public function getDump($iAddress, $iLength): string
-    {
-        assert(
-            $iAddress >= $this->iBaseAddress &&
-            $iLength > 0 &&
-            ($iAddress + $iLength) <= $this->iTopAddress + 1,
-            new DomainException('Dump out of range')
-        );
-        return bin2hex(substr($this->sData, $iAddress - $this->iBaseAddress, $iLength));
+        $this->sData[$iOffset] = Device\IByteConv::ACHR[($iValue >> 24)     & 0xFF];
+        $this->sData[$iOffset + 1] = Device\IByteConv::ACHR[($iValue >> 16) & 0xFF];
+        $this->sData[$iOffset + 2] = Device\IByteConv::ACHR[($iValue >> 8)  & 0xFF];
+        $this->sData[$iOffset + 3] = Device\IByteConv::ACHR[$iValue         & 0xFF];
     }
 }
+

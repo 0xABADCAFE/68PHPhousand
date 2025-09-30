@@ -123,7 +123,7 @@ echo "OK\n";
 
 echo "Testing Immediate...";
 
-$oMemory           = new Device\Memory(64, 0);
+$oMemory           = new Device\Memory\BinaryRAM(64, 0);
 $iProgramCounter   = 4;
 
 $oEAModeImmediate = new Processor\EAMode\Direct\Immediate($iProgramCounter, $oMemory);

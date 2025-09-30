@@ -12,38 +12,38 @@
 
 declare(strict_types=1);
 
-namespace ABadCafe\G8PHPhousand\Device;
+namespace ABadCafe\G8PHPhousand\Device\Memory;
 
-use ABadCafe\G8PHPhousand\IDevice;
+use ABadCafe\G8PHPhousand\Processor\ISize;
+use ABadCafe\G8PHPhousand\Device;
 
 use DomainException;
 use ValueError;
-use function str_repeat;
 
 /**
- * Root interface for write accessible devices. All accesses are considered unsigned.
+ * Sparse word array implementation. This uses a regular PHP associative array of
+ * word values that are set on first access (zero if a read). All access sizes are
+ * supported but the implementation is tuned for 16-bit word access.
+ *
+ * Alignment is silently enforced to word size.
  */
-class SparseRAM implements IBus
+class SparseWordRAM implements Device\IMemory
 {
+    protected array $aWords = [];
 
-    private array $aBytes = [];
-
-    private int $iPrealloc = 0;
-
-    public function __construct(int $iPrealloc)
+    public function __construct()
     {
-        $this->iPrealloc = $iPrealloc;
         $this->hardReset();
     }
 
     public function getBaseAddress(): int
     {
-        return $this->iBaseAddress;
+        return 0;
     }
 
     public function getLength(): int
     {
-        return $this->iLength;
+        return 1<<32;
     }
 
     /**
@@ -51,7 +51,7 @@ class SparseRAM implements IBus
      */
     public function getName(): string
     {
-        return 'SparseRAM (array<int, int<0,255>>)';
+        return 'SparseRAM (array<int, int<0,65536>>)';
     }
 
     /**
@@ -67,7 +67,7 @@ class SparseRAM implements IBus
      */
     public function hardReset(): self
     {
-        $this->aBytes = array_fill(0, $this->iPrealloc, 0);
+        $this->aWords = [];
         return $this;
     }
 
@@ -76,7 +76,8 @@ class SparseRAM implements IBus
      */
     public function readByte(int $iAddress): int
     {
-        return $this->aBytes[$iAddress] ?? 0;
+        $iWord = $this->readWord($iAddress);
+        return ($iAddress & 1) ? ($iWord & ISize::MASK_BYTE) : (($iWord >> 8) & ISize::MASK_BYTE);
     }
 
     /**
@@ -84,7 +85,8 @@ class SparseRAM implements IBus
      */
     public function readWord(int $iAddress): int
     {
-        return (($this->aBytes[$iAddress] ?? 0) << 8) | ($this->aBytes[$iAddress + 1] ?? 0);
+        $iAddress &= 0xFFFFFFFE;
+        return $this->aWords[$iAddress] ?? ($this->aWords[$iAddress] = 0);
     }
 
     /**
@@ -93,10 +95,8 @@ class SparseRAM implements IBus
     public function readLong(int $iAddress): int
     {
         return
-            (($this->aBytes[$iAddress] ?? 0) << 24) |
-            (($this->aBytes[$iAddress + 1] ?? 0) << 16) |
-            (($this->aBytes[$iAddress + 2] ?? 0) << 8) |
-            (($this->aBytes[$iAddress + 3] ?? 0));
+            ($this->readWord($iAddress) << 16) |
+            $this->readWord($iAddress + ISize::WORD);
     }
 
     /**
@@ -104,7 +104,15 @@ class SparseRAM implements IBus
      */
     public function writeByte(int $iAddress, int $iValue): void
     {
-        $this->aBytes[$iAddress] = $iValue & 0xFF;
+        $iWord = $this->readWord($iAddress);
+        if ($iAddress & 1) {
+            $this->aWords[
+                $iAddress & 0xFFFFFFFE
+            ] = ($iWord & 0xFF00) | ($iValue & ISize::MASK_BYTE);
+        } else {
+            $this->aWords[$iAddress] =
+                ($iWord & 0x00FF) | (($iValue & ISize::MASK_BYTE) << 8);
+        }
     }
 
     /**
@@ -112,8 +120,7 @@ class SparseRAM implements IBus
      */
     public function writeWord(int $iAddress, int $iValue): void
     {
-        $this->aBytes[$iAddress]     = ($iValue >> 8) & 0xFF;
-        $this->aBytes[$iAddress + 1] = $iValue & 0xFF;
+        $this->aWords[$iAddress & 0xFFFFFFFE] = $iValue & ISize::MASK_WORD;
     }
 
     /**
@@ -121,14 +128,8 @@ class SparseRAM implements IBus
      */
     public function writeLong(int $iAddress, int $iValue): void
     {
-        $this->aBytes[$iAddress]     = ($iValue >> 24) & 0xFF;
-        $this->aBytes[$iAddress + 1] = ($iValue >> 16) & 0xFF;
-        $this->aBytes[$iAddress + 2] = ($iValue >> 8) & 0xFF;
-        $this->aBytes[$iAddress + 3] = $iValue & 0xFF;
+        $this->writeWord($iAddress, $iValue >> 16);
+        $this->writeWord($iAddress + ISize::WORD, $iValue);
     }
 
-    public function getDump($iAddress, $iLength): string
-    {
-        return '';
-    }
 }

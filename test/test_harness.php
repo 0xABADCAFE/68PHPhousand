@@ -12,13 +12,23 @@
 
 declare(strict_types=1);
 
-namespace ABadCafe\G8PHPhousand;
+namespace ABadCafe\G8PHPhousand\Test;
 
+use ABadCafe\G8PHPhousand\TestHarness;
+use ABadCafe\G8PHPhousand\Device;
+use Throwable;
 use LogicException;
+use ValueError;
 
-error_reporting(-1);
-require  __DIR__ . '/../src/bootstrap.php';
+require 'bootstrap.php';
 
-$oProcessor = new TestHarness\CPU(new Device\NullDevice());
+$oAssembler = new TestHarness\Assembler\Vasmm68k();
 
-$oProcessor->dumpExactHandlerMap();
+$oBinary = $oAssembler->assemble("
+    move.w #-1,d0
+.loop:
+    dbra d0,.loop
+    rts
+");
+
+print_r($oBinary);

@@ -15,6 +15,7 @@ declare(strict_types=1);
 namespace ABadCafe\G8PHPhousand\Test;
 
 use ABadCafe\G8PHPhousand\Device;
+use ABadCafe\G8PHPhousand\TestHarness;
 use Throwable;
 use LogicException;
 use ValueError;
@@ -25,7 +26,7 @@ require 'bootstrap.php';
 assertThrown(
     'Constructor length assertion thrown',
     function() {
-        $oMemory = new Device\Memory(1, 0);
+        $oMemory = new Device\Memory\BinaryRAM(1, 0);
     },
     ValueError::class
 );
@@ -33,7 +34,7 @@ assertThrown(
 assertThrown(
     'Constructor length assertion thrown',
     function() {
-        $oMemory = new Device\Memory(-4, 0);
+        $oMemory = new Device\Memory\BinaryRAM(-4, 0);
     },
     ValueError::class
 );
@@ -41,7 +42,7 @@ assertThrown(
 assertThrown(
     'Constructor location alignment assertion thrown',
     function() {
-        $oMemory = new Device\Memory(0, 1);
+        $oMemory = new Device\Memory\BinaryRAM(0, 1);
     },
     ValueError::class
 );
@@ -49,16 +50,16 @@ assertThrown(
 assertThrown(
     'Constructor location alignment assertion thrown',
     function() {
-        $oMemory = new Device\Memory(0, -4);
+        $oMemory = new Device\Memory\BinaryRAM(0, -4);
     },
     ValueError::class
 );
 
 // Test the read-write behaviours
-$oMemory = new Device\Memory(16, 0);
+$oMemory = new Device\Memory\BinaryRAM(16, 0);
 assertSame(
     '00000000000000000000000000000000',
-    $oMemory->getDump(0, 16),
+    TestHarness\Memory::getHexDump($oMemory, 0, 16),
     'Initial state'
 );
 
@@ -66,8 +67,8 @@ $oMemory->writeByte(8, 0x69);
 $oMemory->writeLong(4, 0xABADCAFE);
 $oMemory->writeWord(2, 0x4545);
 assertSame(
-    '00004545abadcafe6900000000000000',
-    $oMemory->getDump(0, 16),
+    '00004545ABADCAFE6900000000000000',
+    TestHarness\Memory::getHexDump($oMemory, 0, 16),
     'After written'
 );
 assertSame(
@@ -88,8 +89,8 @@ assertSame(
 
 $oMemory->writeWord(6, 0x1234);
 assertSame(
-    '00004545abad12346900000000000000',
-    $oMemory->getDump(0, 16),
+    '00004545ABAD12346900000000000000',
+    TestHarness\Memory::getHexDump($oMemory, 0, 16),
     'overwritten state'
 );
 assertSame(
@@ -100,8 +101,8 @@ assertSame(
 
 $oMemory->softReset();
 assertSame(
-    '00004545abad12346900000000000000',
-    $oMemory->getDump(0, 16),
+    '00004545ABAD12346900000000000000',
+    TestHarness\Memory::getHexDump($oMemory, 0, 16),
     'soft reset state'
 );
 assertSame(
@@ -113,7 +114,7 @@ $oMemory->hardReset();
 
 assertSame(
     '00000000000000000000000000000000',
-    $oMemory->getDump(0, 16),
+    TestHarness\Memory::getHexDump($oMemory, 0, 16),
     'hard reset state'
 );
 assertSame(
