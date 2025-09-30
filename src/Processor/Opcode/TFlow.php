@@ -83,6 +83,40 @@ trait TFlow
                 $this->oAddressRegisters->iReg7 &= ISize::MASK_LONG;
             }
         ]);
+
+        $this->buildBSRHandlers();
+    }
+
+    private function buildBSRHandlers()
+    {
+        $oBraTemplate = new Template\Params(
+            IFlow::OP_BSR,
+            'operation/Bcc/bsr',
+            []
+        );
+
+        $aHandlers = [];
+        // First special case handler for $00
+        $aHandlers[IFlow::OP_BSR | 0x00] = $this->compileTemplateHandler($oBraTemplate);
+
+        // Handlers for $01-7F are the same
+        $oBraTemplate->iOpcode = IFlow::OP_BSR|0x01;
+        $cBra = $this->compileTemplateHandler($oBraTemplate);
+        for ($i = 0x01; $i < 0x80; ++$i) {
+            $aHandlers[IFlow::OP_BSR | $i] = $cBra;
+        }
+
+        // Handlers for $80-$FE are the same
+        $oBraTemplate->iOpcode = IFlow::OP_BSR|0x80;
+        $cBra = $this->compileTemplateHandler($oBraTemplate);
+        for ($i = 0x80; $i < 0xFF; ++$i) {
+            $aHandlers[IFlow::OP_BSR | $i] = $cBra;
+        }
+
+        // Special case for $FF
+        $oBraTemplate->iOpcode = IFlow::OP_BSR|0xFF;
+        $aHandlers[IFlow::OP_BSR | 0xFF] = $this->compileTemplateHandler($oBraTemplate);
+        $this->addExactHandlers($aHandlers);
     }
 
 }

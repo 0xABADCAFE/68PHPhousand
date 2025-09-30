@@ -1,5 +1,5 @@
-Handler setup took 0.22066712379456 seconds using 9216288 bytes
-37512 Exact and 0 Prefix handlers defined
+Handler setup took 0.22129416465759 seconds using 9227216 bytes
+37796 Exact and 0 Prefix handlers defined
 
 
       |00000000000000001111111111111111222222222222222233333333333333334444444444444444555555555555555566666666666666667777777777777777|
@@ -207,7 +207,7 @@ $4C80 |-------------------------------------------------------------------------
 $4D00 |--------------------------------------------------------------------------------------------------------------------------------|
 $4D80 |--------------------------------------------------------------------------------------------------------------------------------|
 $4E00 |----------------------------------------------------------------------------------------------------------------XXXX-XXX--------|
-$4E80 |--------------------------------------------------------------------------------XXXXXXXX----------------XXXXXXXXXXXXXXXXXXXX----|
+$4E80 |----------------XXXXXXXX----------------XXXXXXXXXXXXXXXXXXXX--------------------XXXXXXXX----------------XXXXXXXXXXXXXXXXXXXX----|
 $4F00 |--------------------------------------------------------------------------------------------------------------------------------|
 $4F80 |--------------------------------------------------------------------------------------------------------------------------------|
 
@@ -259,8 +259,8 @@ $5F80 |XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX------XXXXXXXXX
       |                                                                                                                                |
 $6000 |XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX|
 $6080 |XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX|
-$6100 |--------------------------------------------------------------------------------------------------------------------------------|
-$6180 |--------------------------------------------------------------------------------------------------------------------------------|
+$6100 |XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX|
+$6180 |XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX|
 $6200 |XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX|
 $6280 |XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX|
 $6300 |XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX|

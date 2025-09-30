@@ -31,4 +31,6 @@ interface IFlow
     const OP_JMP      = 0b0100111011000000;
     const OP_JSR      = 0b0100111010000000;
     const OP_RTS      = 0b0100111001110101;
+    //                            xxxxxxxx
+    const OP_BSR      = 0b0110000100000000;
 }
