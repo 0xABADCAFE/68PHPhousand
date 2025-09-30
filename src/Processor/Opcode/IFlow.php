@@ -27,4 +27,7 @@ interface IFlow
 //     const OP_RTS      = 0b0100111001110101; // exact match
 //     const OP_TRAPV    = 0b0100111001110110; // exact match
 //     const OP_RTR      = 0b0100111001110111; // exact match
+
+    //                              EAEAEA
+    const OP_JMP      = 0b0100111011000000;
 }

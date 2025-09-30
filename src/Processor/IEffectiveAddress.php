@@ -124,5 +124,17 @@ interface IEffectiveAddress
         ]
     ];
 
+    const MODE_CONTROL = [
+        self::MODE_AI   => IRegister::ADDR_REGS,
+        self::MODE_AID  => IRegister::ADDR_REGS,
+        self::MODE_AII  => IRegister::ADDR_REGS,
+        self::MODE_X    => [
+            self::MODE_X_SHORT,
+            self::MODE_X_LONG,
+            self::MODE_X_PC_D,
+            self::MODE_X_PC_X,
+        ]
+    ];
+
 }
 
