@@ -121,7 +121,7 @@ $oProcessor = new class($oMemory) extends Processor\Base
     }
 };
 
-$oMemory->writeWord(0x4, Processor\Opcode\IConditional::OP_DBF);
+$oMemory->writeWord(0x4, Processor\Opcode\IFlow::OP_DBF);
 $oMemory->writeWord(0x6, -2);
 $oMemory->writeWord(0x8, Processor\Opcode\IPrefix::OP_STOP);
 

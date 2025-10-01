@@ -37,6 +37,39 @@ trait TFlow
             IPrefix::OP_RTR      => $cUnhandled,
         ]);
 
+        $this->buildBranchHandlers(IFlow::OP_BSR, 'bsr');
+        $this->buildBranchHandlers(IFlow::OP_BRA, 'bra');
+        $this->buildBranchHandlers(IFlow::OP_BHI, 'bhi');
+        $this->buildBranchHandlers(IFlow::OP_BLS, 'bls');
+        $this->buildBranchHandlers(IFlow::OP_BCC, 'bcc');
+        $this->buildBranchHandlers(IFlow::OP_BCS, 'bcs');
+        $this->buildBranchHandlers(IFlow::OP_BNE, 'bne');
+        $this->buildBranchHandlers(IFlow::OP_BEQ, 'beq');
+        $this->buildBranchHandlers(IFlow::OP_BVC, 'bvc');
+        $this->buildBranchHandlers(IFlow::OP_BVS, 'bvs');
+        $this->buildBranchHandlers(IFlow::OP_BPL, 'bpl');
+        $this->buildBranchHandlers(IFlow::OP_BMI, 'bmi');
+        $this->buildBranchHandlers(IFlow::OP_BGE, 'bge');
+        $this->buildBranchHandlers(IFlow::OP_BLT, 'blt');
+        $this->buildBranchHandlers(IFlow::OP_BGT, 'bgt');
+        $this->buildBranchHandlers(IFlow::OP_BLE, 'ble');
+
+        $this->buildDBCCHandlers(IFlow::OP_DBT,  'dbt');
+        $this->buildDBCCHandlers(IFlow::OP_DBF,  'dbf');
+        $this->buildDBCCHandlers(IFlow::OP_DBHI, 'dbhi');
+        $this->buildDBCCHandlers(IFlow::OP_DBLS, 'dbls');
+        $this->buildDBCCHandlers(IFlow::OP_DBCC, 'dbcc');
+        $this->buildDBCCHandlers(IFlow::OP_DBCS, 'dbcs');
+        $this->buildDBCCHandlers(IFlow::OP_DBNE, 'dbne');
+        $this->buildDBCCHandlers(IFlow::OP_DBEQ, 'dbeq');
+        $this->buildDBCCHandlers(IFlow::OP_DBVC, 'dbvc');
+        $this->buildDBCCHandlers(IFlow::OP_DBVS, 'dbvs');
+        $this->buildDBCCHandlers(IFlow::OP_DBPL, 'dbpl');
+        $this->buildDBCCHandlers(IFlow::OP_DBMI, 'dbmi');
+        $this->buildDBCCHandlers(IFlow::OP_DBGE, 'dbge');
+        $this->buildDBCCHandlers(IFlow::OP_DBLT, 'dblt');
+        $this->buildDBCCHandlers(IFlow::OP_DBGT, 'dbgt');
+        $this->buildDBCCHandlers(IFlow::OP_DBLE, 'dble');
 
         // JMP
         $aCtrlModes = $this->generateForEAModeList(IEffectiveAddress::MODE_CONTROL);
@@ -84,39 +117,50 @@ trait TFlow
             }
         ]);
 
-        $this->buildBSRHandlers();
     }
 
-    private function buildBSRHandlers()
+    private function buildBranchHandlers(int $iPrefix, string $sName)
     {
         $oBraTemplate = new Template\Params(
-            IFlow::OP_BSR,
-            'operation/Bcc/bsr',
+            $iPrefix,
+            'operation/Bcc/'.$sName,
             []
         );
 
         $aHandlers = [];
         // First special case handler for $00
-        $aHandlers[IFlow::OP_BSR | 0x00] = $this->compileTemplateHandler($oBraTemplate);
+        $aHandlers[$iPrefix | 0x00] = $this->compileTemplateHandler($oBraTemplate);
 
         // Handlers for $01-7F are the same
-        $oBraTemplate->iOpcode = IFlow::OP_BSR|0x01;
+        $oBraTemplate->iOpcode = $iPrefix|0x01;
         $cBra = $this->compileTemplateHandler($oBraTemplate);
         for ($i = 0x01; $i < 0x80; ++$i) {
-            $aHandlers[IFlow::OP_BSR | $i] = $cBra;
+            $aHandlers[$iPrefix | $i] = $cBra;
         }
 
         // Handlers for $80-$FE are the same
-        $oBraTemplate->iOpcode = IFlow::OP_BSR|0x80;
+        $oBraTemplate->iOpcode = $iPrefix|0x80;
         $cBra = $this->compileTemplateHandler($oBraTemplate);
         for ($i = 0x80; $i < 0xFF; ++$i) {
-            $aHandlers[IFlow::OP_BSR | $i] = $cBra;
+            $aHandlers[$iPrefix | $i] = $cBra;
         }
 
         // Special case for $FF
-        $oBraTemplate->iOpcode = IFlow::OP_BSR|0xFF;
-        $aHandlers[IFlow::OP_BSR | 0xFF] = $this->compileTemplateHandler($oBraTemplate);
+        $oBraTemplate->iOpcode = $iPrefix|0xFF;
+        $aHandlers[$iPrefix | 0xFF] = $this->compileTemplateHandler($oBraTemplate);
         $this->addExactHandlers($aHandlers);
     }
 
+
+    private function buildDBCCHandlers(int $iPrefix, string $sName)
+    {
+        $oSccTemplate = new Template\Params(
+            $iPrefix,
+            'operation/DBcc/'.$sName,
+            []
+        );
+        $cHandler = $this->compileTemplateHandler($oSccTemplate);
+        $aHandlers = array_fill_keys(range($iPrefix, $iPrefix + 7, 1), $cHandler);
+        $this->addExactHandlers($aHandlers);
+    }
 }

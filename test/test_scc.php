@@ -61,7 +61,7 @@ $oProcessor = new class(new Device\Memory\SparseRAM()) extends TestHarness\CPU
 echo "Testing Set if Carry Clear\n";
 $oProcessor->testCCRBit(
     'scc',
-    Processor\Opcode\IConditional::OP_SCC,
+    Processor\Opcode\IMove::OP_SCC,
     Processor\IRegister::CCR_CARRY,
     true,
     false
@@ -70,7 +70,7 @@ $oProcessor->testCCRBit(
 echo "Testing Set if Carry Set\n";
 $oProcessor->testCCRBit(
     'scs',
-    Processor\Opcode\IConditional::OP_SCS,
+    Processor\Opcode\IMove::OP_SCS,
     Processor\IRegister::CCR_CARRY,
     false,
     true
@@ -81,7 +81,7 @@ $oProcessor->testCCRBit(
 echo "Testing Set if Overflow Clear\n";
 $oProcessor->testCCRBit(
     'svc',
-    Processor\Opcode\IConditional::OP_SVC,
+    Processor\Opcode\IMove::OP_SVC,
     Processor\IRegister::CCR_OVERFLOW,
     true,
     false
@@ -90,7 +90,7 @@ $oProcessor->testCCRBit(
 echo "Testing Set if Overflow Set\n";
 $oProcessor->testCCRBit(
     'svs',
-    Processor\Opcode\IConditional::OP_SVS,
+    Processor\Opcode\IMove::OP_SVS,
     Processor\IRegister::CCR_OVERFLOW,
     false,
     true
@@ -100,7 +100,7 @@ $oProcessor->testCCRBit(
 echo "Testing Set if Zero Clear (Not Equal)\n";
 $oProcessor->testCCRBit(
     'sne',
-    Processor\Opcode\IConditional::OP_SNE,
+    Processor\Opcode\IMove::OP_SNE,
     Processor\IRegister::CCR_ZERO,
     true,
     false
@@ -109,7 +109,7 @@ $oProcessor->testCCRBit(
 echo "Testing Set if Zero Set (Equal)\n";
 $oProcessor->testCCRBit(
     'seq',
-    Processor\Opcode\IConditional::OP_SEQ,
+    Processor\Opcode\IMove::OP_SEQ,
     Processor\IRegister::CCR_ZERO,
     false,
     true
@@ -118,7 +118,7 @@ $oProcessor->testCCRBit(
 echo "Testing Set if Minus Set (Negative)\n";
 $oProcessor->testCCRBit(
     'smi',
-    Processor\Opcode\IConditional::OP_SMI,
+    Processor\Opcode\IMove::OP_SMI,
     Processor\IRegister::CCR_NEGATIVE,
     false,
     true

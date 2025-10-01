@@ -23,6 +23,8 @@ use ABadCafe\G8PHPhousand\Processor\IEffectiveAddress;
 use ABadCafe\G8PHPhousand\Processor\Sign;
 use LogicException;
 
+// LEA, PEA, Movem
+
 trait TMove
 {
     use Processor\TOpcode;
@@ -41,6 +43,22 @@ trait TMove
         $this->buildMOVEQHandlers();
         $this->buildSWAPHandlers();
         $this->buildEXGHandlers();
+        $this->buildSCCHandlers(IMove::OP_ST,  'st');
+        $this->buildSCCHandlers(IMove::OP_SF,  'sf');
+        $this->buildSCCHandlers(IMove::OP_SHI, 'shi');
+        $this->buildSCCHandlers(IMove::OP_SLS, 'sls');
+        $this->buildSCCHandlers(IMove::OP_SCC, 'scc');
+        $this->buildSCCHandlers(IMove::OP_SCS, 'scs');
+        $this->buildSCCHandlers(IMove::OP_SNE, 'sne');
+        $this->buildSCCHandlers(IMove::OP_SEQ, 'seq');
+        $this->buildSCCHandlers(IMove::OP_SVC, 'svc');
+        $this->buildSCCHandlers(IMove::OP_SVS, 'svs');
+        $this->buildSCCHandlers(IMove::OP_SPL, 'spl');
+        $this->buildSCCHandlers(IMove::OP_SMI, 'smi');
+        $this->buildSCCHandlers(IMove::OP_SGE, 'sge');
+        $this->buildSCCHandlers(IMove::OP_SLT, 'slt');
+        $this->buildSCCHandlers(IMove::OP_SGT, 'sgt');
+        $this->buildSCCHandlers(IMove::OP_SLE, 'sle');
     }
 
     protected function initMoveDstEAModes()
@@ -277,4 +295,23 @@ trait TMove
         }
         $this->addExactHandlers($aHandlers);
     }
+
+    private function buildSCCHandlers(int $iPrefix, string $sName)
+    {
+        $oSccTemplate = new Template\Params(
+            $iPrefix,
+            'operation/Scc/'.$sName,
+            []
+        );
+        $this->addExactHandlers(
+            array_fill_keys(
+                $this->generateForEAModeList(
+                    IEffectiveAddress::MODE_DATA_ALTERABLE,
+                    $iPrefix
+                ),
+                $this->compileTemplateHandler($oSccTemplate)
+            )
+        );
+    }
+
 }
