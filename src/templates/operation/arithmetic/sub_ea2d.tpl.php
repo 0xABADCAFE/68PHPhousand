@@ -46,8 +46,7 @@ switch ($iSize) {
     $iDst  = $iReg & ISize::MASK_LONG;
     $iRes  = $iDst - $iSrc;
     $this->updateCCRMathLong($iSrc, $iDst, $iRes, false);
-    $iReg &= ISize::MASK_INV_LONG;
-    $iReg |= ($iRes & ISize::MASK_LONG);
+    $iReg &= ISize::MASK_LONG;
 <?php
         break;
 }
