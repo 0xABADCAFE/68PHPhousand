@@ -30,9 +30,7 @@ if (isset($aOpcacheStatus['jit'])) {
 }
 
 
-//$oMemory = new Device\Memory(64, 0);
-
-$oMemory = new Device\SparseRAM(64);
+$oMemory = new Device\Memory\SparseRAM(64);
 
 $oProcessor = new class($oMemory) extends Processor\Base
 {

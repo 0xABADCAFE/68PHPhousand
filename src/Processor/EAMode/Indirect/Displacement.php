@@ -40,7 +40,7 @@ class Displacement extends Basic
     }
 
 
-    private function getAddress(): int
+    public function getAddress(): int
     {
         $iDisplacement = Processor\Sign::extWord($this->oOutside->readWord($this->iProgramCounter));
         $this->iProgramCounter += ISize::WORD;

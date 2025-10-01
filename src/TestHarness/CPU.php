@@ -89,4 +89,23 @@ class CPU extends Processor\Base
         return $iCount;
     }
 
+    public function executeVerbose(int $iAddress): int
+    {
+        $this->iProgramCounter = $iAddress;
+        $iCount = 0;
+        echo "Beginning Verbose Execution\n";
+        try {
+            while(true) {
+                $iOpcode = $this->oOutside->readWord($this->iProgramCounter);
+                printf("0x%08X : %04X\n", $this->iProgramCounter, $iOpcode);
+                $this->iProgramCounter += Processor\ISize::WORD;
+                $this->aExactHandler[$iOpcode]($iOpcode);
+                ++$iCount;
+            };
+        } catch (LogicException $oError) {
+
+        }
+        return $iCount;
+    }
+
 }

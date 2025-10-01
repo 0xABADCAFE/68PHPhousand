@@ -21,7 +21,7 @@ use ValueError;
 /**
  * Address Register Indirect, no offsets, increment/decrement or indexing
  */
-class Basic extends EAMode\Direct\Register
+class Basic extends EAMode\Direct\Register implements EAMode\IIndirect
 {
     use EAMode\TWithBusAccess;
     use EAMode\TWithoutLatch;
@@ -33,6 +33,11 @@ class Basic extends EAMode\Direct\Register
     ) {
         parent::__construct($oRegisters, $iBaseReg);
         $this->bindBus($oOutside);
+    }
+
+    public function getAddress(): int
+    {
+        return $this->iRegister;
     }
 
     /**
@@ -82,4 +87,6 @@ class Basic extends EAMode\Direct\Register
     {
         $this->oOutside->writeLong($this->iRegister, $iValue);
     }
+
+
 }

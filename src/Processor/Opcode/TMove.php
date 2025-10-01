@@ -59,6 +59,7 @@ trait TMove
         $this->buildSCCHandlers(IMove::OP_SLT, 'slt');
         $this->buildSCCHandlers(IMove::OP_SGT, 'sgt');
         $this->buildSCCHandlers(IMove::OP_SLE, 'sle');
+        $this->buildLEAHanders();
     }
 
     protected function initMoveDstEAModes()
@@ -314,4 +315,45 @@ trait TMove
         );
     }
 
+    private function buildLEAHanders()
+    {
+        $oLEATemplate = new Template\Params(
+            IMove::OP_LEA,
+            'operation/move/lea',
+            []
+        );
+        $aEAModes = $this->generateForEAModeList(IEffectiveAddress::MODE_CONTROL);
+        foreach (IRegister::ADDR_REGS as $iReg) {
+            $oLEATemplate->iOpcode = IMove::OP_LEA|($iReg << IOpcode::REG_UP_SHIFT);
+            $this->addExactHandlers(
+                array_fill_keys(
+                    $this->mergePrefixForModeList($oLEATemplate->iOpcode, $aEAModes),
+                    $this->compileTemplateHandler($oLEATemplate)
+                )
+            );
+        }
+    }
+
+    private function buildPEAHanders()
+    {
+        $this->addExactHandlers(
+            array_fill_keys(
+                $this->generateForEAModeList(
+                    IEffectiveAddress::MODE_CONTROL,
+                    IMove::OP_PEA
+                ),
+                function (int $iOpcode) {
+                    $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
+                    $this->oAddressRegisters->iReg7 -= ISize::LONG;
+                    $this->oAddressRegisters->iReg7 &= ISize::MASK_LONG;
+                    $this->oOutside->writeLong(
+                        $this->oAddressRegisters->iReg7,
+                        $oEAMode->getAddress()
+                    );
+                }
+            )
+        );
+
+
+    }
 }

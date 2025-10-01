@@ -41,6 +41,12 @@ interface IMove
     //                               rrr
     const OP_SWAP   = 0b0100100001000000;
 
+    //                      rrr   EAEAEA
+    const OP_LEA    = 0b0100000111000000;
+
+    //                            EAEAEA
+    const OP_PEA    = 0b0100100001000000;
+
     //                      xxx1mmmmmyyy ; EXG Rx,Ry
     const OP_EXG_DD = 0b1100000101000000; // exg dx,dy
     const OP_EXG_AA = 0b1100000101001000; // exg ax,ay

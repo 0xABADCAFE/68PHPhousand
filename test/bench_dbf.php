@@ -36,6 +36,7 @@ $oObjectCode = (new TestHarness\Assembler\Vasmm68k())->assemble("
 .loop:
 	dbra d0,.loop
 	stop #0
+
 ",
     BASE_ADDRESS
 );

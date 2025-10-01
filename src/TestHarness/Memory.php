@@ -29,7 +29,7 @@ class Memory
         $iLength  = strlen($oObjectCode->sCode);
         $iAddress = $oObjectCode->iBaseAddress;
         for ($i = 0; $i < $iLength; ++$i) {
-            $oMemory->writeByte($iAddress++, $objectCode->sCode[$i]);
+            $oMemory->writeByte($iAddress++, Device\IByteConv::AORD[$oObjectCode->sCode[$i]]);
         }
     }
 
