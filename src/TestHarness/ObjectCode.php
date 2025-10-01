@@ -18,11 +18,13 @@ use ABadCafe\G8PHPhousand\Device;
 
 class ObjectCode
 {
+    public string $sSource;
     public string $sCode;
     public int    $iBaseAddress;
 
-    public function __construct(string $sCode, int $iBaseAddress)
+    public function __construct(string $sSource, string $sCode, int $iBaseAddress)
     {
+        $this->sSource = $sSource;
         $this->sCode = $sCode;
         $this->iBaseAddress = $iBaseAddress;
     }

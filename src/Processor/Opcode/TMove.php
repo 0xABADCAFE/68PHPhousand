@@ -123,7 +123,7 @@ trait TMove
                     $this->iConditionRegister = (
                         $this->iConditionRegister & IRegister::CCR_EXTEND
                     ) | IRegister::CCR_ZERO;
-                    $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]->writeWord(0);
+                    $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]->writeLong(0);
                 }
             )
         );
@@ -206,7 +206,6 @@ trait TMove
 
     private function buildMOVEQHandlers()
     {
-
         // LSB is immediate -128 to 127
         $cZeroHandler = function(int $iOpcode) {
             $this->oDataRegisters->aIndex[
@@ -225,7 +224,7 @@ trait TMove
         $cNegHandler = function(int $iOpcode) {
             $this->oDataRegisters->aIndex[
                 ($iOpcode & IOpcode::MASK_REG_UPPER) >> IOpcode::REG_UP_SHIFT
-            ] = Sign::extByte($iOpcode & ISize::MASK_BYTE);
+            ] = Sign::extByte($iOpcode & ISize::MASK_BYTE) & ISize::MASK_LONG;
             $this->iConditionRegister = (
                 $this->iConditionRegister & IRegister::CCR_EXTEND
             ) | IRegister::CCR_NEGATIVE;

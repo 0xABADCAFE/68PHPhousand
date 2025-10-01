@@ -76,7 +76,7 @@ class Vasmm68k implements IAssembler
             if (empty($sResult)) {
                 throw new RuntimeException('Failed to assemble source');
             }
-            return new ObjectCode(file_get_contents($sTarget), $iBaseAddress);
+            return new ObjectCode($sSourceCode, file_get_contents($sTarget), $iBaseAddress);
         } finally {
             unlink($sSource);
             unlink($sTarget);

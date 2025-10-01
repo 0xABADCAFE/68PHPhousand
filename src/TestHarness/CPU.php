@@ -89,6 +89,19 @@ class CPU extends Processor\Base
         return $iCount;
     }
 
+    public function dumpState()
+    {
+        for ($i = 7; $i >=0 ; --$i) {
+            printf(
+                "\td%d [0x%08X] | a%d [0x%08X]\n",
+                $i,
+                $this->oDataRegisters->aIndex[$i],
+                $i,
+                $this->oAddressRegisters->aIndex[$i]
+            );
+        }
+    }
+
     public function executeVerbose(int $iAddress): int
     {
         $this->iProgramCounter = $iAddress;
@@ -97,7 +110,8 @@ class CPU extends Processor\Base
         try {
             while(true) {
                 $iOpcode = $this->oOutside->readWord($this->iProgramCounter);
-                printf("0x%08X : %04X\n", $this->iProgramCounter, $iOpcode);
+                printf("\n\tpc [0x%08X] 0x%04X\n", $this->iProgramCounter, $iOpcode);
+                $this->dumpState();
                 $this->iProgramCounter += Processor\ISize::WORD;
                 $this->aExactHandler[$iOpcode]($iOpcode);
                 ++$iCount;
