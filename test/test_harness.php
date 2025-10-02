@@ -24,27 +24,24 @@ require 'bootstrap.php';
 
 const BASE_ADDRESS = 0x4;
 
-$oAssembler = new TestHarness\Assembler\Vasmm68k();
-
-$oBinary = $oAssembler->assemble("
-    clr.l d0
-    moveq #1,d1
-    ror.l #1,d1
-    move.w #-32768,d2
-    move.b #-128,d3
-    move.l #65536,a7
-    bsr .bsr_test
+$oObjectCode = (new TestHarness\Assembler\Vasmm68k())->assemble('
+    move.l data,d0
+    ror.l #4,d0
     stop #0
-
-.bsr_test:
-    move.l #-1,d0
-    rts",
+data:
+    dc.l $ABADCAFE
+',
     BASE_ADDRESS
 );
 
+printf(
+    "Source:\n%s\nAssembled: %s\n",
+    $oObjectCode->sSource,
+    bin2hex($oObjectCode->sCode)
+);
 
 $oMemory = new Device\Memory\SparseWordRAM();
-TestHarness\Memory::loadObjectCode($oMemory, $oBinary);
+TestHarness\Memory::loadObjectCode($oMemory, $oObjectCode);
 
 $oTestCPU = new TestHarness\CPU($oMemory);
 $oTestCPU->executeVerbose(BASE_ADDRESS);

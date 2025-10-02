@@ -60,6 +60,7 @@ trait TMove
         $this->buildSCCHandlers(IMove::OP_SGT, 'sgt');
         $this->buildSCCHandlers(IMove::OP_SLE, 'sle');
         $this->buildLEAHanders();
+        $this->buildPEAHanders();
     }
 
     protected function initMoveDstEAModes()
@@ -147,7 +148,7 @@ trait TMove
                 $this->aMoveDstEAModes[$iOpcode & IMove::MASK_DST_EA]->writeWord($iValue);
             },
             IMove::OP_MOVE_L => function($iOpcode) {
-                $iValue = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]->readLong();
+                $iValue = $this->aSrcEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]->readLong();
                 $this->iConditionRegister &= IRegister::CCR_EXTEND;
                 $this->updateNZLong($iValue);
                 $this->aMoveDstEAModes[$iOpcode & IMove::MASK_DST_EA]->writeLong($iValue);

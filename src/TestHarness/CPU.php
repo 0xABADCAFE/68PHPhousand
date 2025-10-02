@@ -148,6 +148,10 @@ class CPU extends Processor\Base
 
                 printf("\nExecuting 0x%08X : 0x%04X\n", $this->iProgramCounter, $iOpcode);
 
+                if (!isset($this->aExactHandler[$iOpcode])) {
+                    throw new \RuntimeException('No handler');
+                }
+
                 $this->iProgramCounter += Processor\ISize::WORD;
                 $this->aExactHandler[$iOpcode]($iOpcode);
                 ++$iCount;

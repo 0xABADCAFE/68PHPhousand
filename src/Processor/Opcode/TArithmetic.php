@@ -14,30 +14,37 @@ declare(strict_types=1);
 
 namespace ABadCafe\G8PHPhousand\Processor\Opcode;
 
-use ABadCafe\G8PHPhousand\Processor;
+use ABadCafe\G8PHPhousand\Processor\TOpcode;
+use ABadCafe\G8PHPhousand\Processor\IOpcode;
+use ABadCafe\G8PHPhousand\Processor\ISize;
+use ABadCafe\G8PHPhousand\Processor\IRegister;
+use ABadCafe\G8PHPhousand\Processor\IEffectiveAddress;
+use ABadCafe\G8PHPhousand\Processor\Sign;
 
 trait TArithmetic
 {
-    use Processor\TOpcode;
+    use TOpcode;
 
     protected function initArithmeticHandlers()
     {
         $aEAModes = $this->generateForEAModeList(
-            Processor\IEffectiveAddress::MODE_DATA_ALTERABLE
+            IEffectiveAddress::MODE_DATA_ALTERABLE
         );
+
+        $this->buildNEGHandlers($aEAModes);
 
         $this->buildADDIHandlers($aEAModes);
         $this->buildSUBIHandlers($aEAModes);
 
         $aEAAregs = $this->generateForEAModeList(
-            Processor\IEffectiveAddress::MODE_ONLY_AREGS
+            IEffectiveAddress::MODE_ONLY_AREGS
         );
 
         $this->buildADDQHandlers($aEAModes, $aEAAregs);
         $this->buildSUBQHandlers($aEAModes, $aEAAregs);
 
         $aEAModes = $this->generateForEAModeList(
-            Processor\IEffectiveAddress::MODE_ALL_EXCEPT_AREGS
+            IEffectiveAddress::MODE_ALL_EXCEPT_AREGS
         );
 
         $this->buildADDEA2DHandlers($aEAModes, $aEAAregs);
@@ -45,17 +52,85 @@ trait TArithmetic
         $this->buildMULXHandlers($aEAModes);
 
         $aEAModes = $this->generateForEAModeList(
-            Processor\IEffectiveAddress::MODE_MEM_ALTERABLE
+            IEffectiveAddress::MODE_MEM_ALTERABLE
         );
 
         $this->buildADDD2EAHandlers($aEAModes);
         $this->buildSUBD2EAHandlers($aEAModes);
 
         $aEAModes = $this->generateForEAModeList(
-            Processor\IEffectiveAddress::MODE_ALL
+            IEffectiveAddress::MODE_ALL
         );
         $this->buildADDEA2AHandlers($aEAModes);
         $this->buildSUBEA2AHandlers($aEAModes);
+    }
+
+    private function buildNEGHandlers(array $aEAModes)
+    {
+        // NEG byte
+        $this->addExactHandlers(
+            array_fill_keys(
+                $this->mergePrefixForModeList(
+                    IArithmetic::OP_NEG_B,
+                    $aEAModes
+                ),
+                function(int $iOpcode) {
+                    $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
+                    $iDst    = $oEAMode->readByte();
+                    $iRes    = -Sign::extByte($iDst) & ISize::MASK_BYTE;
+
+                    $this->updateNZByte($iRes);
+                    $this->iConditionRegister &= IRegister::CCR_CLEAR_XCV;
+                    $this->iConditionRegister |= $iRes ? IRegister::CCR_MASK_XC : 0;
+                    $this->iConditionRegister |= ($iRes && $iRes == $iDst) ? IRegister::CCR_OVERFLOW : 0;
+                    $oEAMode->writeByte($iRes);
+                }
+            )
+        );
+
+        // NEG word
+        $this->addExactHandlers(
+            array_fill_keys(
+                $this->mergePrefixForModeList(
+                    IArithmetic::OP_NEG_W,
+                    $aEAModes
+                ),
+                function(int $iOpcode) {
+                    $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
+                    $iDst    = $oEAMode->readWord();
+                    $iRes    = -Sign::extWord($iDst) & ISize::MASK_WORD;
+
+                    $this->updateNZWord($iRes);
+                    $this->iConditionRegister &= IRegister::CCR_CLEAR_XCV;
+                    $this->iConditionRegister |= $iRes ? IRegister::CCR_MASK_XC : 0;
+                    $this->iConditionRegister |= ($iRes && $iRes == $iDst) ? IRegister::CCR_OVERFLOW : 0;
+                    $oEAMode->writeWord($iRes);
+
+                }
+            )
+        );
+
+        // NEG long
+        $this->addExactHandlers(
+            array_fill_keys(
+                $this->mergePrefixForModeList(
+                    IArithmetic::OP_NEG_L,
+                    $aEAModes
+                ),
+                function(int $iOpcode) {
+                    $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
+                    $iDst    = $oEAMode->readLong();
+                    $iRes    = -Sign::extLong($iDst) & ISize::MASK_LONG;
+
+                    $this->updateNZLong($iRes);
+                    $this->iConditionRegister &= IRegister::CCR_CLEAR_XCV;
+                    $this->iConditionRegister |= $iRes ? IRegister::CCR_MASK_XC : 0;
+                    $this->iConditionRegister |= ($iRes && $iRes == $iDst) ? IRegister::CCR_OVERFLOW : 0;
+                    $oEAMode->writeLong($iRes);
+
+                }
+            )
+        );
     }
 
     private function buildMULXHandlers(array $aEAModes)
@@ -325,9 +400,9 @@ trait TArithmetic
             IArithmetic::OP_ADD_EA2D_L,
         ];
 
-        foreach (Processor\IRegister::DATA_REGS as $iReg) {
+        foreach (IRegister::DATA_REGS as $iReg) {
             foreach ($aPrefixes as $iPrefix) {
-                $oADDTemplate->iOpcode = $iPrefix | ($iReg << Processor\IOpcode::REG_UP_SHIFT);
+                $oADDTemplate->iOpcode = $iPrefix | ($iReg << IOpcode::REG_UP_SHIFT);
                 $this->addExactHandlers(
                     array_fill_keys(
                         $this->mergePrefixForModeList($oADDTemplate->iOpcode, $aEAModes),
@@ -337,7 +412,7 @@ trait TArithmetic
             }
 
             // Address reg EA support word size only
-            $oADDTemplate->iOpcode = IArithmetic::OP_ADD_EA2D_W | ($iReg << Processor\IOpcode::REG_UP_SHIFT);
+            $oADDTemplate->iOpcode = IArithmetic::OP_ADD_EA2D_W | ($iReg << IOpcode::REG_UP_SHIFT);
             $this->addExactHandlers(
                 array_fill_keys(
                     $this->mergePrefixForModeList($oADDTemplate->iOpcode, $aEAAregs),
@@ -361,9 +436,9 @@ trait TArithmetic
             IArithmetic::OP_ADD_D2EA_L,
         ];
 
-        foreach (Processor\IRegister::DATA_REGS as $iReg) {
+        foreach (IRegister::DATA_REGS as $iReg) {
             foreach ($aPrefixes as $iPrefix) {
-                $oADDTemplate->iOpcode = $iPrefix | ($iReg << Processor\IOpcode::REG_UP_SHIFT);
+                $oADDTemplate->iOpcode = $iPrefix | ($iReg << IOpcode::REG_UP_SHIFT);
                 $this->addExactHandlers(
                     array_fill_keys(
                         $this->mergePrefixForModeList($oADDTemplate->iOpcode, $aEAModes),
@@ -387,9 +462,9 @@ trait TArithmetic
             IArithmetic::OP_ADD_EA2A_L,
         ];
 
-        foreach (Processor\IRegister::ADDR_REGS as $iReg) {
+        foreach (IRegister::ADDR_REGS as $iReg) {
             foreach ($aPrefixes as $iPrefix) {
-                $oADDTemplate->iOpcode = $iPrefix | ($iReg << Processor\IOpcode::REG_UP_SHIFT);
+                $oADDTemplate->iOpcode = $iPrefix | ($iReg << IOpcode::REG_UP_SHIFT);
                 $this->addExactHandlers(
                     array_fill_keys(
                         $this->mergePrefixForModeList($oADDTemplate->iOpcode, $aEAModes),
@@ -414,9 +489,9 @@ trait TArithmetic
             IArithmetic::OP_SUB_EA2D_L,
         ];
 
-        foreach (Processor\IRegister::DATA_REGS as $iReg) {
+        foreach (IRegister::DATA_REGS as $iReg) {
             foreach ($aPrefixes as $iPrefix) {
-                $oSUBTemplate->iOpcode = $iPrefix | ($iReg << Processor\IOpcode::REG_UP_SHIFT);
+                $oSUBTemplate->iOpcode = $iPrefix | ($iReg << IOpcode::REG_UP_SHIFT);
                 $this->addExactHandlers(
                     array_fill_keys(
                         $this->mergePrefixForModeList($oSUBTemplate->iOpcode, $aEAModes),
@@ -426,7 +501,7 @@ trait TArithmetic
             }
 
             // Address reg EA support word size only
-            $oSUBTemplate->iOpcode = IArithmetic::OP_SUB_EA2D_W | ($iReg << Processor\IOpcode::REG_UP_SHIFT);
+            $oSUBTemplate->iOpcode = IArithmetic::OP_SUB_EA2D_W | ($iReg << IOpcode::REG_UP_SHIFT);
             $this->addExactHandlers(
                 array_fill_keys(
                     $this->mergePrefixForModeList($oSUBTemplate->iOpcode, $aEAAregs),
@@ -449,9 +524,9 @@ trait TArithmetic
             IArithmetic::OP_SUB_EA2A_L,
         ];
 
-        foreach (Processor\IRegister::ADDR_REGS as $iReg) {
+        foreach (IRegister::ADDR_REGS as $iReg) {
             foreach ($aPrefixes as $iPrefix) {
-                $oSUBTemplate->iOpcode = $iPrefix | ($iReg << Processor\IOpcode::REG_UP_SHIFT);
+                $oSUBTemplate->iOpcode = $iPrefix | ($iReg << IOpcode::REG_UP_SHIFT);
                 $this->addExactHandlers(
                     array_fill_keys(
                         $this->mergePrefixForModeList($oSUBTemplate->iOpcode, $aEAModes),
@@ -476,9 +551,9 @@ trait TArithmetic
             IArithmetic::OP_SUB_D2EA_L,
         ];
 
-        foreach (Processor\IRegister::DATA_REGS as $iReg) {
+        foreach (IRegister::DATA_REGS as $iReg) {
             foreach ($aPrefixes as $iPrefix) {
-                $oSUBTemplate->iOpcode = $iPrefix | ($iReg << Processor\IOpcode::REG_UP_SHIFT);
+                $oSUBTemplate->iOpcode = $iPrefix | ($iReg << IOpcode::REG_UP_SHIFT);
                 $this->addExactHandlers(
                     array_fill_keys(
                         $this->mergePrefixForModeList($oSUBTemplate->iOpcode, $aEAModes),
