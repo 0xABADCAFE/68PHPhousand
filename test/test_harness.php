@@ -27,6 +27,11 @@ const BASE_ADDRESS = 0x4;
 $oAssembler = new TestHarness\Assembler\Vasmm68k();
 
 $oBinary = $oAssembler->assemble("
+    clr.l d0
+    moveq #1,d1
+    ror.l #1,d1
+    move.w #-32768,d2
+    move.b #-128,d3
     move.l #65536,a7
     bsr .bsr_test
     stop #0
