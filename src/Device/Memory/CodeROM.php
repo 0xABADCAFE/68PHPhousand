@@ -87,7 +87,7 @@ class CodeROM implements Device\IMemory
     public function readByte(int $iAddress): int
     {
         $iWord = $this->readWord($iAddress);
-        return ($iAddress & 1) ? ($iWord & ISize::MASK_BYTE) : (($iWord >> 8) & $iMaskByte);
+        return ($iAddress & 1) ? ($iWord & ISize::MASK_BYTE) : (($iWord >> 8) & ISize::MASK_BYTE);
     }
 
     /**

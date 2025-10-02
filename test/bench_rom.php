@@ -35,7 +35,7 @@ $oObjectCode = (new TestHarness\Assembler\Vasmm68k())->assemble("
 	move.w #-1,d0
 .loop:
 	dbra d0,.loop
-	rts
+	stop #0
 ",
     BASE_ADDRESS
 );

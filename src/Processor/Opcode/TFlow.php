@@ -15,6 +15,8 @@ declare(strict_types=1);
 namespace ABadCafe\G8PHPhousand\Processor\Opcode;
 
 use ABadCafe\G8PHPhousand\Processor;
+use ABadCafe\G8PHPhousand\Processor\ISize;
+use ABadCafe\G8PHPhousand\Processor\IEffectiveAddress;
 
 use LogicException;
 
@@ -31,9 +33,134 @@ trait TFlow
         $this->addExactHandlers([
             IPrefix::OP_STOP     => $cUnhandled,
             IPrefix::OP_RTE      => $cUnhandled,
-            IPrefix::OP_RTS      => $cUnhandled,
             IPrefix::OP_TRAPV    => $cUnhandled,
             IPrefix::OP_RTR      => $cUnhandled,
         ]);
+
+        $this->buildBranchHandlers(IFlow::OP_BSR, 'bsr');
+        $this->buildBranchHandlers(IFlow::OP_BRA, 'bra');
+        $this->buildBranchHandlers(IFlow::OP_BHI, 'bhi');
+        $this->buildBranchHandlers(IFlow::OP_BLS, 'bls');
+        $this->buildBranchHandlers(IFlow::OP_BCC, 'bcc');
+        $this->buildBranchHandlers(IFlow::OP_BCS, 'bcs');
+        $this->buildBranchHandlers(IFlow::OP_BNE, 'bne');
+        $this->buildBranchHandlers(IFlow::OP_BEQ, 'beq');
+        $this->buildBranchHandlers(IFlow::OP_BVC, 'bvc');
+        $this->buildBranchHandlers(IFlow::OP_BVS, 'bvs');
+        $this->buildBranchHandlers(IFlow::OP_BPL, 'bpl');
+        $this->buildBranchHandlers(IFlow::OP_BMI, 'bmi');
+        $this->buildBranchHandlers(IFlow::OP_BGE, 'bge');
+        $this->buildBranchHandlers(IFlow::OP_BLT, 'blt');
+        $this->buildBranchHandlers(IFlow::OP_BGT, 'bgt');
+        $this->buildBranchHandlers(IFlow::OP_BLE, 'ble');
+
+        $this->buildDBCCHandlers(IFlow::OP_DBT,  'dbt');
+        $this->buildDBCCHandlers(IFlow::OP_DBF,  'dbf');
+        $this->buildDBCCHandlers(IFlow::OP_DBHI, 'dbhi');
+        $this->buildDBCCHandlers(IFlow::OP_DBLS, 'dbls');
+        $this->buildDBCCHandlers(IFlow::OP_DBCC, 'dbcc');
+        $this->buildDBCCHandlers(IFlow::OP_DBCS, 'dbcs');
+        $this->buildDBCCHandlers(IFlow::OP_DBNE, 'dbne');
+        $this->buildDBCCHandlers(IFlow::OP_DBEQ, 'dbeq');
+        $this->buildDBCCHandlers(IFlow::OP_DBVC, 'dbvc');
+        $this->buildDBCCHandlers(IFlow::OP_DBVS, 'dbvs');
+        $this->buildDBCCHandlers(IFlow::OP_DBPL, 'dbpl');
+        $this->buildDBCCHandlers(IFlow::OP_DBMI, 'dbmi');
+        $this->buildDBCCHandlers(IFlow::OP_DBGE, 'dbge');
+        $this->buildDBCCHandlers(IFlow::OP_DBLT, 'dblt');
+        $this->buildDBCCHandlers(IFlow::OP_DBGT, 'dbgt');
+        $this->buildDBCCHandlers(IFlow::OP_DBLE, 'dble');
+
+        // JMP
+        $aCtrlModes = $this->generateForEAModeList(IEffectiveAddress::MODE_CONTROL);
+        $this->addExactHandlers(
+            array_fill_keys(
+                $this->mergePrefixForModeList(
+                    IFlow::OP_JMP,
+                    $aCtrlModes
+                ),
+                function(int $iOpcode) {
+                    $oEAMode  = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
+                    $this->iProgramCounter = $oEAMode->readLong();
+                }
+            )
+        );
+
+        // JSR
+        $this->addExactHandlers(
+            array_fill_keys(
+                $this->mergePrefixForModeList(
+                    IFlow::OP_JSR,
+                    $aCtrlModes
+                ),
+                function(int $iOpcode) {
+                    $this->oAddressRegisters->iReg7 -= ISize::LONG;
+                    $this->oAddressRegisters->iReg7 &= ISize::MASK_LONG;
+                    $this->oOutside->writeLong(
+                        $this->oAddressRegisters->iReg7,
+                        $this->iProgramCounter
+                    );
+                    $oEAMode  = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
+                    $this->iProgramCounter = $oEAMode->readLong();
+                }
+            )
+        );
+
+        // OP_RTS
+        $this->addExactHandlers([
+            IFlow::OP_RTS => function(int $iOpcode) {
+                $this->iProgramCounter = $this->oOutside->readLong(
+                    $this->oAddressRegisters->iReg7
+                );
+                $this->oAddressRegisters->iReg7 += ISize::LONG;
+                $this->oAddressRegisters->iReg7 &= ISize::MASK_LONG;
+            }
+        ]);
+
+    }
+
+    private function buildBranchHandlers(int $iPrefix, string $sName)
+    {
+        $oBraTemplate = new Template\Params(
+            $iPrefix,
+            'operation/Bcc/'.$sName,
+            []
+        );
+
+        $aHandlers = [];
+        // First special case handler for $00
+        $aHandlers[$iPrefix | 0x00] = $this->compileTemplateHandler($oBraTemplate);
+
+        // Handlers for $01-7F are the same
+        $oBraTemplate->iOpcode = $iPrefix|0x01;
+        $cBra = $this->compileTemplateHandler($oBraTemplate);
+        for ($i = 0x01; $i < 0x80; ++$i) {
+            $aHandlers[$iPrefix | $i] = $cBra;
+        }
+
+        // Handlers for $80-$FE are the same
+        $oBraTemplate->iOpcode = $iPrefix|0x80;
+        $cBra = $this->compileTemplateHandler($oBraTemplate);
+        for ($i = 0x80; $i < 0xFF; ++$i) {
+            $aHandlers[$iPrefix | $i] = $cBra;
+        }
+
+        // Special case for $FF
+        $oBraTemplate->iOpcode = $iPrefix|0xFF;
+        $aHandlers[$iPrefix | 0xFF] = $this->compileTemplateHandler($oBraTemplate);
+        $this->addExactHandlers($aHandlers);
+    }
+
+
+    private function buildDBCCHandlers(int $iPrefix, string $sName)
+    {
+        $oSccTemplate = new Template\Params(
+            $iPrefix,
+            'operation/DBcc/'.$sName,
+            []
+        );
+        $cHandler = $this->compileTemplateHandler($oSccTemplate);
+        $aHandlers = array_fill_keys(range($iPrefix, $iPrefix + 7, 1), $cHandler);
+        $this->addExactHandlers($aHandlers);
     }
 }

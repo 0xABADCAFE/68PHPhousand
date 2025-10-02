@@ -41,9 +41,37 @@ interface IMove
     //                               rrr
     const OP_SWAP   = 0b0100100001000000;
 
+    //                      rrr   EAEAEA
+    const OP_LEA    = 0b0100000111000000;
+
+    //                            EAEAEA
+    const OP_PEA    = 0b0100100001000000;
+
+    //                      xxx1mmmmmyyy ; EXG Rx,Ry
+    const OP_EXG_DD = 0b1100000101000000; // exg dx,dy
+    const OP_EXG_AA = 0b1100000101001000; // exg ax,ay
+    const OP_EXG_DA = 0b1100000100001000; // exg dx,ay
+
     const MASK_DST_EA = 0b0000111111000000;
 
     const OP_MOVE_SRC_EA_SHIFT = 6;
 
-
+    // Set Conditional
+    //                    0101cccc11EAEAEA // condition / displacement
+    const OP_ST       = 0b0101000011000000;
+    const OP_SF       = self::OP_ST|IOpcode::CC_F;
+    const OP_SHI      = self::OP_ST|IOpcode::CC_HI;
+    const OP_SLS      = self::OP_ST|IOpcode::CC_LS;
+    const OP_SCC      = self::OP_ST|IOpcode::CC_CC;
+    const OP_SCS      = self::OP_ST|IOpcode::CC_CS;
+    const OP_SNE      = self::OP_ST|IOpcode::CC_NE;
+    const OP_SEQ      = self::OP_ST|IOpcode::CC_EQ;
+    const OP_SVC      = self::OP_ST|IOpcode::CC_VC;
+    const OP_SVS      = self::OP_ST|IOpcode::CC_VS;
+    const OP_SPL      = self::OP_ST|IOpcode::CC_PL;
+    const OP_SMI      = self::OP_ST|IOpcode::CC_MI;
+    const OP_SGE      = self::OP_ST|IOpcode::CC_GE;
+    const OP_SLT      = self::OP_ST|IOpcode::CC_LT;
+    const OP_SGT      = self::OP_ST|IOpcode::CC_GT;
+    const OP_SLE      = self::OP_ST|IOpcode::CC_LE;
 }

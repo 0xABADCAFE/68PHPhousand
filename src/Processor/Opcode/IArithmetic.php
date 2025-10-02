@@ -22,6 +22,11 @@ use ABadCafe\G8PHPhousand\Processor\IOpcode;
  */
 interface IArithmetic
 {
+    //                            ssEAEAEA
+    const OP_NEG_B    = 0b0100010000000000;
+    const OP_NEG_W    = 0b0100010001000000;
+    const OP_NEG_L    = 0b0100010010000000;
+
     //                    --------ssEAEAEA
     const OP_SUBI_B   = 0b0000010000000000;
     const OP_SUBI_W   = 0b0000010001000000;

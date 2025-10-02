@@ -37,7 +37,6 @@ abstract class Base implements I68KProcessor, IOpcode, Opcode\IPrefix
     use Opcode\TArithmetic;
     use Opcode\TShifter;
     use Opcode\TFlow;
-    use Opcode\TConditional;
     use Opcode\TSpecial;
 
     public function __construct(Device\IBus $oOutside, bool $bCache = false)
@@ -64,7 +63,6 @@ abstract class Base implements I68KProcessor, IOpcode, Opcode\IPrefix
         $this->initArithmeticHandlers();
         $this->initShifterHandlers();
         $this->initFlowHandlers();
-        $this->initConditionalHandlers();
         $this->initSpecialHandlers();
         $this->clearCompilerCache();
 

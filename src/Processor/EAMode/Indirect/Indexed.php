@@ -43,7 +43,7 @@ class Indexed extends Basic
         $this->bindIndexRegisters($oAddressRegisters, $oDataRegisters);
     }
 
-    private function getAddress(): int
+    public function getAddress(): int
     {
         $iExtension = $this->oOutside->readWord($this->iProgramCounter);
         $this->iProgramCounter += ISize::WORD;

@@ -13,39 +13,40 @@ declare(strict_types=1);
 
 namespace ABadCafe\G8PHPhousand\Processor\EAMode\Indirect;
 use ABadCafe\G8PHPhousand\Processor\EAMode;
+use ABadCafe\G8PHPhousand\Processor\EAMode\Direct;
 use ABadCafe\G8PHPhousand\Device;
 use ABadCafe\G8PHPhousand\Processor;
-
-use ValueError;
+use ABadCafe\G8PHPhousand\Processor\ISize;
 
 /**
- * Address Register Indirect, no offsets, increment/decrement or indexing
+ * PC-Relative 16-bit displacement
  */
-class Basic extends EAMode\Direct\Register implements EAMode\IIndirect
+class PCDisplacement implements EAMode\IIndirect
 {
     use EAMode\TWithBusAccess;
-    use EAMode\TWithoutLatch;
+    use EAMode\TWithExtensionWords;
+    use EAMode\TWithLatch;
 
     public function __construct(
-        Processor\AddressRegisterSet $oRegisters,
-        int $iBaseReg,
+        int& $iProgramCounter,
         Device\IBus $oOutside
     ) {
-        parent::__construct($oRegisters, $iBaseReg);
         $this->bindBus($oOutside);
+        $this->bindProgramCounter($iProgramCounter);
     }
+
 
     public function getAddress(): int
     {
-        return $this->iRegister;
+        $iBaseAddress  = $this->iProgramCounter;
+        $iDisplacement = Processor\Sign::extWord($this->oOutside->readWord($this->iProgramCounter));
+        $this->iProgramCounter += ISize::WORD;
+        return $this->iAddress = ($iDisplacement + $iBaseAddress) & ISize::MASK_LONG;
     }
 
-    /**
-     * @return int<0,255>
-     */
     public function readByte(): int
     {
-        return $this->oOutside->readByte($this->iRegister);
+        return $this->oOutside->readByte($this->getAddress());
     }
 
     /**
@@ -53,7 +54,7 @@ class Basic extends EAMode\Direct\Register implements EAMode\IIndirect
      */
     public function readWord(): int
     {
-        return $this->oOutside->readWord($this->iRegister);
+        return $this->oOutside->readWord($this->getAddress());
     }
 
     /**
@@ -61,7 +62,7 @@ class Basic extends EAMode\Direct\Register implements EAMode\IIndirect
      */
     public function readLong(): int
     {
-        return $this->oOutside->readLong($this->iRegister);
+        return $this->oOutside->readLong($this->getAddress());
     }
 
     /**
@@ -69,7 +70,8 @@ class Basic extends EAMode\Direct\Register implements EAMode\IIndirect
      */
     public function writeByte(int $iValue): void
     {
-        $this->oOutside->writeByte($this->iRegister, $iValue);
+        $this->oOutside->writeByte($this->iAddress ?? $this->getAddress(), $iValue);
+        $this->iAddress = null;
     }
 
     /**
@@ -77,7 +79,8 @@ class Basic extends EAMode\Direct\Register implements EAMode\IIndirect
      */
     public function writeWord(int $iValue): void
     {
-        $this->oOutside->writeWord($this->iRegister, $iValue);
+        $this->oOutside->writeWord($this->iAddress ?? $this->getAddress(), $iValue);
+        $this->iAddress = null;
     }
 
     /**
@@ -85,8 +88,7 @@ class Basic extends EAMode\Direct\Register implements EAMode\IIndirect
      */
     public function writeLong(int $iValue): void
     {
-        $this->oOutside->writeLong($this->iRegister, $iValue);
+        $this->oOutside->writeLong($this->iAddress ?? $this->getAddress(), $iValue);
+        $this->iAddress = null;
     }
-
-
 }

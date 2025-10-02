@@ -125,18 +125,36 @@ trait TAddressUnit
         // TODO absolute modes
 
         // Abs short (xxx).w [111 000]
-        // Abs long (xxx).l [111 001]
+        $this->aSrcEAModes[IOpcode::LSB_EA_SHORT] = new EAMode\Indirect\AbsoluteShort(
+            $this->iProgramCounter,
+            $this->oOutside
+        );
 
+        // Abs long (xxx).l [111 001]
+        $this->aSrcEAModes[IOpcode::LSB_EA_LONG]  = new EAMode\Indirect\AbsoluteLong(
+            $this->iProgramCounter,
+            $this->oOutside
+        );
 
         // The current set of EA modes is common to both source and destination operands.
         // We split after this with some source only
         $this->aDstEAModes = $this->aSrcEAModes;
 
+        // Read Only Modes
 
-        // TODO Special source only modes next
+        // Program Counter with Displacement d16(pc)
+        $this->aSrcEAModes[IOpcode::LSB_EA_PC_D] = new EAMode\Indirect\PCDisplacement(
+            $this->iProgramCounter,
+            $this->oOutside
+        );
 
-        // Program Counter with Displacement d16(pc) [111 010]
         // Program Counter with Index d8(pc,xN) [111 011]
+        $this->aSrcEAModes[IOpcode::LSB_EA_PC_X] = new EAMode\Indirect\PCIndexed(
+            $this->iProgramCounter,
+            $this->oAddressRegisters,
+            $this->oDataRegisters,
+            $this->oOutside
+        );
 
         // Immediate [111 100]
         $this->aSrcEAModes[IOpcode::LSB_EA_IMM] = new EAMode\Direct\Immediate(
