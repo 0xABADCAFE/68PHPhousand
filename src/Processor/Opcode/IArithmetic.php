@@ -22,10 +22,32 @@ use ABadCafe\G8PHPhousand\Processor\IOpcode;
  */
 interface IArithmetic
 {
+    //                      NNNmmmEAEAEA - cmp.b/w/l <ea>,dN - all src EA legal
+    const OP_CMP_B  = 0b1011000000000000;
+    const OP_CMP_W  = 0b1011000001000000;
+    const OP_CMP_L  = 0b1011000010000000;
+
+    //                      NNNmmmEAEAEA - cmpa.w/l <ea>,aN - all src EA legal
+    const OP_CMPA_W = 0b1011000011000000;
+    const OP_CMPA_L = 0b1011000111000000;
+
+    //                          ssEAEAEA - cmpi.b/w/l #N,<ea> - data addressable modes
+    const OP_CMPI_B = 0b0000110000000000;
+    const OP_CMPI_W = 0b0000110001000000;
+    const OP_CMPI_L = 0b0000110010000000;
+
+    //                      xxxxss   yyy - cmpm.b/w/l (Ax)+,(Ay)+
+    const OP_CMPM_B = 0b1011000100001000;
+    const OP_CMPM_W = 0b1011000101001000;
+    const OP_CMPM_L = 0b1011000110001000;
+
+
+
     //                            ssEAEAEA
     const OP_NEG_B    = 0b0100010000000000;
     const OP_NEG_W    = 0b0100010001000000;
     const OP_NEG_L    = 0b0100010010000000;
+
 
     //                    --------ssEAEAEA
     const OP_SUBI_B   = 0b0000010000000000;
