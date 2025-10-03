@@ -68,6 +68,62 @@ trait TArithmeticLogicUnit
      * newly calcualted sign but is different than the destination.
      *
      */
+    private function updateCCRCMPByte(int $iSrc, int $iDst, int $iRes, bool $bAdd): void
+    {
+        $this->updateNZByte($iRes);
+        $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
+        $iTest = $bAdd ? 0 : ISize::SIGN_BIT_BYTE;
+        $iDiff = ($iSrc ^ $iDst) & ISize::SIGN_BIT_BYTE; // nonzero if src and dst are different sign
+        $iFlip = ($iDst ^ $iRes) & ISize::SIGN_BIT_BYTE; // nonzero if dst sign will be swapped
+
+        $this->iConditionRegister |= (
+            ($iRes & 0x100) ? IRegister::CCR_CARRY : 0
+        ) | (
+            ($iTest === $iDiff && $iFlip) ? IRegister::CCR_OVERFLOW : 0
+        );
+    }
+
+    private function updateCCRCMPWord(int $iSrc, int $iDst, int $iRes, bool $bAdd): void
+    {
+        $this->updateNZWord($iRes);
+        $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
+        $iTest = $bAdd ? 0 : ISize::SIGN_BIT_WORD;
+        $iDiff = ($iSrc ^ $iDst) & ISize::SIGN_BIT_WORD; // nonzero if src and dst are different sign
+        $iFlip = ($iDst ^ $iRes) & ISize::SIGN_BIT_WORD; // nonzero if dst sign will be swapped
+
+        $this->iConditionRegister |= (
+            ($iRes & 0x10000) ? IRegister::CCR_CARRY : 0
+        ) | (
+            ($iTest === $iDiff && $iFlip) ? IRegister::CCR_OVERFLOW : 0
+        );
+    }
+
+    private function updateCCRCMPLong(int $iSrc, int $iDst, int $iRes, bool $bAdd): void
+    {
+        $this->updateNZLong($iRes);
+        $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
+        $iTest = $bAdd ? 0 : ISize::SIGN_BIT_LONG;
+        $iDiff = ($iSrc ^ $iDst) & ISize::SIGN_BIT_LONG; // nonzero if src and dst are different sign
+        $iFlip = ($iDst ^ $iRes) & ISize::SIGN_BIT_LONG; // nonzero if dst sign will be swapped
+
+        $this->iConditionRegister |= (
+            ($iRes & 0x100000000) ? IRegister::CCR_CARRY : 0
+        ) | (
+            ($iTest === $iDiff && $iFlip) ? IRegister::CCR_OVERFLOW : 0
+        );
+    }
+
+    /**
+     * Full CCR checks for add/sub behaviour.
+     *
+     * For addition, overflow is set when the source and destination sign bits are the same and the newly
+     * calculated sign bit different than the destination.
+     * Carry and extend are both set if the result is larger than the operand size.
+     *
+     * For subtraction, overflow is set wwhen the source and destination sign bits are opposite and the
+     * newly calcualted sign but is different than the destination.
+     *
+     */
     private function updateCCRMathByte(int $iSrc, int $iDst, int $iRes, bool $bAdd): void
     {
         $this->updateNZByte($iRes);

@@ -92,6 +92,8 @@ interface IOpcode
     const REG_UP_A6 = IRegister::A6 << self::REG_UP_SHIFT;
     const REG_UP_A7 = IRegister::A7 << self::REG_UP_SHIFT;
 
+    const LSB_EA_SIZE = 6;
+
     // EA modes with register params
     //             =   ----------xxx---
     const LSB_EA_MODE_SHIFT = 3;

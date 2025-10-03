@@ -47,6 +47,8 @@ trait TArithmetic
             IEffectiveAddress::MODE_ALL_EXCEPT_AREGS
         );
 
+        $this->buildCMPHandlers($aEAModes, $aEAAregs);
+
         $this->buildADDEA2DHandlers($aEAModes, $aEAAregs);
         $this->buildSUBEA2DHandlers($aEAModes, $aEAAregs);
         $this->buildMULXHandlers($aEAModes);
@@ -61,9 +63,79 @@ trait TArithmetic
         $aEAModes = $this->generateForEAModeList(
             IEffectiveAddress::MODE_ALL
         );
+
+        $this->buildCMPAHandlers($aEAModes);
         $this->buildADDEA2AHandlers($aEAModes);
         $this->buildSUBEA2AHandlers($aEAModes);
     }
+
+
+    private function buildCMPHandlers(array $aEAModes, array $aEAAregs)
+    {
+        $oCMPTemplate = new Template\Params(
+            0,
+            'operation/arithmetic/cmp',
+            []
+        );
+
+        //$oCMPTemplate->bDumpCode = true;
+
+        $aPrefixes = [
+            IArithmetic::OP_CMP_B,
+            IArithmetic::OP_CMP_W,
+            IArithmetic::OP_CMP_L,
+        ];
+
+        foreach (IRegister::DATA_REGS as $iReg) {
+            foreach ($aPrefixes as $iPrefix) {
+                $oCMPTemplate->iOpcode = $iPrefix | ($iReg << IOpcode::REG_UP_SHIFT);
+                $this->addExactHandlers(
+                    array_fill_keys(
+                        $this->mergePrefixForModeList($oCMPTemplate->iOpcode, $aEAModes),
+                        $this->compileTemplateHandler($oCMPTemplate)
+                    )
+                );
+                // word and long mode only where <ea> is an Address Register
+                if ($iPrefix !== IArithmetic::OP_CMP_B) {
+                    $this->addExactHandlers(
+                        array_fill_keys(
+                            $this->mergePrefixForModeList($oCMPTemplate->iOpcode, $aEAAregs),
+                            $this->compileTemplateHandler($oCMPTemplate)
+                        )
+                    );
+                }
+            }
+        }
+    }
+
+    private function buildCMPAHandlers(array $aEAModes)
+    {
+        $oCMPTemplate = new Template\Params(
+            0,
+            'operation/arithmetic/cmpa',
+            []
+        );
+
+        //$oCMPTemplate->bDumpCode = true;
+
+        $aPrefixes = [
+            IArithmetic::OP_CMPA_W,
+            IArithmetic::OP_CMPA_L,
+        ];
+
+        foreach (IRegister::ADDR_REGS as $iReg) {
+            foreach ($aPrefixes as $iPrefix) {
+                $oCMPTemplate->iOpcode = $iPrefix | ($iReg << IOpcode::REG_UP_SHIFT);
+                $this->addExactHandlers(
+                    array_fill_keys(
+                        $this->mergePrefixForModeList($oCMPTemplate->iOpcode, $aEAModes),
+                        $this->compileTemplateHandler($oCMPTemplate)
+                    )
+                );
+            }
+        }
+    }
+
 
     private function buildNEGHandlers(array $aEAModes)
     {

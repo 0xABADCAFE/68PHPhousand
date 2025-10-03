@@ -53,9 +53,9 @@ class Vasmm68k implements IAssembler
         if ($iBaseAddress & 1) {
             throw new LogicException('Misaligned base address ' . $iBaseAddress);
         }
-        $sSource = tempnam($this->sTmpDir, 'src_');
-        $sTarget = tempnam($this->sTmpDir, 'bin_');
-
+        $sSource  = tempnam($this->sTmpDir, 'src_');
+        $sTarget  = tempnam($this->sTmpDir, 'bin_');
+        $sListing = tempnam($this->sTmpDir, 'lst_');
         try {
             if ($iBaseAddress) {
                 $sSourceCode = sprintf(
@@ -67,18 +67,20 @@ class Vasmm68k implements IAssembler
 
             file_put_contents($sSource, $sSourceCode);
             $sCommand = sprintf(
-                "%s %s -Fbin -o %s\n",
+                "%s %s -Fbin -L %s -o %s\n",
                 $this->sBinPath,
                 $sSource,
+                $sListing,
                 $sTarget
             );
             $sResult = exec($sCommand);
             if (empty($sResult)) {
                 throw new RuntimeException('Failed to assemble source');
             }
-            return new ObjectCode($sSourceCode, file_get_contents($sTarget), $iBaseAddress);
+            return new ObjectCode(file_get_contents($sListing), file_get_contents($sTarget), $iBaseAddress);
         } finally {
             unlink($sSource);
+            unlink($sListing);
             unlink($sTarget);
         }
     }
