@@ -89,22 +89,22 @@ class CPU extends Processor\Base
         return $iCount;
     }
 
-    public function dumpMachineState()
+    public function dumpMachineState(ObjectCode $oObjectCode)
     {
         $iStackOffset = 10;
-        $iPCOffset = 10;
+        $iPCOffset    = -4;
         $iStackAddress = ($this->oAddressRegisters->iReg7 + $iStackOffset) & Processor\ISize::MASK_LONG;
 
         $iProgramCounter = ($this->iProgramCounter + $iPCOffset) & Processor\ISize::MASK_LONG;
 
         printf(
-            //"\td7 [0x00000000]          0      0    0 | a7 [0x0000FFFC] | SP: +10 [0x00010006] 0x0000 | PC: +10 [0x0000001C] 0x0000" .
             "\tData Regs                .l     .w   .b | Address Regs    | Stack Contents              | Program Contents\n"
         );
 
         for ($i = 7; $i >=0 ; --$i) {
+            $oSourceInfo = $oObjectCode->aSourceMap[$iProgramCounter] ?? null;
             printf(
-                "\td%d [0x%08X] %11d %6d %4d | a%d [0x%08X] | SP: %+3d [0x%08X] 0x%04X | PC: %+3d [0x%08X] 0x%04X\n",
+                "\td%d [0x%08X] %11d %6d %4d | a%d [0x%08X] | SP: %+3d [0x%08X] 0x%04X | PC: %+3d [0x%08X] 0x%04X %s %s\n",
                 $i,
                 $this->oDataRegisters->aIndex[$i],
                 Processor\Sign::extLong($this->oDataRegisters->aIndex[$i]),
@@ -117,13 +117,15 @@ class CPU extends Processor\Base
                 $this->oOutside->readWord($iStackAddress),
                 $iPCOffset,
                 $iProgramCounter,
-                $this->oOutside->readWord($iProgramCounter)
+                $this->oOutside->readWord($iProgramCounter),
+                $iPCOffset ? '   ' : '>>>',
+                $oSourceInfo ? $oSourceInfo->sLineSrc : ""
             );
             $iStackOffset    -= Processor\ISize::WORD;
             $iStackAddress   -= Processor\ISize::WORD;
             $iStackAddress   &= Processor\ISize::MASK_LONG;
-            $iPCOffset       -= Processor\ISize::WORD;
-            $iProgramCounter -= Processor\ISize::WORD;
+            $iPCOffset       += Processor\ISize::WORD;
+            $iProgramCounter += Processor\ISize::WORD;
             $iProgramCounter &= Processor\ISize::MASK_LONG;
         }
         printf(
@@ -136,21 +138,30 @@ class CPU extends Processor\Base
         );
     }
 
-    public function executeVerbose(int $iAddress): int
+    public function executeVerbose(ObjectCode $oObjectCode): int
     {
-        $this->iProgramCounter = $iAddress;
+        Memory::loadObjectCode($this->oOutside, $oObjectCode);
+
+        $this->iProgramCounter = $oObjectCode->iBaseAddress;
+        $sSourceLine = $oObjectCode->aSourceMap[$this->iProgramCounter]->sLineSrc;
         $iCount = 0;
-        echo "Beginning Verbose Execution\n";
+        printf(
+            "\nBeginning Verbose Execution from 0x%08X : %s\n\n",
+            $this->iProgramCounter,
+            $sSourceLine
+        );
         try {
             while(true) {
-                $this->dumpMachineState();
+                $this->dumpMachineState($oObjectCode);
                 $iOpcode = $this->oOutside->readWord($this->iProgramCounter);
-
-                printf("\nExecuting 0x%08X : 0x%04X\n", $this->iProgramCounter, $iOpcode);
 
                 if (!isset($this->aExactHandler[$iOpcode])) {
                     throw new \RuntimeException('No handler');
                 }
+
+                $sSourceLine = $oObjectCode->aSourceMap[$this->iProgramCounter]->sLineSrc;
+
+                printf("\nExecuted 0x%08X : %s\n\n", $this->iProgramCounter, $sSourceLine);
 
                 $this->iProgramCounter += Processor\ISize::WORD;
                 $this->aExactHandler[$iOpcode]($iOpcode);
@@ -159,7 +170,8 @@ class CPU extends Processor\Base
         } catch (LogicException $oError) {
 
         } finally {
-            $this->dumpMachineState();
+            printf("Execution halted at 0x%08X. Final state:\n", $this->iProgramCounter);
+            $this->dumpMachineState($oObjectCode);
         }
         return $iCount;
     }
