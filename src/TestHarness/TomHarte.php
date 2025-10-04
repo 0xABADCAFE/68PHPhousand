@@ -1,0 +1,277 @@
+<?php
+
+/**
+ *       _/_/_/    _/_/    _/_/_/   _/    _/  _/_/_/   _/                                                            _/
+ *     _/       _/    _/  _/    _/ _/    _/  _/    _/ _/_/_/     _/_/   _/    _/   _/_/_/    _/_/_/  _/_/_/     _/_/_/
+ *    _/_/_/     _/_/    _/_/_/   _/_/_/_/  _/_/_/   _/    _/ _/    _/ _/    _/ _/_/      _/    _/  _/    _/ _/    _/
+ *   _/    _/ _/    _/  _/       _/    _/  _/       _/    _/ _/    _/ _/    _/     _/_/  _/    _/  _/    _/ _/    _/
+ *    _/_/     _/_/    _/       _/    _/  _/       _/    _/   _/_/    _/_/_/  _/_/_/      _/_/_/  _/    _/   _/_/_/
+ *
+ *   >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Damn you, linkedin, what have you started ? <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+ */
+
+declare(strict_types=1);
+
+namespace ABadCafe\G8PHPhousand\TestHarness;
+
+use ABadCafe\G8PHPhousand\Device;
+use ABadCafe\G8PHPhousand\Processor\ISize;
+use ABadCafe\G8PHPhousand\Processor\IRegister;
+use ABadCafe\G8PHPhousand\Processor\Sign;
+
+use \LogicException;
+use \stdClass;
+
+class TomHarte
+{
+    private string $sTestDir;
+
+    private Device\IMemory $oMemory;
+    private CPU $oCPU;
+
+
+    public function __construct(string $sTestDir)
+    {
+        assert(is_readable($sTestDir) & is_dir($sTestDir), new LogicException());
+        $this->sTestDir = $sTestDir;
+
+        $this->oMemory = new Device\Memory\SparseRAM24();
+        $this->oCPU    = new CPU($this->oMemory);
+    }
+
+    /** @var array<int, stdClass> */
+    private array $aTestCases = [];
+
+    public function loadSuite(string $sSuite): self
+    {
+        $sTestPath = sprintf(
+            '%s/%s.json.gz',
+            $this->sTestDir,
+            $sSuite
+        );
+        $aTestCases = json_decode(
+            gzdecode(file_get_contents($sTestPath))
+        );
+        assert(
+            !empty($aTestCases) && is_array($aTestCases),
+            new LogicException('Invalid Test Suite ' . $sSuite)
+        );
+
+        printf(
+            "Loaded %s, containing %d test cases\n",
+            $sTestPath,
+            count($aTestCases)
+        );
+        $this->aTestCases = $aTestCases;
+
+        return $this;
+    }
+
+    public function run(): self
+    {
+        $iErrored   = 0;
+        $iSkipped   = 0;
+        $iAttempted = 0;
+        $iPassed    = 0;
+        $iFailed    = 0;
+        foreach($this->aTestCases as $oTestCase) {
+            if ($this->isUserModeOnly($oTestCase)) {
+                printf("\nTesting %s\n", $oTestCase->name);
+                ob_start();
+                try {
+
+
+                    $this->prepareTest($oTestCase);
+                    print("Initial State\n");
+                    $this->oCPU->dumpMachineState(null);
+                    $this->oCPU->executeAt($oTestCase->initial->pc);
+                    print("Final State\n");
+                    $this->oCPU->dumpMachineState(null);
+                    ++$iAttempted;
+
+                    $aFailures = $this->checkTestResult($oTestCase);
+                    if (empty($aFailures)) {
+                        ++$iPassed;
+                        ob_end_clean();
+                        print("PASSED\n");
+                    } else {
+                        ++$iFailed;
+                        print("FAILED:\n");
+                        foreach ($aFailures as $sMessage) {
+                            printf("\t%s\n", $sMessage);
+                        }
+                        ob_end_flush();
+                    }
+                } catch (\Throwable $oError) {
+                    printf("ERRORED:\n\t%s\n%s\n", $oError->getMessage(), $oError->getTraceAsString());
+                    ob_end_flush();
+                    ++$iErrored;
+                }
+            } else {
+                printf(
+                    "Skipping %s (supervisor state emulation not implemented)\n",
+                    $oTestCase->name
+                );
+                ++$iSkipped;
+            }
+        }
+
+        printf(
+            "\nResult: %d total, %d attempted, %d skipped, %d passed, %d failed, %d errored\n",
+            count($this->aTestCases),
+            $iAttempted,
+            $iSkipped,
+            $iPassed,
+            $iFailed,
+            $iErrored
+        );
+
+        return $this;
+    }
+
+    public function isUserModeOnly(stdClass $oTestCase): bool
+    {
+        $iSRState = ($oTestCase->initial->sr | $oTestCase->final->sr) >> 8;
+        return (bool)($iSRState & IRegister::SR_MASK_SUPER);
+    }
+
+    public function prepareTest(stdClass $oTestCase)
+    {
+        $this->oMemory->hardReset();
+        $this->oCPU->hardReset();
+
+        // Fill in the memory
+        $iAddress = $oTestCase->initial->pc;
+        foreach ($oTestCase->initial->prefetch as $iOpcode) {
+            $this->oMemory->writeWord($iAddress, $iOpcode);
+            $iAddress += ISize::WORD;
+        }
+        foreach ($oTestCase->initial->ram as $aPair) {
+            printf(
+                "\tSetting byte at 0x%08X to 0x%02X (%d)\n",
+                $aPair[0],
+                $aPair[1],
+                Sign::extByte($aPair[1])
+            );
+            $this->oMemory->writeByte($aPair[0], $aPair[1]);
+        }
+
+        // Set the registers
+        $this->oCPU->setPC($oTestCase->initial->pc);
+        $this->oCPU->setRegister('sr',  $oTestCase->initial->sr >> 8);
+        $this->oCPU->setRegister('ccr', $oTestCase->initial->sr & 0xFF);
+        $this->oCPU->setRegister('d0',  $oTestCase->initial->d0);
+        $this->oCPU->setRegister('d1',  $oTestCase->initial->d1);
+        $this->oCPU->setRegister('d2',  $oTestCase->initial->d2);
+        $this->oCPU->setRegister('d3',  $oTestCase->initial->d3);
+        $this->oCPU->setRegister('d4',  $oTestCase->initial->d4);
+        $this->oCPU->setRegister('d5',  $oTestCase->initial->d5);
+        $this->oCPU->setRegister('d6',  $oTestCase->initial->d6);
+        $this->oCPU->setRegister('d7',  $oTestCase->initial->d7);
+        $this->oCPU->setRegister('a0',  $oTestCase->initial->a0);
+        $this->oCPU->setRegister('a1',  $oTestCase->initial->a1);
+        $this->oCPU->setRegister('a2',  $oTestCase->initial->a2);
+        $this->oCPU->setRegister('a3',  $oTestCase->initial->a3);
+        $this->oCPU->setRegister('a4',  $oTestCase->initial->a4);
+        $this->oCPU->setRegister('a5',  $oTestCase->initial->a5);
+        $this->oCPU->setRegister('a6',  $oTestCase->initial->a6);
+        $this->oCPU->setRegister('a7',  $oTestCase->initial->usp);
+    }
+
+    public function checkTestResult(stdClass $oTestCase): array
+    {
+        $aFailures = [];
+        $iExpect = 0;
+        $iHave   = 0;
+
+        if (
+            ($iExpect = $oTestCase->final->pc) !=
+            ($iHave = $this->oCPU->getPC())
+        ) {
+            $aFailures[] = sprintf(
+                'PC mismatch: Expected 0x%08X, got 0x%08X for test case %s',
+                $iExpect,
+                $iHave,
+                $oTestCase->name
+            );
+        }
+
+        if (
+            ($iExpect = ($oTestCase->final->sr & IRegister::CCR_MASK)) !=
+            ($iHave = $this->oCPU->getRegister('ccr'))
+        ) {
+            $aFailures[] = sprintf(
+                'CCR mismatch: Expected 0x%02X (%s), got 0x%02X (%s) for test case %s',
+                $iExpect,
+                $this->oCPU->formatCCR($iExpect),
+                $iHave,
+                $this->oCPU->formatCCR($iHave),
+                $oTestCase->name
+            );
+        }
+
+        for ($iReg = 0; $iReg < 8; ++$iReg) {
+            $sRegName = 'd' . $iReg;
+            if (
+                ($iExpect = $oTestCase->final->{$sRegName}) !=
+                ($iHave = $this->oCPU->getRegister($sRegName))
+            ) {
+                $aFailures[] = sprintf(
+                    '%s mismatch: Expected 0x%08X, got 0x%08X for test case %s',
+                    $sRegName,
+                    $iExpect,
+                    $iHave,
+                    $oTestCase->name
+                );
+            }
+        }
+
+        for ($iReg = 0; $iReg < 7; ++$iReg) {
+            $aRegName = 'a' . $iReg;
+            if (
+                ($iExpect = $oTestCase->final->{$sRegName}) !=
+                ($iHave = $this->oCPU->getRegister($sRegName))
+            ) {
+                $aFailures[] = sprintf(
+                    '%s mismatch: Expected 0x%08X, got 0x%08X for test case %s',
+                    $sRegName,
+                    $iExpect,
+                    $iHave,
+                    $oTestCase->name
+                );
+            }
+        }
+
+        if (
+            ($iExpect = $oTestCase->final->usp) !=
+            ($iHave = $this->oCPU->getRegister('a7'))
+        ) {
+            $aFailures[] = sprintf(
+                'SP mismatch: Expected 0x%08X, got 0x%08X for test case %s',
+                $iExpect,
+                $iHave,
+                $oTestCase->name
+            );
+        }
+
+        // Memory
+        foreach ($oTestCase->final->ram as $aPair) {
+            if (
+                ($iExpect = $aPair[1]) !=
+                ($iHave = $this->oMemory->readByte($aPair[0]))
+            ) {
+                $aFailures[] = sprintf(
+                    'RAM mismatch: Expected 0x%02X (%d) at 0x%08X, got 0x%02X (%d) for test case %s',
+                    $iExpect,
+                    Sign::extByte($iExpect),
+                    $aPair[0],
+                    $iHave,
+                    Sign::extByte($iHave),
+                    $oTestCase->name
+                );
+
+            }
+        }
+        return $aFailures;
+    }
+}

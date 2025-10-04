@@ -46,6 +46,7 @@ class CPU extends Processor\Base
         return $this->oAddressRegisters;
     }
 
+
     public function executeAt(int $iAddress): void
     {
         assert($iAddress >= 0, new LogicException('Invalid start address'));
@@ -89,7 +90,7 @@ class CPU extends Processor\Base
         return $iCount;
     }
 
-    public function dumpMachineState(ObjectCode $oObjectCode)
+    public function dumpMachineState(?ObjectCode $oObjectCode)
     {
         $iStackOffset = 10;
         $iPCOffset    = -4;
@@ -102,7 +103,7 @@ class CPU extends Processor\Base
         );
 
         for ($i = 7; $i >=0 ; --$i) {
-            $oSourceInfo = $oObjectCode->aSourceMap[$iProgramCounter] ?? null;
+            $oSourceInfo = $oObjectCode ?? $oObjectCode->aSourceMap[$iProgramCounter] ?? null;
             printf(
                 "\td%d [0x%08X] %11d %6d %4d | a%d [0x%08X] | SP: %+3d [0x%08X] 0x%04X | PC: %+3d [0x%08X] 0x%04X %s %s\n",
                 $i,
@@ -129,13 +130,22 @@ class CPU extends Processor\Base
             $iProgramCounter &= Processor\ISize::MASK_LONG;
         }
         printf(
-            "\tCCR: %s%s%s%s%s\n",
-            $this->iConditionRegister & Processor\IRegister::CCR_EXTEND   ? 'X' : '-',
-            $this->iConditionRegister & Processor\IRegister::CCR_NEGATIVE ? 'N' : '-',
-            $this->iConditionRegister & Processor\IRegister::CCR_ZERO     ? 'Z' : '-',
-            $this->iConditionRegister & Processor\IRegister::CCR_OVERFLOW ? 'V' : '-',
-            $this->iConditionRegister & Processor\IRegister::CCR_CARRY    ? 'C' : '-'
+            "\tCCR: %s\n",
+            $this->formatCCR($this->iConditionRegister)
         );
+    }
+
+    public function formatCCR(int $iCC): string
+    {
+        return sprintf(
+            "%s%s%s%s%s",
+            $iCC & Processor\IRegister::CCR_EXTEND   ? 'X' : '-',
+            $iCC & Processor\IRegister::CCR_NEGATIVE ? 'N' : '-',
+            $iCC & Processor\IRegister::CCR_ZERO     ? 'Z' : '-',
+            $iCC & Processor\IRegister::CCR_OVERFLOW ? 'V' : '-',
+            $iCC & Processor\IRegister::CCR_CARRY    ? 'C' : '-'
+        );
+
     }
 
     public function executeVerbose(ObjectCode $oObjectCode): int
