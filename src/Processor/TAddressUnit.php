@@ -112,7 +112,7 @@ trait TAddressUnit
 
         // Address Register indirect with index d8(aN,xN.w|l) [110 nnn]
         for ($iReg = IRegister::A0; $iReg <= IRegister::A7; ++$iReg) {
-            $this->aSrcEAModes[IOpcode::LSB_EA_AD|$iReg] = new EAMode\Indirect\Indexed(
+            $this->aSrcEAModes[IOpcode::LSB_EA_AII|$iReg] = new EAMode\Indirect\Indexed(
                 $this->iProgramCounter,
                 $this->oAddressRegisters,
                 $this->oDataRegisters,

@@ -312,6 +312,14 @@ trait TArithmetic
                     $aEAModes
                 ),
                 function(int $iOpcode) {
+                    assert(
+                        isset($this->aDstEAModes[$iOpcode & 63]),
+                        new \LogicException(
+                            'Missing addressing mode ' . ($iOpcode & 63) .
+                            ' from set {' . implode(', ', array_keys($this->aDstEAModes)). '}'
+                        )
+                    );
+
                     $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
                     $iSrc    = $this->oOutside->readByte($this->iProgramCounter + ISize::BYTE);
                     $iDst    = $oEAMode->readByte();
@@ -331,6 +339,14 @@ trait TArithmetic
                     $aEAModes
                 ),
                 function(int $iOpcode) {
+                    assert(
+                        isset($this->aDstEAModes[$iOpcode & 63]),
+                        new \LogicException(
+                            'Missing addressing mode ' . ($iOpcode & 63) .
+                            ' from set {' . implode(', ', array_keys($this->aDstEAModes)). '}'
+                        )
+                    );
+
                     $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
                     $iSrc    = $this->oOutside->readWord($this->iProgramCounter);
                     $iDst    = $oEAMode->readWord();
@@ -350,6 +366,14 @@ trait TArithmetic
                     $aEAModes
                 ),
                 function(int $iOpcode) {
+                    assert(
+                        isset($this->aDstEAModes[$iOpcode & 63]),
+                        new \LogicException(
+                            'Missing addressing mode ' . ($iOpcode & 63) .
+                            ' from set {' . implode(', ', array_keys($this->aDstEAModes)). '}'
+                        )
+                    );
+
                     $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
                     $iSrc    = $this->oOutside->readLong($this->iProgramCounter);
                     $iDst    = $oEAMode->readLong();
@@ -455,7 +479,6 @@ trait TArithmetic
                 );
             }
         }
-
     }
 
     private function buildADDEA2DHandlers(array $aEAModes, array $aEAAregs)

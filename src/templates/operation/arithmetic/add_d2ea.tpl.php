@@ -16,6 +16,13 @@ $iDataReg = (($oParams->iOpcode & IOpcode::MASK_REG_UPPER) >> IOpcode::REG_UP_SH
 
 ?>
 return function(int $iOpcode): void {
+    assert(
+        isset($this->aDstEAModes[$iOpcode & 63]),
+        new \LogicException(
+            'Missing addressing mode ' . ($iOpcode & 63) .
+            ' from set {' . implode(', ', array_keys($this->aDstEAModes)). '}'
+        )
+    );
     $oEAMode = $this->aDstEAModes[$iOpcode & 63];
 <?php
 

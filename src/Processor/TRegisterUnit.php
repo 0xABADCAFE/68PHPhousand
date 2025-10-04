@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace ABadCafe\G8PHPhousand\Processor;
 
+use LogicException;
 use ValueError;
 
 /**
