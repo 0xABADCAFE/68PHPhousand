@@ -68,6 +68,7 @@ const CLASS_MAP = [
   'ABadCafe\\G8PHPhousand\\Processor\\EAMode\\TWithLatch' => '/Processor/EAMode/TWithLatch.php',
   'ABadCafe\\G8PHPhousand\\Processor\\EAMode\\Indirect\\Indexed' => '/Processor/EAMode/Indirect/Indexed.php',
   'ABadCafe\\G8PHPhousand\\Processor\\EAMode\\Indirect\\PostIncrementSP' => '/Processor/EAMode/Indirect/PostIncrementSP.php',
+  'ABadCafe\\G8PHPhousand\\Processor\\EAMode\\Illegal' => '/Processor/EAMode/Indirect/Illegal.php',
   'ABadCafe\\G8PHPhousand\\Processor\\EAMode\\Indirect\\Basic' => '/Processor/EAMode/Indirect/Basic.php',
   'ABadCafe\\G8PHPhousand\\Processor\\EAMode\\Indirect\\PreDecrement' => '/Processor/EAMode/Indirect/PreDecrement.php',
   'ABadCafe\\G8PHPhousand\\Processor\\EAMode\\Indirect\\PostIncrement' => '/Processor/EAMode/Indirect/PostIncrement.php',

@@ -25,10 +25,10 @@ use \stdClass;
 class TomHarte
 {
     private string $sTestDir;
+    private string $sSuite;
 
     private Device\IMemory $oMemory;
     private CPU $oCPU;
-
 
     public function __construct(string $sTestDir)
     {
@@ -41,6 +41,24 @@ class TomHarte
 
     /** @var array<int, stdClass> */
     private array $aTestCases = [];
+
+    public function runAllExcept(array $aExclude)
+    {
+        $aExclude = array_flip($aExclude);
+        $aTests = glob($this->sTestDir. '/*.json.gz');
+        foreach ($aTests as $sTest) {
+            preg_match(
+                '/([a-zA-Z0-9]+\.{0,1}[bwlq]{0,1})\.json\.gz/',
+                $sTest,
+                $aMatches
+            );
+            if (isset($aMatches[1]) && !isset($aExclude[$aMatches[1]])) {
+                $this
+                    ->loadSuite($aMatches[1])
+                    ->run();
+            }
+        }
+    }
 
     public function loadSuite(string $sSuite): self
     {
@@ -63,7 +81,7 @@ class TomHarte
             count($aTestCases)
         );
         $this->aTestCases = $aTestCases;
-
+        $this->sSuite     = $sSuite;
         return $this;
     }
 
@@ -74,13 +92,12 @@ class TomHarte
         $iAttempted = 0;
         $iPassed    = 0;
         $iFailed    = 0;
+        $fTime      = -microtime(true);
         foreach($this->aTestCases as $oTestCase) {
             if ($this->isUserModeOnly($oTestCase)) {
                 printf("\nTesting %s\n", $oTestCase->name);
                 ob_start();
                 try {
-
-
                     $this->prepareTest($oTestCase);
                     print("Initial State\n");
                     $this->oCPU->dumpMachineState(null);
@@ -115,17 +132,20 @@ class TomHarte
                 ++$iSkipped;
             }
         }
+        $fTime += microtime(true);
 
         printf(
-            "\nResult: %d total, %d attempted, %d skipped, %d passed, %d failed, %d errored\n",
+            "\nResult: %s Completed in %0.3f s - %d total, %d attempted, %d skipped, %d passed, %d failed, %d errored. Pass rate %0.2f%%\n",
+            $this->sSuite,
+            1e-6 * $fTime,
             count($this->aTestCases),
             $iAttempted,
             $iSkipped,
             $iPassed,
             $iFailed,
-            $iErrored
+            $iErrored,
+            $iAttempted ? (100.0 * $iPassed/$iAttempted) : 0.0
         );
-
         return $this;
     }
 

@@ -161,6 +161,16 @@ trait TAddressUnit
             $this->iProgramCounter,
             $this->oOutside
         );
+
+        // Add traps for unsupported modes
+        for ($i = 0; $i < 64; ++$i) {
+            if (!isset($this->aSrcEAModes[$i])) {
+                $this->aSrcEAModes[$i] = new EAMode\Illegal(array_keys($this->aSrcEAModes), $i);
+            }
+            if (!isset($this->aDstEAModes[$i])) {
+                $this->aDstEAModes[$i] = new EAMode\Illegal(array_keys($this->aDstEAModes), $i);
+            }
+        }
     }
 
 }
