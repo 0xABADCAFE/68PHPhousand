@@ -147,14 +147,6 @@ trait TArithmetic
                     $aEAModes
                 ),
                 function(int $iOpcode) {
-                    assert(
-                        isset($this->aDstEAModes[$iOpcode & 63]),
-                        new \LogicException(
-                            'Missing addressing mode ' . ($iOpcode & 63) .
-                            ' from set {' . implode(', ', array_keys($this->aDstEAModes)). '}'
-                        )
-                    );
-
                     $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
                     $iDst    = $oEAMode->readByte();
                     $iRes    = -Sign::extByte($iDst) & ISize::MASK_BYTE;
@@ -176,14 +168,6 @@ trait TArithmetic
                     $aEAModes
                 ),
                 function(int $iOpcode) {
-                    assert(
-                        isset($this->aDstEAModes[$iOpcode & 63]),
-                        new \LogicException(
-                            'Missing addressing mode ' . ($iOpcode & 63) .
-                            ' from set {' . implode(', ', array_keys($this->aDstEAModes)). '}'
-                        )
-                    );
-
                     $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
                     $iDst    = $oEAMode->readWord();
                     $iRes    = -Sign::extWord($iDst) & ISize::MASK_WORD;
@@ -206,14 +190,6 @@ trait TArithmetic
                     $aEAModes
                 ),
                 function(int $iOpcode) {
-                    assert(
-                        isset($this->aDstEAModes[$iOpcode & 63]),
-                        new \LogicException(
-                            'Missing addressing mode ' . ($iOpcode & 63) .
-                            ' from set {' . implode(', ', array_keys($this->aDstEAModes)). '}'
-                        )
-                    );
-
                     $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
                     $iDst    = $oEAMode->readLong();
                     $iRes    = -Sign::extLong($iDst) & ISize::MASK_LONG;
@@ -238,14 +214,6 @@ trait TArithmetic
                     $aEAModes
                 ),
                 function(int $iOpcode) {
-                    assert(
-                        isset($this->aDstEAModes[$iOpcode & 63]),
-                        new \LogicException(
-                            'Missing addressing mode ' . ($iOpcode & 63) .
-                            ' from set {' . implode(', ', array_keys($this->aDstEAModes)). '}'
-                        )
-                    );
-
                     $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
                     $iReg    = &$this->oDataRegisters->aIndex[($iOpcode >> IOpcode::IMM_UP_SHIFT) & 7];
                     $iValue  = Sign::extWord($iReg) * Sign::extWord($oEAMode->readWord());
@@ -262,14 +230,6 @@ trait TArithmetic
                     $aEAModes
                 ),
                 function(int $iOpcode) {
-                    assert(
-                        isset($this->aDstEAModes[$iOpcode & 63]),
-                        new \LogicException(
-                            'Missing addressing mode ' . ($iOpcode & 63) .
-                            ' from set {' . implode(', ', array_keys($this->aDstEAModes)). '}'
-                        )
-                    );
-
                     $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
                     $iReg    = &$this->oDataRegisters->aIndex[($iOpcode >> IOpcode::IMM_UP_SHIFT) & 7];
                     $iValue  = $iReg * $oEAMode->readWord();
@@ -292,14 +252,6 @@ trait TArithmetic
                     $aEAModes
                 ),
                 function(int $iOpcode) {
-                    assert(
-                        isset($this->aDstEAModes[$iOpcode & 63]),
-                        new \LogicException(
-                            'Missing addressing mode ' . ($iOpcode & 63) .
-                            ' from set {' . implode(', ', array_keys($this->aDstEAModes)). '}'
-                        )
-                    );
-
                     $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
                     $iSrc    = $this->oOutside->readByte($this->iProgramCounter + ISize::BYTE);
                     $iDst    = $oEAMode->readByte();
@@ -319,14 +271,6 @@ trait TArithmetic
                     $aEAModes
                 ),
                 function(int $iOpcode) {
-                    assert(
-                        isset($this->aDstEAModes[$iOpcode & 63]),
-                        new \LogicException(
-                            'Missing addressing mode ' . ($iOpcode & 63) .
-                            ' from set {' . implode(', ', array_keys($this->aDstEAModes)). '}'
-                        )
-                    );
-
                     $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
                     $iSrc    = $this->oOutside->readWord($this->iProgramCounter);
                     $iDst    = $oEAMode->readWord();
@@ -346,14 +290,6 @@ trait TArithmetic
                     $aEAModes
                 ),
                 function(int $iOpcode) {
-                    assert(
-                        isset($this->aDstEAModes[$iOpcode & 63]),
-                        new \LogicException(
-                            'Missing addressing mode ' . ($iOpcode & 63) .
-                            ' from set {' . implode(', ', array_keys($this->aDstEAModes)). '}'
-                        )
-                    );
-
                     $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
                     $iSrc    = $this->oOutside->readLong($this->iProgramCounter);
                     $iDst    = $oEAMode->readLong();
@@ -376,14 +312,6 @@ trait TArithmetic
                     $aEAModes
                 ),
                 function(int $iOpcode) {
-                    assert(
-                        isset($this->aDstEAModes[$iOpcode & 63]),
-                        new \LogicException(
-                            'Missing addressing mode ' . ($iOpcode & 63) .
-                            ' from set {' . implode(', ', array_keys($this->aDstEAModes)). '}'
-                        )
-                    );
-
                     $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
                     $iSrc    = $this->oOutside->readByte($this->iProgramCounter + ISize::BYTE);
                     $iDst    = $oEAMode->readByte();
@@ -403,14 +331,6 @@ trait TArithmetic
                     $aEAModes
                 ),
                 function(int $iOpcode) {
-                    assert(
-                        isset($this->aDstEAModes[$iOpcode & 63]),
-                        new \LogicException(
-                            'Missing addressing mode ' . ($iOpcode & 63) .
-                            ' from set {' . implode(', ', array_keys($this->aDstEAModes)). '}'
-                        )
-                    );
-
                     $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
                     $iSrc    = $this->oOutside->readWord($this->iProgramCounter);
                     $iDst    = $oEAMode->readWord();
@@ -430,14 +350,6 @@ trait TArithmetic
                     $aEAModes
                 ),
                 function(int $iOpcode) {
-                    assert(
-                        isset($this->aDstEAModes[$iOpcode & 63]),
-                        new \LogicException(
-                            'Missing addressing mode ' . ($iOpcode & 63) .
-                            ' from set {' . implode(', ', array_keys($this->aDstEAModes)). '}'
-                        )
-                    );
-
                     $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
                     $iSrc    = $this->oOutside->readLong($this->iProgramCounter);
                     $iDst    = $oEAMode->readLong();

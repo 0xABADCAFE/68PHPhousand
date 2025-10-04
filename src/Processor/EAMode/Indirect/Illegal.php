@@ -26,7 +26,7 @@ class Illegal implements IIndirect
 
     public function __construct(array $aValidModes, int $iMode)
     {
-        $sError = sprintf(
+        $this->sError = sprintf(
             'Unsupported Addressing Mode %d is not in set {%s} for ',
             $iMode,
             implode(',', $aValidModes)

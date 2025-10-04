@@ -16,7 +16,7 @@ $iAddressReg = (($oParams->iOpcode & IOpcode::MASK_REG_UPPER) >> IOpcode::REG_UP
 
 ?>
 return function(int $iOpcode): void {
-    $oEAMode = $this->aDstEAModes[$iOpcode & 63];
+    $oEAMode = $this->aSrcEAModes[$iOpcode & 63];
     $iReg    = &$this->oAddressRegisters->iReg<?= $iAddressReg ?>;
 <?php
 switch ($iMode) {
