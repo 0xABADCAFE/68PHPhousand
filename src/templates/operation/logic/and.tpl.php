@@ -13,12 +13,13 @@ $iSize    = $oParams->iOpcode & IOpcode::MASK_OP_SIZE;
 
 ?>
 return function(int $iOpcode): void {
-    $oEAMode = $this->aDstEAModes[$iOpcode & 63];
 <?php
 
 if ($oParams->iOpcode & ILogical::OP_AND_DIR) {
     // D OR <ea> => <ea>
-
+?>
+    $oEAMode = $this->aDstEAModes[$iOpcode & 63];
+<?php
     switch ($iSize) {
         case IOpcode::OP_SIZE_B:
 ?>
@@ -48,7 +49,9 @@ if ($oParams->iOpcode & ILogical::OP_AND_DIR) {
 
 } else {
     // <ea> OR <D> => <ea>
-
+?>
+    $oEAMode = $this->aSrcEAModes[$iOpcode & 63];
+<?php
     switch ($iSize) {
         case IOpcode::OP_SIZE_B:
 ?>
