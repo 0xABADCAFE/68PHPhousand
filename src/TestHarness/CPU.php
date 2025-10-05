@@ -56,7 +56,13 @@ class CPU extends Processor\Base
 
         $cHandler = $this->aExactHandler[$iOpcode] ??
             $this->aPrefixHandler[$iOpcode & Processor\IOpcode::MASK_OP_PREFIX] ??
-            throw new LogicException('Unhandled Opcode ' . $iOpcode);
+            throw new LogicException(
+                sprintf(
+                    'Unhandled Opcode 0x%04X [%s]',
+                    $iOpcode,
+                    base_convert((string)$iOpcode, 10, 2)
+                )
+            );
 
         $cHandler($iOpcode);
     }

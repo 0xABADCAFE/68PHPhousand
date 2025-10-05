@@ -45,7 +45,8 @@ class TomHarte
     public function runAllExcept(array $aExclude)
     {
         $aExclude = array_flip($aExclude);
-        $aTests = glob($this->sTestDir. '/*.json.gz');
+        $aTests   = glob($this->sTestDir. '/*.json.gz');
+        $aResults = [];
         foreach ($aTests as $sTest) {
             preg_match(
                 '/([a-zA-Z0-9]+\.{0,1}[bwlq]{0,1})\.json\.gz/',
@@ -53,9 +54,30 @@ class TomHarte
                 $aMatches
             );
             if (isset($aMatches[1]) && !isset($aExclude[$aMatches[1]])) {
-                $this
+                $aResults[] = $this
                     ->loadSuite($aMatches[1])
                     ->run();
+            }
+            usort(
+                $aResults,
+                function (stdClass $oA, stdClass $oB): int {
+                    return (int)(1e6*($oB->fPassRate - $oA->fPassRate));
+                }
+            );
+            foreach ($aResults as $oResult) {
+                printf(
+                    "Result: %s Completed in %0.3f s - %d total, %d attempted, %d skipped, %d passed, %d failed, %d errored. Pass rate %0.2f%%\n",
+                    $oResult->sSuite,
+                    $oResult->fTime,
+                    $oResult->iTests,
+                    $oResult->iAttempted,
+                    $oResult->iSkipped,
+                    $oResult->iPassed,
+                    $oResult->iFailed,
+                    $oResult->iErrored,
+                    $oResult->fPassRate
+                );
+
             }
         }
     }
@@ -85,7 +107,7 @@ class TomHarte
         return $this;
     }
 
-    public function run(): self
+    public function run(): stdClass
     {
         $iErrored   = 0;
         $iSkipped   = 0;
@@ -140,25 +162,37 @@ class TomHarte
             } catch (\Throwable $oError) {
                 printf("ERRORED:\n\t%s\n%s\n", $oError->getMessage(), $oError->getTraceAsString());
                 ob_end_flush();
+                ++$iAttempted;
                 ++$iErrored;
             }
-
         }
         $fTime += microtime(true);
 
-        printf(
-            "\nResult: %s Completed in %0.3f s - %d total, %d attempted, %d skipped, %d passed, %d failed, %d errored. Pass rate %0.2f%%\n",
-            $this->sSuite,
-            1e-6 * $fTime,
-            count($this->aTestCases),
-            $iAttempted,
-            $iSkipped,
-            $iPassed,
-            $iFailed,
-            $iErrored,
-            $iAttempted ? (100.0 * $iPassed/$iAttempted) : 0.0
-        );
-        return $this;
+        return (object)[
+            'sSuite'     => $this->sSuite,
+            'fTime'      => $fTime,
+            'iTests'     => count($this->aTestCases),
+            'iAttempted' => $iAttempted,
+            'iSkipped'   => $iSkipped,
+            'iPassed'    => $iPassed,
+            'iFailed'    => $iFailed,
+            'iErrored'   => $iErrored,
+            'fPassRate'  => $iAttempted ? (100.0 * $iPassed/$iAttempted) : 0.0
+        ];
+
+//         printf(
+//             "\nResult: %s Completed in %0.3f s - %d total, %d attempted, %d skipped, %d passed, %d failed, %d errored. Pass rate %0.2f%%\n",
+//             $this->sSuite,
+//             $fTime,
+//             count($this->aTestCases),
+//             $iAttempted,
+//             $iSkipped,
+//             $iPassed,
+//             $iFailed,
+//             $iErrored,
+//             $iAttempted ? (100.0 * $iPassed/$iAttempted) : 0.0
+//         );
+//         return $this;
     }
 
     public function changesSupervisorState(stdClass $oTestCase): bool

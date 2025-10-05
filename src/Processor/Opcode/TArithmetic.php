@@ -314,9 +314,9 @@ trait TArithmetic
                 function(int $iOpcode) {
                     $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
                     $iSrc    = $this->oOutside->readByte($this->iProgramCounter + ISize::BYTE);
+                    $this->iProgramCounter += ISize::WORD;
                     $iDst    = $oEAMode->readByte();
                     $iRes    = $iDst + $iSrc;
-                    $this->iProgramCounter += ISize::WORD;
                     $this->updateCCRMathByte($iSrc, $iDst, $iRes, true);
                     $oEAMode->writeByte($iRes);
                 }
@@ -333,9 +333,9 @@ trait TArithmetic
                 function(int $iOpcode) {
                     $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
                     $iSrc    = $this->oOutside->readWord($this->iProgramCounter);
+                    $this->iProgramCounter += ISize::WORD;
                     $iDst    = $oEAMode->readWord();
                     $iRes    = $iDst + $iSrc;
-                    $this->iProgramCounter += ISize::WORD;
                     $this->updateCCRMathWord($iSrc, $iDst, $iRes, true);
                     $oEAMode->writeWord($iRes);
                 }
@@ -352,9 +352,9 @@ trait TArithmetic
                 function(int $iOpcode) {
                     $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
                     $iSrc    = $this->oOutside->readLong($this->iProgramCounter);
+                    $this->iProgramCounter += ISize::LONG;
                     $iDst    = $oEAMode->readLong();
                     $iRes    = $iDst + $iSrc;
-                    $this->iProgramCounter += ISize::LONG;
                     $this->updateCCRMathLong($iSrc, $iDst, $iRes, true);
                     $oEAMode->writeLong($iRes);
                 }
@@ -480,16 +480,18 @@ trait TArithmetic
                         $this->compileTemplateHandler($oADDTemplate)
                     )
                 );
-            }
+                // ADD Ax,Dy is word/long only
+                if ($iPrefix !== IArithmetic::OP_ADD_EA2D_B) {
+                    $oADDTemplate->iOpcode = $iPrefix | ($iReg << IOpcode::REG_UP_SHIFT);
+                    $this->addExactHandlers(
+                        array_fill_keys(
+                            $this->mergePrefixForModeList($oADDTemplate->iOpcode, $aEAAregs),
+                            $this->compileTemplateHandler($oADDTemplate)
+                        )
+                    );
 
-            // Address reg EA support word size only
-            $oADDTemplate->iOpcode = IArithmetic::OP_ADD_EA2D_W | ($iReg << IOpcode::REG_UP_SHIFT);
-            $this->addExactHandlers(
-                array_fill_keys(
-                    $this->mergePrefixForModeList($oADDTemplate->iOpcode, $aEAAregs),
-                    $this->compileTemplateHandler($oADDTemplate)
-                )
-            );
+                }
+            }
         }
     }
 

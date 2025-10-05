@@ -37,7 +37,7 @@ switch ($iSize) {
     $iRes  = $iSrc + $iDst;
     $this->updateCCRMathWord($iSrc, $iDst, $iRes, true);
     $iReg &= ISize::MASK_INV_WORD;
-    $iReg ($iRes & ISize::MASK_WORD);
+    $iReg |= ($iRes & ISize::MASK_WORD);
 <?php
         break;
     case IOpcode::OP_SIZE_L:
@@ -46,7 +46,7 @@ switch ($iSize) {
     $iDst  = $iReg & ISize::MASK_LONG;
     $iRes  = $iSrc + $iDst;
     $this->updateCCRMathLong($iSrc, $iDst, $iRes, true);
-    $iReg &= ISize::MASK_LONG;
+    $iReg  = $iRes & ISize::MASK_LONG;
 <?php
         break;
 }

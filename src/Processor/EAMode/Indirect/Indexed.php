@@ -52,7 +52,7 @@ class Indexed extends Basic
         $iIndex = ($this->aIndexRegisters[$iExtension & IOpcode::BXW_IDX_REG]);
 
         // If the size bit is clear, the index is a signed word, otherwise signed long.
-        // There is no scale applie (020+ only)
+        // There is no scale applied (020+ only)
         if (!($iExtension & IOpcode::BXW_IDX_SIZE)) {
             $iIndex = Processor\Sign::extWord($iIndex);
         }
