@@ -80,6 +80,7 @@ trait TRegisterUnit
     {
         $this->iProgramCounter = 0;
         $this->iStatusRegister = 0;
+        $this->iConditionRegister = 0;
         $this->oAddressRegisters->reset();
         $this->oDataRegisters->reset();
     }

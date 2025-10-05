@@ -34,7 +34,6 @@ class TomHarte
     {
         assert(is_readable($sTestDir) & is_dir($sTestDir), new LogicException());
         $this->sTestDir = $sTestDir;
-
         $this->oMemory = new Device\Memory\SparseRAM24();
         $this->oCPU    = new CPU($this->oMemory);
     }
@@ -58,32 +57,32 @@ class TomHarte
                     ->loadSuite($aMatches[1])
                     ->run();
             }
-            usort(
-                $aResults,
-                function (stdClass $oA, stdClass $oB): int {
-                    return (int)(1e6*($oB->fPassRate - $oA->fPassRate));
-                }
-            );
-            foreach ($aResults as $oResult) {
-                printf(
-                    "Result: %s Completed in %0.3f s - %d total, %d attempted, %d skipped, %d passed, %d failed, %d errored. Pass rate %0.2f%%\n",
-                    $oResult->sSuite,
-                    $oResult->fTime,
-                    $oResult->iTests,
-                    $oResult->iAttempted,
-                    $oResult->iSkipped,
-                    $oResult->iPassed,
-                    $oResult->iFailed,
-                    $oResult->iErrored,
-                    $oResult->fPassRate
-                );
-
+        }
+        usort(
+            $aResults,
+            function (stdClass $oA, stdClass $oB): int {
+                return (int)(1e6*($oB->fPassRate - $oA->fPassRate));
             }
+        );
+        foreach ($aResults as $oResult) {
+            printf(
+                "Result: %s Completed in %0.3f s - %d total, %d attempted, %d skipped, %d passed, %d failed, %d errored. Pass rate %0.2f%%\n",
+                $oResult->sSuite,
+                $oResult->fTime,
+                $oResult->iTests,
+                $oResult->iAttempted,
+                $oResult->iSkipped,
+                $oResult->iPassed,
+                $oResult->iFailed,
+                $oResult->iErrored,
+                $oResult->fPassRate
+            );
         }
     }
 
     public function loadSuite(string $sSuite): self
     {
+        $this->aTestCases = [];
         $sTestPath = sprintf(
             '%s/%s.json.gz',
             $this->sTestDir,
@@ -114,6 +113,7 @@ class TomHarte
         $iAttempted = 0;
         $iPassed    = 0;
         $iFailed    = 0;
+
         $fTime      = -microtime(true);
         foreach($this->aTestCases as $oTestCase) {
 
@@ -152,7 +152,7 @@ class TomHarte
                     print("PASSED\n");
                 } else {
                     ++$iFailed;
-                    print("FAILED:\n");
+                    printf("FAILED: %s\n", $oTestCase->name);
                     foreach ($aFailures as $sMessage) {
                         printf("\t%s\n", $sMessage);
                     }

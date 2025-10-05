@@ -20,8 +20,9 @@ namespace ABadCafe\G8PHPhousand\Processor\EAMode;
  */
 trait TWithoutLatch
 {
-    public function resetLatch(): void
+    public function resetLatch(): self
     {
         // No operation
+        return $this;
     }
 }
