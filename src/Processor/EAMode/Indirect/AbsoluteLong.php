@@ -37,7 +37,7 @@ class AbsoluteLong implements EAMode\IIndirect
 
     public function getAddress(): int
     {
-        $iAddress = Processor\Sign::extWord($this->oOutside->readLong($this->iProgramCounter));
+        $iAddress = $this->oOutside->readLong($this->iProgramCounter);
         $this->iProgramCounter += ISize::LONG;
         return $this->iAddress = $iAddress;
     }
