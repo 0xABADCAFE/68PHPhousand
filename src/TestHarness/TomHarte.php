@@ -94,43 +94,55 @@ class TomHarte
         $iFailed    = 0;
         $fTime      = -microtime(true);
         foreach($this->aTestCases as $oTestCase) {
-            if ($this->isUserModeOnly($oTestCase)) {
-                printf("\nTesting %s\n", $oTestCase->name);
-                ob_start();
-                try {
-                    $this->prepareTest($oTestCase);
-                    print("Initial State\n");
-                    $this->oCPU->dumpMachineState(null);
-                    $this->oCPU->executeAt($oTestCase->initial->pc);
-                    print("Final State\n");
-                    $this->oCPU->dumpMachineState(null);
-                    ++$iAttempted;
 
-                    $aFailures = $this->checkTestResult($oTestCase);
-                    if (empty($aFailures)) {
-                        ++$iPassed;
-                        ob_end_clean();
-                        print("PASSED\n");
-                    } else {
-                        ++$iFailed;
-                        print("FAILED:\n");
-                        foreach ($aFailures as $sMessage) {
-                            printf("\t%s\n", $sMessage);
-                        }
-                        ob_end_flush();
-                    }
-                } catch (\Throwable $oError) {
-                    printf("ERRORED:\n\t%s\n%s\n", $oError->getMessage(), $oError->getTraceAsString());
-                    ob_end_flush();
-                    ++$iErrored;
-                }
-            } else {
+            if ($this->changesSupervisorState($oTestCase)){
                 printf(
-                    "Skipping %s (supervisor state emulation not implemented)\n",
+                    "Skipping %s - triggers supervisor state change\n",
                     $oTestCase->name
                 );
                 ++$iSkipped;
+                continue;
             }
+            if ($this->usesVectorTable($oTestCase)) {
+                printf(
+                    "Skipping %s - requires exception vector\n",
+                    $oTestCase->name
+                );
+                ++$iSkipped;
+                continue;
+            }
+
+            printf("\nTesting %s\n", $oTestCase->name);
+            ob_start();
+            try {
+                $this->prepareTest($oTestCase);
+                print("Initial State\n");
+                $this->oCPU->dumpMachineState(null);
+                $this->oCPU->executeAt($oTestCase->initial->pc);
+                print("Final State\n");
+                $this->oCPU->dumpMachineState(null);
+                ++$iAttempted;
+
+                $aFailures = $this->checkTestResult($oTestCase);
+                if (empty($aFailures)) {
+                    ++$iPassed;
+                    ob_end_clean();
+                    print("PASSED\n");
+                } else {
+                    ++$iFailed;
+                    print("FAILED:\n");
+                    foreach ($aFailures as $sMessage) {
+                        printf("\t%s\n", $sMessage);
+                    }
+                    //print_r($oTestCase);
+                    ob_end_flush();
+                }
+            } catch (\Throwable $oError) {
+                printf("ERRORED:\n\t%s\n%s\n", $oError->getMessage(), $oError->getTraceAsString());
+                ob_end_flush();
+                ++$iErrored;
+            }
+
         }
         $fTime += microtime(true);
 
@@ -149,11 +161,25 @@ class TomHarte
         return $this;
     }
 
-    public function isUserModeOnly(stdClass $oTestCase): bool
+    public function changesSupervisorState(stdClass $oTestCase): bool
     {
-        $iSRState = ($oTestCase->initial->sr | $oTestCase->final->sr) >> 8;
-        return (bool)($iSRState & IRegister::SR_MASK_SUPER);
+        $iSRState = ($oTestCase->initial->sr ^ $oTestCase->final->sr) >> 8;
+        return (bool)(0 !== ($iSRState & IRegister::SR_MASK_SUPER));
     }
+
+    /**
+     * TODO implement a VBR, even if it's hardcoded to 0 for now
+     */
+    public function usesVectorTable(stdClass $oTestCase): bool
+    {
+        foreach ($oTestCase->initial->ram as $aPair) {
+            if ($aPair[0] < 0x400) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     public function prepareTest(stdClass $oTestCase)
     {
@@ -176,10 +202,18 @@ class TomHarte
             $this->oMemory->writeByte($aPair[0], $aPair[1]);
         }
 
+        $iCCR   =  $oTestCase->initial->sr & 0xFF;
+        $iSR    =  $oTestCase->initial->sr >> 8;
+
+        // Choose the stack pointer depending on the state
+        $iStack = ($iSR & IRegister::SR_MASK_SUPER) ?
+            $oTestCase->initial->ssp :
+            $oTestCase->initial->usp;
+
         // Set the registers
         $this->oCPU->setPC($oTestCase->initial->pc);
-        $this->oCPU->setRegister('sr',  $oTestCase->initial->sr >> 8);
-        $this->oCPU->setRegister('ccr', $oTestCase->initial->sr & 0xFF);
+        $this->oCPU->setRegister('sr',  $iSR);
+        $this->oCPU->setRegister('ccr', $iCCR);
         $this->oCPU->setRegister('d0',  $oTestCase->initial->d0);
         $this->oCPU->setRegister('d1',  $oTestCase->initial->d1);
         $this->oCPU->setRegister('d2',  $oTestCase->initial->d2);
@@ -195,7 +229,7 @@ class TomHarte
         $this->oCPU->setRegister('a4',  $oTestCase->initial->a4);
         $this->oCPU->setRegister('a5',  $oTestCase->initial->a5);
         $this->oCPU->setRegister('a6',  $oTestCase->initial->a6);
-        $this->oCPU->setRegister('a7',  $oTestCase->initial->usp);
+        $this->oCPU->setRegister('a7',  $iStack);
     }
 
     public function checkTestResult(stdClass $oTestCase): array
@@ -216,8 +250,16 @@ class TomHarte
             );
         }
 
+        $iCCR   =  $oTestCase->final->sr & 0xFF;
+        $iSR    =  $oTestCase->final->sr >> 8;
+
+        // Choose the stack pointer depending on the state
+        $iStack = ($iSR & IRegister::SR_MASK_SUPER) ?
+            $oTestCase->final->ssp :
+            $oTestCase->final->usp;
+
         if (
-            ($iExpect = ($oTestCase->final->sr & IRegister::CCR_MASK)) !=
+            ($iExpect = $iCCR) !=
             ($iHave = $this->oCPU->getRegister('ccr'))
         ) {
             $aFailures[] = sprintf(
@@ -262,8 +304,10 @@ class TomHarte
             }
         }
 
+
+
         if (
-            ($iExpect = $oTestCase->final->usp) !=
+            ($iExpect = $iStack) !=
             ($iHave = $this->oCPU->getRegister('a7'))
         ) {
             $aFailures[] = sprintf(

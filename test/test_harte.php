@@ -19,6 +19,10 @@ use ABadCafe\G8PHPhousand\TestHarness;
 require 'bootstrap.php';
 
 $oTomHarte = new TestHarness\TomHarte('TomHarte/680x0');
+
+//$oTomHarte->loadSuite('ADD.l')->run();
+//exit;
+
 $oTomHarte->runAllExcept(
     [
         // Not implemented yet
