@@ -31,7 +31,7 @@ switch ($oParams->oAdditional->iMode) {
         if ($iXReg != $iYReg) {
 ?>
     $iTemp = $this->oAddressRegisters->iReg<?= $iYReg ?>;
-    $this->oAddressRegisters->iReg<?= $iYReg ?> = $this->oDataRegisters->iReg<?= $iXReg ?>;
+    $this->oAddressRegisters->iReg<?= $iYReg ?> = $this->oAddressRegisters->iReg<?= $iXReg ?>;
     $this->oAddressRegisters->iReg<?= $iXReg ?> = $iTemp;
 <?php
         }
