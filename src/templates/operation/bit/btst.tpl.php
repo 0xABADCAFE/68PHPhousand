@@ -20,9 +20,9 @@ switch ($iUseCase) {
 
     case 0: // Immediate bit position, EA target, byte access
 ?>
-    $iValue   = $this->aSrcEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]->readByte();
     $iTestBit = 1 << ($this->oOutside->readWord($this->iProgramCounter) & 7);
     $this->iProgramCounter = ($this->iProgramCounter + ISize::WORD) & ISize::MASK_LONG;
+    $iValue   = $this->aSrcEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]->readByte();
 <?php
         break;
 
