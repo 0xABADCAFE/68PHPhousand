@@ -66,7 +66,7 @@ class TomHarte
         );
         foreach ($aResults as $oResult) {
             printf(
-                "Result: %s Completed in %0.3f s - %d total, %d attempted, %d skipped, %d passed, %d failed, %d errored. Pass rate %0.2f%%\n",
+                "Result: %-10s Completed in %0.3f s - %4d total, %4d attempted, %4d skipped, %4d passed, %4d failed, %4d errored. Pass rate: %6.2f%%\n",
                 $oResult->sSuite,
                 $oResult->fTime,
                 $oResult->iTests,
@@ -179,20 +179,6 @@ class TomHarte
             'iErrored'   => $iErrored,
             'fPassRate'  => $iAttempted ? (100.0 * $iPassed/$iAttempted) : 0.0
         ];
-
-//         printf(
-//             "\nResult: %s Completed in %0.3f s - %d total, %d attempted, %d skipped, %d passed, %d failed, %d errored. Pass rate %0.2f%%\n",
-//             $this->sSuite,
-//             $fTime,
-//             count($this->aTestCases),
-//             $iAttempted,
-//             $iSkipped,
-//             $iPassed,
-//             $iFailed,
-//             $iErrored,
-//             $iAttempted ? (100.0 * $iPassed/$iAttempted) : 0.0
-//         );
-//         return $this;
     }
 
     public function changesSupervisorState(stdClass $oTestCase): bool
