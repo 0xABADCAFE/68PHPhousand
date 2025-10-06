@@ -355,12 +355,12 @@ trait TMove
                     IMove::OP_PEA
                 ),
                 function (int $iOpcode) {
-                    $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
+                    $iAddress = $this->aSrcEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]->getAddress();
                     $this->oAddressRegisters->iReg7 -= ISize::LONG;
                     $this->oAddressRegisters->iReg7 &= ISize::MASK_LONG;
                     $this->oOutside->writeLong(
                         $this->oAddressRegisters->iReg7,
-                        $oEAMode->getAddress()
+                        $iAddress
                     );
                 }
             )
