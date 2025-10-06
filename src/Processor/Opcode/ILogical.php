@@ -63,4 +63,9 @@ interface ILogical
     const OP_NOT_W      = 0b0100011001000000;
     const OP_NOT_L      = 0b0100011010000000;
 
+    //                          rrrmmmEAEAEA - r(eg) m(mode) s(ize)
+    const OP_EOR_D2EA_B = 0b1011000100000000;
+    const OP_EOR_D2EA_W = 0b1011000101000000;
+    const OP_EOR_D2EA_L = 0b1011000110000000;
+                          //1011100100000110
 }

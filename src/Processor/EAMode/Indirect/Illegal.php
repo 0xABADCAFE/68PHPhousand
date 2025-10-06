@@ -11,40 +11,39 @@
 
 declare(strict_types=1);
 
-namespace ABadCafe\G8PHPhousand\Processor\EAMode\Indirect;
-use ABadCafe\G8PHPhousand\Processor\EAMode;
-use ABadCafe\G8PHPhousand\Processor\EAMode\Direct;
+namespace ABadCafe\G8PHPhousand\Processor\EAMode;
 use ABadCafe\G8PHPhousand\Device;
 use ABadCafe\G8PHPhousand\Processor;
-use ABadCafe\G8PHPhousand\Processor\ISize;
+
+use LogicException;
 
 /**
- * 32-bit absolute location
+ * Address Register Indirect, no offsets, increment/decrement or indexing
  */
-class AbsoluteLong implements EAMode\IIndirect
+class Illegal implements IIndirect
 {
-    use EAMode\TWithBusAccess;
-    use EAMode\TWithExtensionWords;
-    use EAMode\TWithLatch;
+    private string $sError;
 
-    public function __construct(
-        int& $iProgramCounter,
-        Device\IBus $oOutside
-    ) {
-        $this->bindBus($oOutside);
-        $this->bindProgramCounter($iProgramCounter);
+    public function __construct(array $aValidModes, int $iMode)
+    {
+        $this->sError = sprintf(
+            'Unsupported Addressing Mode %d is not in set {%s} for ',
+            $iMode,
+            implode(',', $aValidModes)
+        );
     }
 
     public function getAddress(): int
     {
-        $iAddress = $this->oOutside->readLong($this->iProgramCounter);
-        $this->iProgramCounter += ISize::LONG;
-        return $this->iAddress = $iAddress;
+        throw new LogicException($this->sError . 'getAddress()');
     }
 
+    /**
+     * @return int<0,255>
+     */
     public function readByte(): int
     {
-        return $this->oOutside->readByte($this->getAddress());
+        throw new LogicException($this->sError . 'readByte()');
     }
 
     /**
@@ -52,7 +51,7 @@ class AbsoluteLong implements EAMode\IIndirect
      */
     public function readWord(): int
     {
-        return $this->oOutside->readWord($this->getAddress());
+        throw new LogicException($this->sError . 'readWord()');
     }
 
     /**
@@ -60,7 +59,7 @@ class AbsoluteLong implements EAMode\IIndirect
      */
     public function readLong(): int
     {
-        return $this->oOutside->readLong($this->getAddress());
+        throw new LogicException($this->sError . 'readLong()');
     }
 
     /**
@@ -68,8 +67,7 @@ class AbsoluteLong implements EAMode\IIndirect
      */
     public function writeByte(int $iValue): void
     {
-        $this->oOutside->writeByte($this->iAddress ?? $this->getAddress(), $iValue);
-        $this->iAddress = null;
+        throw new LogicException($this->sError . 'writeByte()');
     }
 
     /**
@@ -77,8 +75,7 @@ class AbsoluteLong implements EAMode\IIndirect
      */
     public function writeWord(int $iValue): void
     {
-        $this->oOutside->writeWord($this->iAddress ?? $this->getAddress(), $iValue);
-        $this->iAddress = null;
+        throw new LogicException($this->sError . 'writeWord()');
     }
 
     /**
@@ -86,7 +83,8 @@ class AbsoluteLong implements EAMode\IIndirect
      */
     public function writeLong(int $iValue): void
     {
-        $this->oOutside->writeLong($this->iAddress ?? $this->getAddress(), $iValue);
-        $this->iAddress = null;
+        throw new LogicException($this->sError. 'writeLong()');
     }
+
+
 }

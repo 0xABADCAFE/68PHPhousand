@@ -25,7 +25,7 @@ interface IReadWrite extends IReadOnly
      *
      * The latch will always be cleared by a write.
      */
-    public function resetLatch(): void;
+    public function resetLatch(): self;
 
     /**
      * @param int<0,255> $iValue

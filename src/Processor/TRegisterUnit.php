@@ -14,6 +14,7 @@ declare(strict_types=1);
 
 namespace ABadCafe\G8PHPhousand\Processor;
 
+use LogicException;
 use ValueError;
 
 /**
@@ -79,6 +80,7 @@ trait TRegisterUnit
     {
         $this->iProgramCounter = 0;
         $this->iStatusRegister = 0;
+        $this->iConditionRegister = 0;
         $this->oAddressRegisters->reset();
         $this->oDataRegisters->reset();
     }

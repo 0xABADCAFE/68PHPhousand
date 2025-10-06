@@ -32,6 +32,7 @@ trait TLogical
         $this->buildEORILogicHandlers();
         $this->buildORLogicHandlers();
         $this->buildANDLogicHandlers();
+        $this->buildEORLogicHandlers();
         $this->buildNOTLogicHandlers();
     }
 
@@ -185,6 +186,34 @@ trait TLogical
                     array_fill_keys(
                         $this->mergePrefixForModeList($oANDTemplate->iOpcode, $aEAModes),
                         $this->compileTemplateHandler($oANDTemplate)
+                    )
+                );
+            }
+        }
+    }
+
+    private function buildEORLogicHandlers()
+    {
+        $oEORTemplate = new Template\Params(
+            0,
+            'operation/logic/eor',
+            []
+        );
+
+        // Only D2EA variants exist for EOR
+        $aPrefixes = [
+            ILogical::OP_EOR_D2EA_B,
+            ILogical::OP_EOR_D2EA_W,
+            ILogical::OP_EOR_D2EA_L,
+        ];
+        $aEAModes = $this->generateForEAModeList(IEffectiveAddress::MODE_DATA_ALTERABLE);
+        foreach ($aPrefixes as $iPrefix) {
+            foreach (IRegister::DATA_REGS as $iDataReg) {
+                $oEORTemplate->iOpcode = $iPrefix | ($iDataReg << 9);
+                $this->addExactHandlers(
+                    array_fill_keys(
+                        $this->mergePrefixForModeList($oEORTemplate->iOpcode, $aEAModes),
+                        $this->compileTemplateHandler($oEORTemplate)
                     )
                 );
             }

@@ -50,6 +50,4 @@ trait TGenerator
             "namespace " . Params::EXECUTION_NAMESPACE . ";\n" . $sCode)
         );
     }
-
-
 }

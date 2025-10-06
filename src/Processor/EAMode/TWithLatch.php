@@ -22,9 +22,10 @@ trait TWithLatch
 {
     protected ?int $iAddress = null;
 
-    public function resetLatch(): void
+    public function resetLatch(): self
     {
         $this->iAddress = null;
+        return $this;
     }
 
 }

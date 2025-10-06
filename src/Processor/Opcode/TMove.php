@@ -90,7 +90,9 @@ trait TMove
                     $this->iConditionRegister = (
                         $this->iConditionRegister & IRegister::CCR_EXTEND
                     ) | IRegister::CCR_ZERO;
-                    $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]->writeByte(0);
+                    $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]
+                        ->resetLatch()
+                        ->writeByte(0);
                 }
             )
         );
@@ -107,7 +109,9 @@ trait TMove
                     $this->iConditionRegister = (
                         $this->iConditionRegister & IRegister::CCR_EXTEND
                     ) | IRegister::CCR_ZERO;
-                    $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]->writeWord(0);
+                    $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]
+                        ->resetLatch()
+                        ->writeWord(0);
                 }
             )
         );
@@ -124,7 +128,9 @@ trait TMove
                     $this->iConditionRegister = (
                         $this->iConditionRegister & IRegister::CCR_EXTEND
                     ) | IRegister::CCR_ZERO;
-                    $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]->writeLong(0);
+                    $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]
+                        ->resetLatch()
+                        ->writeLong(0);
                 }
             )
         );
@@ -139,19 +145,25 @@ trait TMove
                 $iValue = $this->aSrcEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]->readByte();
                 $this->iConditionRegister &= IRegister::CCR_EXTEND;
                 $this->updateNZByte($iValue);
-                $this->aMoveDstEAModes[$iOpcode & IMove::MASK_DST_EA]->writeByte($iValue);
+                $this->aMoveDstEAModes[$iOpcode & IMove::MASK_DST_EA]
+                    ->resetLatch()
+                    ->writeByte($iValue);
             },
             IMove::OP_MOVE_W => function($iOpcode) {
                 $iValue = $this->aSrcEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]->readWord();
                 $this->iConditionRegister &= IRegister::CCR_EXTEND;
                 $this->updateNZWord($iValue);
-                $this->aMoveDstEAModes[$iOpcode & IMove::MASK_DST_EA]->writeWord($iValue);
+                $this->aMoveDstEAModes[$iOpcode & IMove::MASK_DST_EA]
+                    ->resetLatch()
+                    ->writeWord($iValue);
             },
             IMove::OP_MOVE_L => function($iOpcode) {
                 $iValue = $this->aSrcEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]->readLong();
                 $this->iConditionRegister &= IRegister::CCR_EXTEND;
                 $this->updateNZLong($iValue);
-                $this->aMoveDstEAModes[$iOpcode & IMove::MASK_DST_EA]->writeLong($iValue);
+                $this->aMoveDstEAModes[$iOpcode & IMove::MASK_DST_EA]
+                    ->resetLatch()
+                    ->writeLong($iValue);
             }
         ];
 
