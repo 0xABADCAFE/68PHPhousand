@@ -190,7 +190,7 @@ trait TMove
             IMove::OP_MOVE_W|IMove::OP_MOVEA => function($iOpcode) {
                 $this->oAddressRegisters->aIndex[
                     ($iOpcode & IOpcode::MASK_REG_UPPER) >> IOpcode::REG_UP_SHIFT
-                ] = Sign::extWord(
+                ] = ISize::MASK_LONG & Sign::extWord(
                     $this->aSrcEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]->readWord()
                 );
             },
