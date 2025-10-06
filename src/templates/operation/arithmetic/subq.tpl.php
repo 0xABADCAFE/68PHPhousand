@@ -9,7 +9,7 @@ use ABadCafe\G8PHPhousand\Processor\Opcode\ILogical;
 assert(!empty($oParams), new \LogicException());
 
 $iSize      = $oParams->iOpcode & IOpcode::MASK_OP_SIZE;
-$iImmediate = 1 + (($oParams->iOpcode & IOpcode::MASK_IMM_SMALL) >> IOpcode::REG_UP_SHIFT);
+$iImmediate = (($oParams->iOpcode & IOpcode::MASK_IMM_SMALL) >> IOpcode::REG_UP_SHIFT);
 if (0 === $iImmediate) {
     $iImmediate = 8;
 }

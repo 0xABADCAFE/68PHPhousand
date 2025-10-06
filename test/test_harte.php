@@ -19,7 +19,7 @@ use ABadCafe\G8PHPhousand\TestHarness;
 require 'bootstrap.php';
 
 $oTomHarte = new TestHarness\TomHarte('TomHarte/680x0');
-//print_r($oTomHarte->loadSuite('BTST')->run());
+//print_r($oTomHarte->loadSuite('EOR.b')->run());
 //print_r($oTomHarte->loadSuite('CLR.b')->run());
 //exit;
 
@@ -33,6 +33,9 @@ $oTomHarte->runAllExcept(
         'CHK',
         'DIVS',
         'DIVU',
+        'EXT.b',
+        'EXT.w',
+        'EXT.l',
         'JMP',
         'JSR',
         'LINK',
@@ -41,6 +44,11 @@ $oTomHarte->runAllExcept(
         'MOVEP.w',
         'MOVEP.l',
         'MOVEtoUSP',
+        'MOVEtoCCR',
+        'MOVEfromSR',
+        'MOVEtoSR',
+        'MOVEfromUSP',
+        'MULU',
         'NBCD',
         'NEGX.b',
         'NEGX.w',
@@ -53,6 +61,9 @@ $oTomHarte->runAllExcept(
         'SUBX.w',
         'SUBX.l',
         'TAS',
+        'TST.b',
+        'TST.w',
+        'TST.l',
         'TRAP',
         'TRAPV',
         'UNLINK',

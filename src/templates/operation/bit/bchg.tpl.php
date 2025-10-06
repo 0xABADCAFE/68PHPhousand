@@ -20,13 +20,13 @@ switch ($iUseCase) {
 
     case 0: // Immediate bit position, EA target, byte access
 ?>
+    $iTestBit = 1 << ($this->oOutside->readWord($this->iProgramCounter) & 7);
+    $this->iProgramCounter = ($this->iProgramCounter + ISize::WORD) & ISize::MASK_LONG;
     $oEAMode  = $this->aSrcEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
     $iValue   = $oEAMode->readByte();
-    $iTestBit = 1 << ($this->oOutside->readWord($this->iProgramCounter) & 7);
     ($iValue & $iTestBit) ?
         ($this->iConditionRegister &= IRegister::CCR_CLEAR_Z) :
         ($this->iConditionRegister |= IRegister::CCR_ZERO);
-    $this->iProgramCounter = ($this->iProgramCounter + ISize::WORD) & ISize::MASK_LONG;
     $oEAMode->writeByte($iValue ^ $iTestBit);
 <?php
         break;

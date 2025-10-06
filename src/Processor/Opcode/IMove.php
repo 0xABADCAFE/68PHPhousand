@@ -50,7 +50,7 @@ interface IMove
     //                      xxx1mmmmmyyy ; EXG Rx,Ry
     const OP_EXG_DD = 0b1100000101000000; // exg dx,dy
     const OP_EXG_AA = 0b1100000101001000; // exg ax,ay
-    const OP_EXG_DA = 0b1100000100001000; // exg dx,ay
+    const OP_EXG_DA = 0b1100000110001000; // exg dx,ay
 
     const MASK_DST_EA = 0b0000111111000000;
 

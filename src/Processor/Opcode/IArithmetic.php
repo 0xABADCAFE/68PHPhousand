@@ -41,8 +41,6 @@ interface IArithmetic
     const OP_CMPM_W = 0b1011000101001000;
     const OP_CMPM_L = 0b1011000110001000;
 
-
-
     //                            ssEAEAEA
     const OP_NEG_B    = 0b0100010000000000;
     const OP_NEG_W    = 0b0100010001000000;

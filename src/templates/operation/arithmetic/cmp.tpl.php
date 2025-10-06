@@ -14,7 +14,7 @@ $iDataReg = (($oParams->iOpcode & IOpcode::MASK_REG_UPPER) >> IOpcode::REG_UP_SH
 
 ?>
 return function(int $iOpcode): void {
-    $oEAMode = $this->aDstEAModes[$iOpcode & 63];
+    $oEAMode = $this->aSrcEAModes[$iOpcode & 63];
 <?php
 switch ($iSize) {
     case IOpcode::OP_SIZE_B:

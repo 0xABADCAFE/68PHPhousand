@@ -190,7 +190,7 @@ trait TMove
             IMove::OP_MOVE_W|IMove::OP_MOVEA => function($iOpcode) {
                 $this->oAddressRegisters->aIndex[
                     ($iOpcode & IOpcode::MASK_REG_UPPER) >> IOpcode::REG_UP_SHIFT
-                ] = Sign::extWord(
+                ] = ISize::MASK_LONG & Sign::extWord(
                     $this->aSrcEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]->readWord()
                 );
             },
@@ -355,12 +355,12 @@ trait TMove
                     IMove::OP_PEA
                 ),
                 function (int $iOpcode) {
-                    $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
+                    $iAddress = $this->aSrcEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]->getAddress();
                     $this->oAddressRegisters->iReg7 -= ISize::LONG;
                     $this->oAddressRegisters->iReg7 &= ISize::MASK_LONG;
                     $this->oOutside->writeLong(
                         $this->oAddressRegisters->iReg7,
-                        $oEAMode->getAddress()
+                        $iAddress
                     );
                 }
             )

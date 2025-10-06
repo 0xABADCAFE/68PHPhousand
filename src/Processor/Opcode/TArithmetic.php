@@ -36,6 +36,8 @@ trait TArithmetic
         $this->buildADDIHandlers($aEAModes);
         $this->buildSUBIHandlers($aEAModes);
 
+        $this->buildCMPIHandlers($aEAModes);
+
         $aEAAregs = $this->generateForEAModeList(
             IEffectiveAddress::MODE_ONLY_AREGS
         );
@@ -48,6 +50,8 @@ trait TArithmetic
         );
 
         $this->buildCMPHandlers($aEAModes, $aEAAregs);
+
+        $this->buildCMPMHandlers();
 
         $this->buildADDEA2DHandlers($aEAModes, $aEAAregs);
         $this->buildSUBEA2DHandlers($aEAModes, $aEAAregs);
@@ -137,6 +141,30 @@ trait TArithmetic
     }
 
 
+    private function buildCMPMHandlers()
+    {
+        $oCMPTemplate = new Template\Params(
+            0,
+            'operation/arithmetic/cmpm',
+            []
+        );
+        $aPrefixes = [
+            IArithmetic::OP_CMPM_B,
+            IArithmetic::OP_CMPM_W,
+            IArithmetic::OP_CMPM_L,
+        ];
+        $aHandlers = [];
+        foreach (IRegister::ADDR_REGS as $iXReg) {
+            foreach ($aPrefixes as $iPrefix) {
+                foreach (IRegister::ADDR_REGS as $iYReg) {
+                    $oCMPTemplate->iOpcode = $iPrefix | ($iXReg << IOpcode::REG_UP_SHIFT) | $iYReg;
+                    $aHandlers[$oCMPTemplate->iOpcode] = $this->compileTemplateHandler($oCMPTemplate);
+                }
+            }
+        }
+        $this->addExactHandlers($aHandlers);
+    }
+
     private function buildNEGHandlers(array $aEAModes)
     {
         // NEG byte
@@ -207,39 +235,102 @@ trait TArithmetic
 
     private function buildMULXHandlers(array $aEAModes)
     {
+        $cMULSHandler = function(int $iOpcode) {
+            $oEAMode = $this->aSrcEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
+            $iReg    = &$this->oDataRegisters->aIndex[($iOpcode >> IOpcode::REG_UP_SHIFT) & 7];
+            $iValue  = Sign::extWord($iReg) * Sign::extWord($oEAMode->readWord());
+            $iReg    = $iValue & ISize::MASK_LONG;
+            $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
+            $this->updateNZLong($iValue);
+        };
+
+        $cMULUHandler = function(int $iOpcode) {
+            $oEAMode = $this->aSrcEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
+            $iReg    = &$this->oDataRegisters->aIndex[($iOpcode >> IOpcode::IMM_UP_SHIFT) & 7];
+            $iValue  = ($iReg & ISize::MASK_WORD) * $oEAMode->readWord();
+            $iReg    = $iValue & ISize::MASK_LONG;
+            $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
+            $this->updateNZLong($iValue);
+        };
+
+        foreach (IRegister::DATA_REGS as $iDReg) {
+            $this->addExactHandlers(
+                array_fill_keys(
+                    $this->mergePrefixForModeList(
+                        IArithmetic::OP_MULS_W|($iDReg << IOpcode::REG_UP_SHIFT),
+                        $aEAModes
+                    ),
+                    $cMULSHandler
+                )
+            );
+            $this->addExactHandlers(
+                array_fill_keys(
+                    $this->mergePrefixForModeList(
+                        IArithmetic::OP_MULU_W|($iDReg << IOpcode::REG_UP_SHIFT),
+                        $aEAModes
+                    ),
+                    $cMULUHandler
+                )
+            );
+
+        }
+    }
+
+    private function buildCMPIHandlers(array $aEAModes)
+    {
+        // CMPI byte
         $this->addExactHandlers(
             array_fill_keys(
                 $this->mergePrefixForModeList(
-                    IArithmetic::OP_MULS_W,
+                    IArithmetic::OP_CMPI_B,
                     $aEAModes
                 ),
                 function(int $iOpcode) {
                     $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
-                    $iReg    = &$this->oDataRegisters->aIndex[($iOpcode >> IOpcode::IMM_UP_SHIFT) & 7];
-                    $iValue  = Sign::extWord($iReg) * Sign::extWord($oEAMode->readWord());
-                    $iReg    = $iValue & ISize::MASK_LONG;
-                    $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
-                    $this->updateNZLong($iValue);
-                }
-            )
-        );
-        $this->addExactHandlers(
-            array_fill_keys(
-                $this->mergePrefixForModeList(
-                    IArithmetic::OP_MULU_W,
-                    $aEAModes
-                ),
-                function(int $iOpcode) {
-                    $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
-                    $iReg    = &$this->oDataRegisters->aIndex[($iOpcode >> IOpcode::IMM_UP_SHIFT) & 7];
-                    $iValue  = $iReg * $oEAMode->readWord();
-                    $iReg    = $iValue & ISize::MASK_LONG;
-                    $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
-                    $this->updateNZLong($iValue);
+                    $iSrc    = $this->oOutside->readByte($this->iProgramCounter + ISize::BYTE);
+                    $this->iProgramCounter += ISize::WORD;
+                    $iDst    = $oEAMode->readByte();
+                    $iRes    = $iDst - $iSrc;
+                    $this->updateCCRCMPByte($iSrc, $iDst, $iRes, false);
                 }
             )
         );
 
+        // CMPI word
+        $this->addExactHandlers(
+            array_fill_keys(
+                $this->mergePrefixForModeList(
+                    IArithmetic::OP_CMPI_W,
+                    $aEAModes
+                ),
+                function(int $iOpcode) {
+                    $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
+                    $iSrc    = $this->oOutside->readWord($this->iProgramCounter);
+                    $this->iProgramCounter += ISize::WORD;
+                    $iDst    = $oEAMode->readWord();
+                    $iRes    = $iDst - $iSrc;
+                    $this->updateCCRCMPWord($iSrc, $iDst, $iRes, false);
+                }
+            )
+        );
+
+        // CMPI long
+        $this->addExactHandlers(
+            array_fill_keys(
+                $this->mergePrefixForModeList(
+                    IArithmetic::OP_CMPI_L,
+                    $aEAModes
+                ),
+                function(int $iOpcode) {
+                    $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
+                    $iSrc    = $this->oOutside->readLong($this->iProgramCounter);
+                    $this->iProgramCounter += ISize::LONG;
+                    $iDst    = $oEAMode->readLong();
+                    $iRes    = $iDst - $iSrc;
+                    $this->updateCCRCMPLong($iSrc, $iDst, $iRes, false);
+                }
+            )
+        );
     }
 
     private function buildSUBIHandlers(array $aEAModes)
@@ -254,9 +345,9 @@ trait TArithmetic
                 function(int $iOpcode) {
                     $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
                     $iSrc    = $this->oOutside->readByte($this->iProgramCounter + ISize::BYTE);
+                    $this->iProgramCounter += ISize::WORD;
                     $iDst    = $oEAMode->readByte();
                     $iRes    = $iDst - $iSrc;
-                    $this->iProgramCounter += ISize::WORD;
                     $this->updateCCRMathByte($iSrc, $iDst, $iRes, false);
                     $oEAMode->writeByte($iRes);
                 }
@@ -273,9 +364,9 @@ trait TArithmetic
                 function(int $iOpcode) {
                     $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
                     $iSrc    = $this->oOutside->readWord($this->iProgramCounter);
+                    $this->iProgramCounter += ISize::WORD;
                     $iDst    = $oEAMode->readWord();
                     $iRes    = $iDst - $iSrc;
-                    $this->iProgramCounter += ISize::WORD;
                     $this->updateCCRMathWord($iSrc, $iDst, $iRes, false);
                     $oEAMode->writeWord($iRes);
                 }
@@ -292,9 +383,9 @@ trait TArithmetic
                 function(int $iOpcode) {
                     $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
                     $iSrc    = $this->oOutside->readLong($this->iProgramCounter);
+                    $this->iProgramCounter += ISize::LONG;
                     $iDst    = $oEAMode->readLong();
                     $iRes    = $iDst - $iSrc;
-                    $this->iProgramCounter += ISize::LONG;
                     $this->updateCCRMathLong($iSrc, $iDst, $iRes, false);
                     $oEAMode->writeLong($iRes);
                 }
@@ -571,16 +662,17 @@ trait TArithmetic
                         $this->compileTemplateHandler($oSUBTemplate)
                     )
                 );
-            }
+                if ($iPrefix !== IArithmetic::OP_SUB_EA2D_B) {
+                    $oSUBTemplate->iOpcode = $iPrefix | ($iReg << IOpcode::REG_UP_SHIFT);
+                    $this->addExactHandlers(
+                        array_fill_keys(
+                            $this->mergePrefixForModeList($oSUBTemplate->iOpcode, $aEAAregs),
+                            $this->compileTemplateHandler($oSUBTemplate)
+                        )
+                    );
 
-            // Address reg EA support word size only
-            $oSUBTemplate->iOpcode = IArithmetic::OP_SUB_EA2D_W | ($iReg << IOpcode::REG_UP_SHIFT);
-            $this->addExactHandlers(
-                array_fill_keys(
-                    $this->mergePrefixForModeList($oSUBTemplate->iOpcode, $aEAAregs),
-                    $this->compileTemplateHandler($oSUBTemplate)
-                )
-            );
+                }
+            }
         }
     }
 
