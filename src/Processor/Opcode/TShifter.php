@@ -96,7 +96,7 @@ trait TShifter
                 $oEAMode = $this->aDstEAModes[$iOpcode & 63];
                 $iValue  = $oEAMode->readWord();
                 $iLSB    = $iValue & 1;
-                $iValue >>= 1;
+                $iValue  = ($iValue & ISize::SIGN_BIT_WORD) | ($iValue >> 1);
                 $this->iConditionRegister &= IRegister::CCR_CLEAR_XCV;
                 $this->updateNZWord($iValue);
                 // TODO Overflow

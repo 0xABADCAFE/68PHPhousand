@@ -27,7 +27,12 @@ return function(int $iOpcode): void {
 switch ($iSize) {
     case IOpcode::OP_SIZE_B:
 ?>
-    $iValue = ($this->oDataRegisters->iReg<?= $iReg ?> & ISize::MASK_BYTE) >> <?= $iImmediate ?>;
+    $iSignMask = ($this->oDataRegisters->iReg<?= $iReg ?> & ISize::SIGN_BIT_BYTE) ? <?= (-1 << (8 - $iImmediate)) ?> : 0;
+    $iValue = ($this->oDataRegisters->iReg<?= $iReg ?> & ISize::MASK_BYTE) >> <?= $iImmediate - 1 ?>;
+    $this->iConditionRegister |= (
+        ($iValue & 1) ? IRegister::CCR_MASK_XC : 0
+    );
+    $iValue = ($iValue >> 1) | $iSignMask;
     $this->updateNZByte($iValue);
     $this->oDataRegisters->iReg<?= $iReg ?> &= ISize::MASK_INV_BYTE;
     $this->oDataRegisters->iReg<?= $iReg ?> |= ($iValue & ISize::MASK_BYTE);
@@ -36,7 +41,12 @@ switch ($iSize) {
 
     case IOpcode::OP_SIZE_W:
 ?>
-    $iValue = ($this->oDataRegisters->iReg<?= $iReg ?> & ISize::MASK_WORD) >> <?= $iImmediate ?>;
+    $iSignMask = ($this->oDataRegisters->iReg<?= $iReg ?> & ISize::SIGN_BIT_WORD) ? <?= (-1 << (16 - $iImmediate)) ?> : 0;
+    $iValue = ($this->oDataRegisters->iReg<?= $iReg ?> & ISize::MASK_WORD) >> <?= $iImmediate - 1 ?>;
+    $this->iConditionRegister |= (
+        ($iValue & 1) ? IRegister::CCR_MASK_XC : 0
+    );
+    $iValue = ($iValue >> 1) | $iSignMask;
     $this->updateNZWord($iValue);
     $this->oDataRegisters->iReg<?= $iReg ?> &= ISize::MASK_INV_WORD;
     $this->oDataRegisters->iReg<?= $iReg ?> |= ($iValue & ISize::MASK_WORD);
@@ -45,7 +55,12 @@ switch ($iSize) {
 
     case IOpcode::OP_SIZE_L:
 ?>
-    $iValue = ($this->oDataRegisters->iReg<?= $iReg ?> & ISize::MASK_LONG) >> <?= $iImmediate ?>;
+    $iSignMask = ($this->oDataRegisters->iReg<?= $iReg ?> & ISize::SIGN_BIT_LONG) ? <?= (-1 << (32 - $iImmediate)) ?> : 0;
+    $iValue = ($this->oDataRegisters->iReg<?= $iReg ?> & ISize::MASK_LONG) >> <?= $iImmediate - 1 ?>;
+    $this->iConditionRegister |= (
+        ($iValue & 1) ? IRegister::CCR_MASK_XC : 0
+    );
+    $iValue = ($iValue >> 1) | $iSignMask;
     $this->updateNZLong($iValue);
     $this->oDataRegisters->iReg<?= $iReg ?> = ($iValue & ISize::MASK_LONG);
 <?php
