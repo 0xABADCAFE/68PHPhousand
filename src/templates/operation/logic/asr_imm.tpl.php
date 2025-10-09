@@ -27,7 +27,11 @@ return function(int $iOpcode): void {
 switch ($iSize) {
     case IOpcode::OP_SIZE_B:
 ?>
-    $iValue = ($this->oDataRegisters->iReg<?= $iReg ?> & ISize::MASK_BYTE) >> <?= $iImmediate ?>;
+    $iValue = Sign::extByte($this->oDataRegisters->iReg<?= $iReg ?> & ISize::MASK_BYTE) >> <?= $iImmediate - 1 ?>;
+    $this->iConditionRegister |= (
+        ($iValue & 1) ? IRegister::CCR_MASK_XC : 0
+    );
+    $iValue >>= 1;
     $this->updateNZByte($iValue);
     $this->oDataRegisters->iReg<?= $iReg ?> &= ISize::MASK_INV_BYTE;
     $this->oDataRegisters->iReg<?= $iReg ?> |= ($iValue & ISize::MASK_BYTE);
@@ -36,7 +40,11 @@ switch ($iSize) {
 
     case IOpcode::OP_SIZE_W:
 ?>
-    $iValue = ($this->oDataRegisters->iReg<?= $iReg ?> & ISize::MASK_WORD) >> <?= $iImmediate ?>;
+    $iValue = Sign::extWord($this->oDataRegisters->iReg<?= $iReg ?> & ISize::MASK_WORD) >> <?= $iImmediate - 1 ?>;
+    $this->iConditionRegister |= (
+        ($iValue & 1) ? IRegister::CCR_MASK_XC : 0
+    );
+    $iValue >>= 1;
     $this->updateNZWord($iValue);
     $this->oDataRegisters->iReg<?= $iReg ?> &= ISize::MASK_INV_WORD;
     $this->oDataRegisters->iReg<?= $iReg ?> |= ($iValue & ISize::MASK_WORD);
@@ -45,7 +53,11 @@ switch ($iSize) {
 
     case IOpcode::OP_SIZE_L:
 ?>
-    $iValue = ($this->oDataRegisters->iReg<?= $iReg ?> & ISize::MASK_LONG) >> <?= $iImmediate ?>;
+    $iValue = Sign::extLong($this->oDataRegisters->iReg<?= $iReg ?> & ISize::MASK_LONG) >> <?= $iImmediate - 1 ?>;
+    $this->iConditionRegister |= (
+        ($iValue & 1) ? IRegister::CCR_MASK_XC : 0
+    );
+    $iValue >>= 1;
     $this->updateNZLong($iValue);
     $this->oDataRegisters->iReg<?= $iReg ?> = ($iValue & ISize::MASK_LONG);
 <?php

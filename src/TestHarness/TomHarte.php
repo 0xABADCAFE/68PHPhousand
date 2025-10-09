@@ -30,6 +30,8 @@ class TomHarte
     private Device\IMemory $oMemory;
     private CPU $oCPU;
 
+    private array $aDeclaredBroken = [];
+
     public function __construct(string $sTestDir)
     {
         assert(is_readable($sTestDir) & is_dir($sTestDir), new LogicException());
@@ -106,6 +108,12 @@ class TomHarte
         return $this;
     }
 
+    public function declareBroken(string $sTestCase): self
+    {
+        $this->aDeclaredBroken[$sTestCase] = 1;
+        return $this;
+    }
+
     public function run(): stdClass
     {
         $iErrored   = 0;
@@ -116,6 +124,16 @@ class TomHarte
 
         $fTime      = -microtime(true);
         foreach($this->aTestCases as $oTestCase) {
+
+            if (isset($this->aDeclaredBroken[$oTestCase->name])) {
+                printf(
+                    "Skipping %s - Declared Broken\n",
+                    $oTestCase->name
+                );
+                ++$iSkipped;
+                continue;
+
+            }
 
             if ($this->changesSupervisorState($oTestCase)){
                 printf(
@@ -156,7 +174,7 @@ class TomHarte
                     foreach ($aFailures as $sMessage) {
                         printf("\t%s\n", $sMessage);
                     }
-                    //print_r($oTestCase);
+                    //print(json_encode($oTestCase, JSON_PRETTY_PRINT));
                     ob_end_flush();
                 }
             } catch (\Throwable $oError) {
