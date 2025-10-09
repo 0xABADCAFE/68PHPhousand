@@ -156,7 +156,7 @@ class TomHarte
                     foreach ($aFailures as $sMessage) {
                         printf("\t%s\n", $sMessage);
                     }
-                    //print_r($oTestCase);
+                    //print(json_encode($oTestCase, JSON_PRETTY_PRINT));
                     ob_end_flush();
                 }
             } catch (\Throwable $oError) {

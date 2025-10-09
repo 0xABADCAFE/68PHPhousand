@@ -24,16 +24,14 @@ switch ($iSize) {
     if ($iShift > 0) {
         $this->iConditionRegister &= IRegister::CCR_CLEAR_XCV;
         $iReg      = &$this->oDataRegisters->iReg<?= $iReg ?>;
-        $iSignMask = ($iReg & ISize::SIGN_BIT_BYTE) ? -1 : 0;
-        $iSignMask <<= ($iShift < 8) ? (8 - $iShift) : 0;
-        $iValue = ($iReg & ISize::MASK_BYTE) >> ($iShift - 1);
+        $iValSign  = Sign::extByte($iReg) >> $iShift;
+        $iValTest  = ($iReg & ISize::MASK_BYTE) >> ($iShift - 1);
         $this->iConditionRegister |= (
-            ($iValue & 1) ? IRegister::CCR_MASK_XC : 0
+            ($iValTest & 1) ? IRegister::CCR_MASK_XC : 0
         );
-        $iValue = $iSignMask | $iValue >> 1;
-        $this->updateNZByte($iValue);
+        $this->updateNZByte($iValSign);
         $iReg &= ISize::MASK_INV_BYTE;
-        $iReg |= ($iValue & ISize::MASK_BYTE);
+        $iReg |= ($iValSign & ISize::MASK_BYTE);
     } else {
         $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
         $this->updateNZByte($this->oDataRegisters->iReg<?= $iReg ?>);
@@ -46,16 +44,14 @@ switch ($iSize) {
     if ($iShift > 0) {
         $this->iConditionRegister &= IRegister::CCR_CLEAR_XCV;
         $iReg      = &$this->oDataRegisters->iReg<?= $iReg ?>;
-        $iSignMask = ($iReg & ISize::SIGN_BIT_WORD) ? -1 : 0;
-        $iSignMask <<= ($iShift < 16) ? (16 - $iShift) : 0;
-        $iValue = ($iReg & ISize::MASK_WORD) >> ($iShift - 1);
+        $iValSign  = Sign::extWord($iReg) >> $iShift;
+        $iValTest  = ($iReg & ISize::MASK_WORD) >> ($iShift - 1);
         $this->iConditionRegister |= (
-            ($iValue & 1) ? IRegister::CCR_MASK_XC : 0
+            ($iValTest & 1) ? IRegister::CCR_MASK_XC : 0
         );
-        $iValue = $iSignMask | $iValue >> 1;
-        $this->updateNZWord($iValue);
+        $this->updateNZWord($iValSign);
         $iReg &= ISize::MASK_INV_WORD;
-        $iReg |= ($iValue & ISize::MASK_WORD);
+        $iReg |= ($iValSign & ISize::MASK_WORD);
     } else {
         $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
         $this->updateNZWord($this->oDataRegisters->iReg<?= $iReg ?>);
@@ -68,15 +64,13 @@ switch ($iSize) {
     if ($iShift > 0) {
         $this->iConditionRegister &= IRegister::CCR_CLEAR_XCV;
         $iReg      = &$this->oDataRegisters->iReg<?= $iReg ?>;
-        $iSignMask = ($iReg & ISize::SIGN_BIT_LONG) ? -1 : 0;
-        $iSignMask <<= ($iShift < 32) ? (32 - $iShift) : 0;
-        $iValue = ($iReg & ISize::MASK_LONG) >> ($iShift - 1);
+        $iValSign  = Sign::extLong($iReg) >> $iShift;
+        $iValTest  = ($iReg & ISize::MASK_LONG) >> ($iShift - 1);
         $this->iConditionRegister |= (
-            ($iValue & 1) ? IRegister::CCR_MASK_XC : 0
+            ($iValTest & 1) ? IRegister::CCR_MASK_XC : 0
         );
-        $iValue = $iSignMask | $iValue >> 1;
-        $this->updateNZLong($iValue);
-        $iReg = ($iValue & ISize::MASK_LONG);
+        $this->updateNZLong($iValSign);
+        $iReg = ($iValSign & ISize::MASK_LONG);
     } else {
         $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
         $this->updateNZLong($this->oDataRegisters->iReg<?= $iReg ?>);
