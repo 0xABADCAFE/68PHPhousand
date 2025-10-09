@@ -57,14 +57,16 @@ trait TShifter
             function (int $iOpcode) {
                 // Memory shifts are word sized, 1 bit at a time
                 $oEAMode = $this->aDstEAModes[$iOpcode & 63];
-                $iValue  = $oEAMode->readWord() << 1;
+                $iValue  = $oEAMode->readWord();
+                $iResult = $iValue << 1;
                 $this->iConditionRegister &= IRegister::CCR_CLEAR_XCV;
-                $this->updateNZWord($iValue);
-                // TODO Overflow
+                $this->updateNZWord($iResult);
                 $this->iConditionRegister |= (
-                    ($iValue & 0x10000) ? IRegister::CCR_MASK_XC : 0
+                    ($iResult & 0x10000) ? IRegister::CCR_MASK_XC : 0
+                ) | (
+                    (($iResult ^ $iValue) & ISize::SIGN_BIT_WORD) >> 14 // Shift sign bit down into V position
                 );
-                $oEAMode->writeWord($iValue);
+                $oEAMode->writeWord($iResult);
             }
         );
 

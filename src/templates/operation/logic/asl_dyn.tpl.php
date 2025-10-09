@@ -86,24 +86,63 @@ switch ($iSize) {
 
     case IOpcode::OP_SIZE_W:
 ?>
-    $iValue = ($this->oDataRegisters->iReg<?= $iReg ?> & ISize::MASK_WORD) << $iShift;
-    $this->updateNZWord($iValue);
-    $this->iConditionRegister |= (
-        ($iValue & 0x10000) ? IRegister::CCR_MASK_XC : 0
-    );
-    $this->oDataRegisters->iReg<?= $iReg ?> &= ISize::MASK_INV_WORD;
-    $this->oDataRegisters->iReg<?= $iReg ?> |= ($iValue & ISize::MASK_WORD);
+    $iValue  = ($this->oDataRegisters->iReg<?= $iReg ?> & ISize::MASK_WORD);
+
+    if ($iShift > 16) {
+        $iReg   &= ISize::MASK_INV_WORD;
+        $this->iConditionRegister = IRegister::CCR_ZERO | ($iValue ? IRegister::CCR_OVERFLOW : 0);
+    } else if ($iShift == 16) {
+        $iReg   &= ISize::MASK_INV_WORD;
+        $this->iConditionRegister = IRegister::CCR_ZERO | (
+            $iValue ? (IRegister::CCR_OVERFLOW | (($iValue & 1) ? IRegister::CCR_MASK_XC : 0)) : 0
+        );
+    } else if ($iShift) {
+        $iReg   &= ISize::MASK_INV_WORD;
+        $this->iConditionRegister &= IRegister::CCR_CLEAR_XCV;
+        $iResult    = $iValue << $iShift;
+        $iCheckMask = ((1 << ($iShift + 1)) - 1) << (15 - $iShift);
+        $iValue &= $iCheckMask;
+        $this->updateNZWord($iResult);
+        $this->iConditionRegister |= (
+            ($iResult & 0x10000) ? IRegister::CCR_MASK_XC : 0
+        ) | ((
+            ($iValue && $iValue !== $iCheckMask)
+        ) ? IRegister::CCR_OVERFLOW : 0);
+        $iReg |= ($iResult & ISize::MASK_WORD);
+    } else {
+        $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
+        $this->updateNZWord($iReg);
+    }
 <?php
     break;
 
     case IOpcode::OP_SIZE_L:
 ?>
-    $iValue = ($this->oDataRegisters->iReg<?= $iReg ?> & ISize::MASK_LONG) << $iShift;
-    $this->updateNZLong($iValue);
-    $this->iConditionRegister |= (
-        ($iValue & 0x100000000) ? IRegister::CCR_MASK_XC : 0
-    );
-    $this->oDataRegisters->iReg<?= $iReg ?> = ($iValue & ISize::MASK_LONG);
+    $iValue = ($this->oDataRegisters->iReg<?= $iReg ?> & ISize::MASK_LONG);
+    if ($iShift > 32) {
+        $iReg = 0;
+        $this->iConditionRegister = IRegister::CCR_ZERO | ($iValue ? IRegister::CCR_OVERFLOW : 0);
+    } else if ($iShift == 32) {
+        $iReg = 0;
+        $this->iConditionRegister = IRegister::CCR_ZERO | (
+            $iValue ? (IRegister::CCR_OVERFLOW | (($iValue & 1) ? IRegister::CCR_MASK_XC : 0)) : 0
+        );
+    } else if ($iShift) {
+        $this->iConditionRegister &= IRegister::CCR_CLEAR_XCV;
+        $iResult    = $iValue << $iShift;
+        $iCheckMask = ((1 << ($iShift + 1)) - 1) << (31 - $iShift);
+        $iValue &= $iCheckMask;
+        $this->updateNZLong($iResult);
+        $this->iConditionRegister |= (
+            ($iResult & 0x100000000) ? IRegister::CCR_MASK_XC : 0
+        ) | ((
+            ($iValue && $iValue !== $iCheckMask)
+        ) ? IRegister::CCR_OVERFLOW : 0);
+        $iReg = ($iResult & ISize::MASK_LONG);
+    } else {
+        $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
+        $this->updateNZLong($iReg);
+    }
 <?php
     break;
 
