@@ -17,6 +17,7 @@ namespace ABadCafe\G8PHPhousand\Processor\Opcode;
 use ABadCafe\G8PHPhousand\Processor;
 use ABadCafe\G8PHPhousand\Processor\ISize;
 use ABadCafe\G8PHPhousand\Processor\IEffectiveAddress;
+use ABadCafe\G8PHPhousand\Processor\IOpcode;
 
 use LogicException;
 
@@ -80,8 +81,8 @@ trait TFlow
                     $aCtrlModes
                 ),
                 function(int $iOpcode) {
-                    $oEAMode  = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
-                    $this->iProgramCounter = $oEAMode->readLong();
+                    $oEAMode  = $this->aSrcEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
+                    $this->iProgramCounter = $oEAMode->getAddress();
                 }
             )
         );
