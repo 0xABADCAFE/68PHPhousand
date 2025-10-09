@@ -95,14 +95,14 @@ trait TFlow
                     $aCtrlModes
                 ),
                 function(int $iOpcode) {
+                    $iNewPC = $this->aSrcEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]->getAddress();
                     $this->oAddressRegisters->iReg7 -= ISize::LONG;
                     $this->oAddressRegisters->iReg7 &= ISize::MASK_LONG;
                     $this->oOutside->writeLong(
                         $this->oAddressRegisters->iReg7,
                         $this->iProgramCounter
                     );
-                    $oEAMode  = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
-                    $this->iProgramCounter = $oEAMode->readLong();
+                    $this->iProgramCounter = $iNewPC;
                 }
             )
         );
