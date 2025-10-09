@@ -18,9 +18,14 @@ use ABadCafe\G8PHPhousand\TestHarness;
 
 require 'bootstrap.php';
 
-$oTomHarte = new TestHarness\TomHarte('TomHarte/680x0');
-//print_r($oTomHarte->loadSuite('EOR.b')->run());
-//print_r($oTomHarte->loadSuite('CLR.b')->run());
+$oTomHarte = (new TestHarness\TomHarte('TomHarte/680x0'))
+    ->declareBroken('e502 [ASL.b Q, D2] 1583')
+    ->declareBroken('e502 [ASL.b Q, D2] 1761');
+
+//print_r($oTomHarte->loadSuite('ASL.b')->run());
+//print_r($oTomHarte->loadSuite('ASL.w')->run());
+//print_r($oTomHarte->loadSuite('ASL.l')->run());
+
 //exit;
 
 $oTomHarte->runAllExcept(

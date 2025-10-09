@@ -1,4 +1,4 @@
-Handler setup took 0.18367314338684 seconds using 11804064 bytes
+Handler setup took 0.19506812095642 seconds using 12680848 bytes
 42986 Exact and 0 Prefix handlers defined
 
 
