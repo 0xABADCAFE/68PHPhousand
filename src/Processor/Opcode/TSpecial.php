@@ -19,6 +19,7 @@ use ABadCafe\G8PHPhousand\Processor\IOpcode;
 use ABadCafe\G8PHPhousand\Processor\IRegister;
 use ABadCafe\G8PHPhousand\Processor\ISize;
 use ABadCafe\G8PHPhousand\Processor\IEffectiveAddress;
+use ABadCafe\G8PHPhousand\Processor\Sign;
 
 use LogicException;
 
@@ -46,6 +47,7 @@ trait TSpecial
 
         ]);
 
+        // TAS
         $this->addExactHandlers(
             array_fill_keys(
                 $this->generateForEAModeList(
@@ -58,6 +60,50 @@ trait TSpecial
                     $iByte = $oEAMode->readByte();
                     $this->updateNZByte($iByte);
                     $oEAMode->writeByte($iByte | ISize::SIGN_BIT_BYTE);
+                }
+            )
+        );
+
+        // LINK
+        $this->addExactHandlers(
+            array_fill_keys(
+                range(
+                    ISpecial::OP_LINK|IRegister::A0,
+                    ISpecial::OP_LINK|Iregister::A7
+                ),
+                function (int $iOpcode) {
+                    $iSP  = &$this->oAddressRegisters->iReg7;
+                    $iSP -= ISize::LONG;
+                    $iSP &= ISize::MASK_LONG;
+                    $iReg = &$this->oAddressRegisters->aIndex[$iOpcode & IOpcode::MASK_EA_REG];
+                    $this->oOutside->writeLong($iSP, $iReg);
+                    $iReg = $iSP;
+                    $iSP  += Sign::extWord($this->oOutside->readWord($this->iProgramCounter));
+                    $iSP &= ISize::MASK_LONG;
+                    $this->iProgramCounter += ISize::WORD;
+                    $this->iProgramCounter &= ISize::MASK_LONG;
+                }
+            )
+        );
+
+
+        // UNLK
+        $this->addExactHandlers(
+            array_fill_keys(
+                range(
+                    ISpecial::OP_UNLK|IRegister::A0,
+                    ISpecial::OP_UNLK|Iregister::A7
+                ),
+                function (int $iOpcode) {
+                    $iSP  = &$this->oAddressRegisters->iReg7;
+                    $iReg = &$this->oAddressRegisters->aIndex[$iOpcode & IOpcode::MASK_EA_REG];
+                    $bPop = $iSP !== $iReg;
+                    $iSP  = $iReg;
+                    $iReg = $this->oOutside->readLong($iSP);
+                    if ($bPop) {
+                        $iSP += ISize::LONG;
+                        $iSP &= ISize::MASK_LONG;
+                    }
                 }
             )
         );
