@@ -61,6 +61,7 @@ trait TMove
         $this->buildSCCHandlers(IMove::OP_SLE, 'sle');
         $this->buildLEAHanders();
         $this->buildPEAHanders();
+        $this->buildMoveSpecialHandlers();
     }
 
     protected function initMoveDstEAModes()
@@ -72,6 +73,22 @@ trait TMove
         foreach ($this->aDstEAModes as $iMode => $oEAMode) {
             $this->aMoveDstEAModes[$this->aEAToDstEAMap[$iMode]] = $oEAMode;
         }
+    }
+
+    private function buildMoveSpecialHandlers()
+    {
+        $this->addExactHandlers(
+            array_fill_keys(
+                $this->generateForEAModeList(
+                    IEffectiveAddress::MODE_ALL_EXCEPT_AREGS,
+                    IMove::OP_MOVE_2_CCR
+                ),
+                function (int $iOpcode) {
+                    $iCCR = $this->aSrcEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]->readWord();
+                    $this->iConditionRegister = $iCCR & IRegister::CCR_MASK;
+                }
+            )
+        );
     }
 
     private function buildCLRHandlers()
