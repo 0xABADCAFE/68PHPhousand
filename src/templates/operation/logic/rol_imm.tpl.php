@@ -42,7 +42,6 @@ switch ($iSize) {
     $this->iConditionRegister |= ($iValue & IRegister::CCR_CARRY);
     $this->oDataRegisters->iReg<?= $iReg ?> &= ISize::MASK_INV_WORD;
     $this->oDataRegisters->iReg<?= $iReg ?> |= ($iValue & ISize::MASK_WORD);
-
 <?php
     break;
 
@@ -51,9 +50,8 @@ switch ($iSize) {
     $iValue = ($this->oDataRegisters->iReg<?= $iReg ?> & ISize::MASK_LONG) << <?= $iImmediate ?>;
     $iValue |= ($iValue >> 32);
     $this->updateNZLong($iValue);
-    $this->iConditionRegister |= (
-        ($iValue & 0x100000000) ? IRegister::CCR_MASK_XC : 0
-    );
+    $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
+    $this->iConditionRegister |= ($iValue & IRegister::CCR_CARRY);
     $this->oDataRegisters->iReg<?= $iReg ?> = ($iValue & ISize::MASK_LONG);
 <?php
     break;
