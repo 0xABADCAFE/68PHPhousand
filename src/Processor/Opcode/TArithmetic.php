@@ -27,6 +27,8 @@ trait TArithmetic
 
     protected function initArithmeticHandlers()
     {
+        $this->buildEXTHandlers();
+
         $aEAModes = $this->generateForEAModeList(
             IEffectiveAddress::MODE_DATA_ALTERABLE
         );
@@ -68,11 +70,88 @@ trait TArithmetic
             IEffectiveAddress::MODE_ALL
         );
 
+        $this->buildTSTHandlers($aEAModes);
+
         $this->buildCMPAHandlers($aEAModes);
         $this->buildADDEA2AHandlers($aEAModes);
         $this->buildSUBEA2AHandlers($aEAModes);
+
     }
 
+    private function buildEXTHandlers()
+    {
+        $oEXTTemplate = new Template\Params(
+            0,
+            'operation/arithmetic/ext',
+            []
+        );
+
+        $aPrefixes = [
+            IArithmetic::OP_EXT_W,
+            IArithmetic::OP_EXT_L,
+            IArithmetic::OP_EXTB_L,
+        ];
+
+        $iHandlers = [];
+        foreach ($aPrefixes as $iPrefix) {
+            foreach (IRegister::DATA_REGS as $iReg) {
+                $oEXTTemplate->iOpcode = $iPrefix | $iReg;
+                $aHandlers[$oEXTTemplate->iOpcode] = $this->compileTemplateHandler($oEXTTemplate);
+            }
+        }
+        $this->addExactHandlers($aHandlers);
+    }
+
+    private function buildTSTHandlers(array $aEAModes)
+    {
+        // TST byte
+        $this->addExactHandlers(
+            array_fill_keys(
+                $this->mergePrefixForModeList(
+                    IArithmetic::OP_TST_B,
+                    $aEAModes
+                ),
+                function(int $iOpcode) {
+                    $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
+                    $this->updateNZByte(
+                        $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]->readByte()
+                    );
+                }
+            )
+        );
+
+        // TST word
+        $this->addExactHandlers(
+            array_fill_keys(
+                $this->mergePrefixForModeList(
+                    IArithmetic::OP_TST_W,
+                    $aEAModes
+                ),
+                function(int $iOpcode) {
+                    $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
+                    $this->updateNZWord(
+                        $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]->readWord()
+                    );
+                }
+            )
+        );
+
+        // TST long
+        $this->addExactHandlers(
+            array_fill_keys(
+                $this->mergePrefixForModeList(
+                    IArithmetic::OP_TST_L,
+                    $aEAModes
+                ),
+                function(int $iOpcode) {
+                    $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
+                    $this->updateNZLong(
+                        $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]->readLong()
+                    );
+                }
+            )
+        );
+    }
 
     private function buildCMPHandlers(array $aEAModes, array $aEAAregs)
     {
