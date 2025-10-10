@@ -55,11 +55,16 @@ switch ($iSize) {
 
     case IOpcode::OP_SIZE_L:
 ?>
-    $iValue   = ($this->oDataRegisters->iReg<?= $iReg ?> & ISize::MASK_LONG);
-    $iShifted = $iValue << (32 - $iShift);
-    $iValue   = ($iValue >> $iShift) | $iShifted;
+    $iValue = ($this->oDataRegisters->iReg<?= $iReg ?> & ISize::MASK_LONG);
+    if ($iShift) {
+        $iShift &= 31;
+        $iValue <<= (32 - $iShift);
+        $iValue |= ($iValue >> 32);
+        $this->iConditionRegister |= (($iValue & 0x80000000) >> 31);
+        $this->oDataRegisters->iReg<?= $iReg ?> = ($iValue & ISize::MASK_LONG);
+    }
     $this->updateNZLong($iValue);
-    $this->oDataRegisters->iReg<?= $iReg ?> = ($iValue & ISize::MASK_LONG);
+
 <?php
     break;
 
