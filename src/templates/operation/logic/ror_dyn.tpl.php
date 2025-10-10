@@ -18,8 +18,8 @@ $iReg    = $oParams->iOpcode & IOpcode::MASK_EA_REG;
 
 ?>
 return function(int $iOpcode): void {
-    $this->iConditionRegister &= IRegister::CCR_CLEAR_XCV;
-    $iShift = $this->oDataRegisters->iReg<?= $iSrcReg ?> & 0x63;
+    $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
+    $iShift = $this->oDataRegisters->iReg<?= $iSrcReg ?> & 63;
 <?php
 
 switch ($iSize) {
