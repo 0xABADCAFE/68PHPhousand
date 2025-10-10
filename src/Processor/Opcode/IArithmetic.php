@@ -109,6 +109,13 @@ interface IArithmetic
     //                          rrr011EAEAEA
     const OP_MULU_W     = 0b1100000011000000;
 
+    //                          rrr111EAEAEA
+    const OP_DIVS_W     = 0b1000000111000000;
+
+    //                          rrr011EAEAEA
+    const OP_DIVU_W     = 0b1000000011000000;
+
+
     //                      0100100mmm000rrr
     const OP_EXT_W      = 0b0100100010000000;
     const OP_EXT_L      = 0b0100100011000000;

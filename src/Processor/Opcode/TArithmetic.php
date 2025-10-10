@@ -58,6 +58,7 @@ trait TArithmetic
         $this->buildADDEA2DHandlers($aEAModes, $aEAAregs);
         $this->buildSUBEA2DHandlers($aEAModes, $aEAAregs);
         $this->buildMULXHandlers($aEAModes);
+        $this->buildDIVXHandlers($aEAModes);
 
         $aEAModes = $this->generateForEAModeList(
             IEffectiveAddress::MODE_MEM_ALTERABLE
@@ -349,6 +350,63 @@ trait TArithmetic
                         $aEAModes
                     ),
                     $cMULUHandler
+                )
+            );
+
+        }
+    }
+
+
+    private function buildDIVXHandlers(array $aEAModes)
+    {
+        $cDIVSHandler = function(int $iOpcode) {
+            $oEAMode = $this->aSrcEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
+            $iReg    = &$this->oDataRegisters->aIndex[($iOpcode >> IOpcode::REG_UP_SHIFT) & 7];
+            $iValue  = Sign::extWord($iReg) * Sign::extWord($oEAMode->readWord());
+            $iReg    = $iValue & ISize::MASK_LONG;
+            $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
+            $this->updateNZLong($iValue);
+        };
+
+        $cDIVUHandler = function(int $iOpcode) {
+            $oEAMode     = $this->aSrcEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
+            $iDivisor    = $oEAMode->readWord();
+            $iReg        = &$this->oDataRegisters->aIndex[($iOpcode >> IOpcode::IMM_UP_SHIFT) & 7];
+
+            //$iRemainder  = ($iReg % $iDivisor) & ISize::MASK_WORD;
+            //$iQuotient   = (int)(($iReg - $iRemainder) / $iDivisor);
+
+            $fResult    = $iReg / $iDivisor;
+            $iQuotient  = (int)$fResult;
+            $iRemainder = (int)((($fResult - $iQuotient) * $iDivisor) + 0.5);
+
+            if ($iQuotient & ISize::MASK_INV_WORD) {
+                $this->iConditionRegister &= IRegister::CCR_CLEAR_C;
+                $this->iConditionRegister |= IRegister::CCR_OVERFLOW;
+            } else {
+                $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
+                $iReg = ($iRemainder << 16) | ($iQuotient & ISize::MASK_WORD);
+                $this->updateNZWord($iQuotient);
+            }
+        };
+
+        foreach (IRegister::DATA_REGS as $iDReg) {
+            $this->addExactHandlers(
+                array_fill_keys(
+                    $this->mergePrefixForModeList(
+                        IArithmetic::OP_DIVS_W|($iDReg << IOpcode::REG_UP_SHIFT),
+                        $aEAModes
+                    ),
+                    $cDIVSHandler
+                )
+            );
+            $this->addExactHandlers(
+                array_fill_keys(
+                    $this->mergePrefixForModeList(
+                        IArithmetic::OP_DIVU_W|($iDReg << IOpcode::REG_UP_SHIFT),
+                        $aEAModes
+                    ),
+                    $cDIVUHandler
                 )
             );
 
