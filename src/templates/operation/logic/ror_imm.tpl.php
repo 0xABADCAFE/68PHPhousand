@@ -30,23 +30,18 @@ switch ($iSize) {
     $iValue = ($this->oDataRegisters->iReg<?= $iReg ?> & ISize::MASK_BYTE) << <?= (8 - $iImmediate) ?>;;
     $iValue |= ($iValue >> 8);
     $this->updateNZByte($iValue);
-    $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
     $this->iConditionRegister |= (($iValue & 0x80) >> 7);
     $this->oDataRegisters->iReg<?= $iReg ?> &= ISize::MASK_INV_BYTE;
     $this->oDataRegisters->iReg<?= $iReg ?> |= ($iValue & ISize::MASK_BYTE);
-
 <?php
     break;
 
     case IOpcode::OP_SIZE_W:
 ?>
-    $iValue   = ($this->oDataRegisters->iReg<?= $iReg ?> & ISize::MASK_WORD);
-    $iShifted = $iValue << <?= (16 - $iImmediate) ?>;
-    $iValue   = ($iValue >> <?= $iImmediate ?>) | $iShifted;
+    $iValue = ($this->oDataRegisters->iReg<?= $iReg ?> & ISize::MASK_WORD) << <?= (16 - $iImmediate) ?>;;
+    $iValue |= ($iValue >> 16);
     $this->updateNZWord($iValue);
-    $this->iConditionRegister |= (
-        ($iValue & 0x10000) ? IRegister::CCR_MASK_XC : 0
-    );
+    $this->iConditionRegister |= (($iValue & 0x8000) >> 15);
     $this->oDataRegisters->iReg<?= $iReg ?> &= ISize::MASK_INV_WORD;
     $this->oDataRegisters->iReg<?= $iReg ?> |= ($iValue & ISize::MASK_WORD);
 <?php

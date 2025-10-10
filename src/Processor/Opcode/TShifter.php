@@ -245,12 +245,10 @@ trait TShifter
                 // Memory shifts are word sized, 1 bit at a time
                 $oEAMode = $this->aDstEAModes[$iOpcode & 63];
                 $iValue  = $oEAMode->readWord();
+                $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
+                $this->iConditionRegister |= ($iValue & 1);
                 $iValue  = ($iValue >> 1)|($iValue << 15);
-                $this->iConditionRegister &= IRegister::CCR_CLEAR_XCV;
                 $this->updateNZWord($iValue);
-                $this->iConditionRegister |= (
-                    ($iValue & 0x10000) ? IRegister::CCR_MASK_XC : 0
-                );
                 $oEAMode->writeWord($iValue);
 
             }
