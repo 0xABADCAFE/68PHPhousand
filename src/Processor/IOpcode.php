@@ -37,6 +37,8 @@ interface IOpcode
     const MASK_SHIFT_DIR   = 0b0000000010000000; // shift/rotate direction
     const MASK_MOVEUSP_DIR = 0b0000000000001000; // MOVE USP direction
 
+    const MASK_OP_MODE     = 0b0000000111000000;
+
     const MASK_OP_PREFIX   = 0b1111111111000000;
 
     const MASK_OP_STD_EA   = 0b0000000000111111; // Standard 6-bit EA mode
@@ -47,9 +49,9 @@ interface IOpcode
     const MASK_BXW_DISP    = 0b0000000011111111; // displacement
 
     // For MASK_OP_SIZE
-    const OP_SIZE_B           = 0b0000000000000000;
-    const OP_SIZE_W           = 0b0000000001000000;
-    const OP_SIZE_L           = 0b0000000010000000;
+    const OP_SIZE_B        = 0b0000000000000000;
+    const OP_SIZE_W        = 0b0000000001000000;
+    const OP_SIZE_L        = 0b0000000010000000;
 
 
     const REG_EA_D0 = IRegister::D0;

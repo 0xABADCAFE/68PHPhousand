@@ -62,6 +62,7 @@ interface IRegister
     //                                XNZVC
     public const CCR_CLEAR_Z   = 0b00011011;
     public const CCR_CLEAR_V   = 0b00011101;
+    public const CCR_CLEAR_C   = 0b00011110;
 
     public const CCR_CLEAR_XCV = 0b00001100;
     public const CCR_MASK_NV   = 0b00001010;
