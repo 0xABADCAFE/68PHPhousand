@@ -1,9 +1,7 @@
 <?php
 
 /**
- * LSL #d,dN
- *
- * X and C are set according to the last bit shifted out
+ * ROL #d,dN
  *
  */
 use ABadCafe\G8PHPhousand\Processor\IOpcode;
@@ -40,11 +38,11 @@ switch ($iSize) {
     $iValue = ($this->oDataRegisters->iReg<?= $iReg ?> & ISize::MASK_WORD) << <?= $iImmediate ?>;
     $iValue |= ($iValue >> 16);
     $this->updateNZWord($iValue);
-    $this->iConditionRegister |= (
-        ($iValue & 0x10000) ? IRegister::CCR_MASK_XC : 0
-    );
+    $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
+    $this->iConditionRegister |= ($iValue & IRegister::CCR_CARRY);
     $this->oDataRegisters->iReg<?= $iReg ?> &= ISize::MASK_INV_WORD;
     $this->oDataRegisters->iReg<?= $iReg ?> |= ($iValue & ISize::MASK_WORD);
+
 <?php
     break;
 

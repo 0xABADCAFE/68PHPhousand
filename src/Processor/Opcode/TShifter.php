@@ -211,10 +211,10 @@ trait TShifter
                 $oEAMode = $this->aDstEAModes[$iOpcode & 63];
                 $iValue  = $oEAMode->readWord();
                 $iValue  = ($iValue << 1) | ($iValue >> 15);
-                $this->iConditionRegister &= IRegister::CCR_CLEAR_XCV;
+                $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
                 $this->updateNZWord($iValue);
                 $this->iConditionRegister |= (
-                    ($iValue & 0x10000) ? IRegister::CCR_MASK_XC : 0
+                    ($iValue & 1)
                 );
                 $oEAMode->writeWord($iValue);
             }
