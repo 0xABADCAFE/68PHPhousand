@@ -360,12 +360,26 @@ trait TArithmetic
     private function buildDIVXHandlers(array $aEAModes)
     {
         $cDIVSHandler = function(int $iOpcode) {
-            $oEAMode = $this->aSrcEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
-            $iReg    = &$this->oDataRegisters->aIndex[($iOpcode >> IOpcode::REG_UP_SHIFT) & 7];
-            $iValue  = Sign::extWord($iReg) * Sign::extWord($oEAMode->readWord());
-            $iReg    = $iValue & ISize::MASK_LONG;
-            $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
-            $this->updateNZLong($iValue);
+            $oEAMode     = $this->aSrcEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
+            $iDivisor    = Sign::extWord($oEAMode->readWord());
+            $iReg        = &$this->oDataRegisters->aIndex[($iOpcode >> IOpcode::IMM_UP_SHIFT) & 7];
+
+            $iDividend   = Sign::extLong($iReg);
+
+            $iRemainder  = ($iDividend % $iDivisor);
+            $iQuotient   = (int)(($iDividend - $iRemainder) / $iDivisor);
+
+            if ($iQuotient < -32768 || $iQuotient > 32767) {
+                $this->iConditionRegister &= IRegister::CCR_CLEAR_C;
+                $this->iConditionRegister |= IRegister::CCR_OVERFLOW;
+            } else {
+                $iQuotient  &= ISize::MASK_WORD;
+                $iRemainder &= ISize::MASK_WORD;
+
+                $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
+                $iReg = ($iRemainder << 16) | $iQuotient;
+                $this->updateNZWord($iQuotient);
+            }
         };
 
         $cDIVUHandler = function(int $iOpcode) {
