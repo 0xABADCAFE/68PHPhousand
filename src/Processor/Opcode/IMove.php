@@ -46,6 +46,9 @@ interface IMove
 
     const OP_MOVE_2_CCR  = 0b0100010011000000;
 
+    // 010+
+    const OP_MOVE_CCR    = 0b0100001011000000;
+
     //                               rrr
     const OP_SWAP   = 0b0100100001000000;
 

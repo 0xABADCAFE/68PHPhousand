@@ -93,6 +93,7 @@ const CLASS_MAP = [
   'ABadCafe\\G8PHPhousand\\Processor\\Opcode\\ISingleBit' => '/Processor/Opcode/ISingleBit.php',
   'ABadCafe\\G8PHPhousand\\Processor\\Opcode\\IPrefix' => '/Processor/Opcode/IPrefix.php',
   'ABadCafe\\G8PHPhousand\\Processor\\Opcode\\TFlow' => '/Processor/Opcode/TFlow.php',
+  'ABadCafe\\G8PHPhousand\\Processor\\Opcode\\ISpecial' => '/Processor/Opcode/ISpecial.php',
   'ABadCafe\\G8PHPhousand\\Processor\\Opcode\\TShifter' => '/Processor/Opcode/TShifter.php',
   'ABadCafe\\G8PHPhousand\\Processor\\Opcode\\TLogical' => '/Processor/Opcode/TLogical.php',
   'ABadCafe\\G8PHPhousand\\Processor\\Opcode\\TSpecial' => '/Processor/Opcode/TSpecial.php',

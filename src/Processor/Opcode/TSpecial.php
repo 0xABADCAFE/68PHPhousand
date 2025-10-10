@@ -15,6 +15,10 @@ declare(strict_types=1);
 namespace ABadCafe\G8PHPhousand\Processor\Opcode;
 
 use ABadCafe\G8PHPhousand\Processor;
+use ABadCafe\G8PHPhousand\Processor\IOpcode;
+use ABadCafe\G8PHPhousand\Processor\IRegister;
+use ABadCafe\G8PHPhousand\Processor\ISize;
+use ABadCafe\G8PHPhousand\Processor\IEffectiveAddress;
 
 use LogicException;
 
@@ -29,18 +33,33 @@ trait TSpecial
         };
 
         $this->addExactHandlers([
-            IPrefix::OP_ILLEGAL  => $cUnhandled,
+            ISpecial::OP_ILLEGAL  => $cUnhandled,
 
-            IPrefix::OP_RESET    => function() {
+            ISpecial::OP_RESET    => function() {
                 // TODO - probably needs to be a bit more specific than this
                 $this->reset();
             },
 
-            IPrefix::OP_NOP      => function() {
+            ISpecial::OP_NOP      => function() {
                 // Nothing yet
             },
 
         ]);
 
+        $this->addExactHandlers(
+            array_fill_keys(
+                $this->generateForEAModeList(
+                    IEffectiveAddress::MODE_DATA_ALTERABLE,
+                    ISpecial::OP_TAS
+                ),
+                function (int $iOpcode) {
+                    $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
+                    $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
+                    $iByte = $oEAMode->readByte();
+                    $this->updateNZByte($iByte);
+                    $oEAMode->writeByte($iByte | ISize::SIGN_BIT_BYTE);
+                }
+            )
+        );
     }
 }
