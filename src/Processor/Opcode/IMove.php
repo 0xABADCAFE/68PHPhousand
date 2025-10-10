@@ -38,6 +38,17 @@ interface IMove
     //                      rrr nnnnnnnn
     const OP_MOVEQ  = 0b0111000000000000;
 
+    //                            d   sEAEAEA
+    const OP_MOVEM_R2M_W = 0b0100100010000000;
+    const OP_MOVEM_R2M_L = 0b0100100011000000;
+    const OP_MOVEM_M2R_W = 0b0100110010000000;
+    const OP_MOVEM_M2R_L = 0b0100110011000000;
+
+    const OP_MOVE_2_CCR  = 0b0100010011000000;
+
+    // 010+
+    const OP_MOVE_CCR    = 0b0100001011000000;
+
     //                               rrr
     const OP_SWAP   = 0b0100100001000000;
 

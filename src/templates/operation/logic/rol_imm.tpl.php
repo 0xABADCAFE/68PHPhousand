@@ -1,9 +1,7 @@
 <?php
 
 /**
- * LSL #d,dN
- *
- * X and C are set according to the last bit shifted out
+ * ROL #d,dN
  *
  */
 use ABadCafe\G8PHPhousand\Processor\IOpcode;
@@ -20,7 +18,6 @@ $iReg = $oParams->iOpcode & IOpcode::MASK_EA_REG;
 
 ?>
 return function(int $iOpcode): void {
-    $this->iConditionRegister &= IRegister::CCR_CLEAR_XCV;
 <?php
 
 switch ($iSize) {
@@ -29,9 +26,8 @@ switch ($iSize) {
     $iValue = ($this->oDataRegisters->iReg<?= $iReg ?> & ISize::MASK_BYTE) << <?= $iImmediate ?>;
     $iValue |= ($iValue >> 8);
     $this->updateNZByte($iValue);
-    $this->iConditionRegister |= (
-        ($iValue & 0x100) ? IRegister::CCR_MASK_XC : 0
-    );
+    $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
+    $this->iConditionRegister |= ($iValue & IRegister::CCR_CARRY);
     $this->oDataRegisters->iReg<?= $iReg ?> &= ISize::MASK_INV_BYTE;
     $this->oDataRegisters->iReg<?= $iReg ?> |= ($iValue & ISize::MASK_BYTE);
 <?php
@@ -42,9 +38,8 @@ switch ($iSize) {
     $iValue = ($this->oDataRegisters->iReg<?= $iReg ?> & ISize::MASK_WORD) << <?= $iImmediate ?>;
     $iValue |= ($iValue >> 16);
     $this->updateNZWord($iValue);
-    $this->iConditionRegister |= (
-        ($iValue & 0x10000) ? IRegister::CCR_MASK_XC : 0
-    );
+    $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
+    $this->iConditionRegister |= ($iValue & IRegister::CCR_CARRY);
     $this->oDataRegisters->iReg<?= $iReg ?> &= ISize::MASK_INV_WORD;
     $this->oDataRegisters->iReg<?= $iReg ?> |= ($iValue & ISize::MASK_WORD);
 <?php
@@ -55,9 +50,8 @@ switch ($iSize) {
     $iValue = ($this->oDataRegisters->iReg<?= $iReg ?> & ISize::MASK_LONG) << <?= $iImmediate ?>;
     $iValue |= ($iValue >> 32);
     $this->updateNZLong($iValue);
-    $this->iConditionRegister |= (
-        ($iValue & 0x100000000) ? IRegister::CCR_MASK_XC : 0
-    );
+    $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
+    $this->iConditionRegister |= ($iValue & IRegister::CCR_CARRY);
     $this->oDataRegisters->iReg<?= $iReg ?> = ($iValue & ISize::MASK_LONG);
 <?php
     break;
