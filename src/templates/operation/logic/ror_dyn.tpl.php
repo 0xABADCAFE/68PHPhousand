@@ -25,12 +25,16 @@ return function(int $iOpcode): void {
 switch ($iSize) {
     case IOpcode::OP_SIZE_B:
 ?>
-    $iValue   = ($this->oDataRegisters->iReg<?= $iReg ?> & ISize::MASK_BYTE);
-    $iShifted = $iValue << (8 - $iShift);
-    $iValue   = ($iValue >> $iShift) | $iShifted;
+    $iValue = ($this->oDataRegisters->iReg<?= $iReg ?> & ISize::MASK_BYTE);
+    if ($iShift) {
+        $iShift &= 7;
+        $iValue <<= (8 - $iShift);
+        $iValue |= ($iValue >> 8);
+        $this->iConditionRegister |= (($iValue & 0x80) >> 7);
+        $this->oDataRegisters->iReg<?= $iReg ?> &= ISize::MASK_INV_BYTE;
+        $this->oDataRegisters->iReg<?= $iReg ?> |= ($iValue & ISize::MASK_BYTE);
+    }
     $this->updateNZByte($iValue);
-    $this->oDataRegisters->iReg<?= $iReg ?> &= ISize::MASK_INV_BYTE;
-    $this->oDataRegisters->iReg<?= $iReg ?> |= ($iValue & ISize::MASK_BYTE);
 <?php
     break;
 
