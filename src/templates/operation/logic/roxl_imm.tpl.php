@@ -61,13 +61,19 @@ switch ($iSize) {
     break;
 
     case IOpcode::OP_SIZE_L:
+        // First shift up by 1, and include the X flag as the new LSB
+        // Then rotate by the size as a 33-bit field
+        // Then shift down by 1 for the result and put the 8th bit back into X, C
+
 ?>
-    $iValue = ($this->oDataRegisters->iReg<?= $iReg ?> & ISize::MASK_LONG) << <?= $iImmediate ?>;
-    $iValue |= ($iValue >> 32);
+    $iValue = ($this->oDataRegisters->iReg<?= $iReg ?> & ISize::MASK_LONG) << 1;
+    $iValue |= ($this->iConditionRegister & IRegister::CCR_EXTEND) >> 4;
+    $this->iConditionRegister &= IRegister::CCR_CLEAR_XCV;
+    $iValue <<= <?= $iImmediate ?>;
+    $iValue |= ($iValue >> 33);
+    $iValue >>= 1;
     $this->updateNZLong($iValue);
-    $this->iConditionRegister |= (
-        ($iValue & 0x100000000) ? IRegister::CCR_MASK_XC : 0
-    );
+    $this->iConditionRegister |= (($iValue & 0x100000000) ? IRegister::CCR_MASK_XC : 0);
     $this->oDataRegisters->iReg<?= $iReg ?> = ($iValue & ISize::MASK_LONG);
 <?php
     break;
