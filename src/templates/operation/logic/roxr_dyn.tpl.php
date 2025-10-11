@@ -16,19 +16,26 @@ $iReg    = $oParams->iOpcode & IOpcode::MASK_EA_REG;
 
 ?>
 return function(int $iOpcode): void {
-    $this->iConditionRegister &= IRegister::CCR_CLEAR_XCV;
-    $iShift = $this->oDataRegisters->iReg<?= $iSrcReg ?> & 0x63;
+    $iShift = $this->oDataRegisters->iReg<?= $iSrcReg ?> & 63;
+    $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
 <?php
 
 switch ($iSize) {
     case IOpcode::OP_SIZE_B:
 ?>
-    $iValue   = ($this->oDataRegisters->iReg<?= $iReg ?> & ISize::MASK_BYTE);
-    $iShifted = $iValue << (8 - $iShift);
-    $iValue   = ($iValue >> $iShift) | $iShifted;
+    $iValue = ($this->oDataRegisters->iReg<?= $iReg ?> & ISize::MASK_BYTE);
+    if (($iShift = Opcode\IShifter::ROXX_MOD_9[$iShift])) {
+        $iValue |= ($this->iConditionRegister & IRegister::CCR_EXTEND) << 4;
+        $this->iConditionRegister &= IRegister::CCR_CLEAR_XCV;
+        $iValue <<= (9 - $iShift);
+        $iValue |= ($iValue >> 9);
+        $this->iConditionRegister |= (($iValue & 0x100) ? IRegister::CCR_MASK_XC : 0);
+        $this->oDataRegisters->iReg<?= $iReg ?> &= ISize::MASK_INV_BYTE;
+        $this->oDataRegisters->iReg<?= $iReg ?> |= ($iValue & ISize::MASK_BYTE);
+    } else {
+        $this->iConditionRegister |= (($this->iConditionRegister & IRegister::CCR_EXTEND) >> 4);
+    }
     $this->updateNZByte($iValue);
-    $this->oDataRegisters->iReg<?= $iReg ?> &= ISize::MASK_INV_BYTE;
-    $this->oDataRegisters->iReg<?= $iReg ?> |= ($iValue & ISize::MASK_BYTE);
 <?php
     break;
 

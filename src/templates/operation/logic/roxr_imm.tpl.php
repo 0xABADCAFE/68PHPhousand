@@ -19,19 +19,21 @@ $iReg = $oParams->iOpcode & IOpcode::MASK_EA_REG;
 
 ?>
 return function(int $iOpcode): void {
-    $this->iConditionRegister &= IRegister::CCR_CLEAR_XCV;
 <?php
 
 switch ($iSize) {
     case IOpcode::OP_SIZE_B:
+        // First prepend the X flag to the operand to create the 9-bit field.
+        // Rotate the 9-bit field using a pair of contra-shifts
+        // Bit 9 of the result is the new X and C flag values
 ?>
-    $iValue   = ($this->oDataRegisters->iReg<?= $iReg ?> & ISize::MASK_BYTE);
-    $iShifted = $iValue << <?= (8 - $iImmediate) ?>;
-    $iValue   = ($iValue >> <?= $iImmediate ?>) | $iShifted;
+    $iValue = ($this->oDataRegisters->iReg<?= $iReg ?> & ISize::MASK_BYTE);
+    $iValue |= (($this->iConditionRegister & IRegister::CCR_EXTEND) << 4);
+    $this->iConditionRegister &= IRegister::CCR_CLEAR_XCV;
+    $iValue <<= <?= (9 - $iImmediate) ?>;
+    $iValue |= ($iValue >> 9);
     $this->updateNZByte($iValue);
-    $this->iConditionRegister |= (
-        ($iValue & 0x100) ? IRegister::CCR_MASK_XC : 0
-    );
+    $this->iConditionRegister |= (($iValue & 0x100) ? IRegister::CCR_MASK_XC : 0);
     $this->oDataRegisters->iReg<?= $iReg ?> &= ISize::MASK_INV_BYTE;
     $this->oDataRegisters->iReg<?= $iReg ?> |= ($iValue & ISize::MASK_BYTE);
 <?php
