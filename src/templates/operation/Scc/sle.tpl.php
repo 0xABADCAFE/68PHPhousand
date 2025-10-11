@@ -15,7 +15,5 @@ return function(int $iOpcode): void {
         IRegister::CCR_OVERFLOW === $iCCR ||
         IRegister::CCR_NEGATIVE === $iCCR
     ) ? 0xFF : 0;
-<?php
-    require 'common.tpl.php';
-?>
+    $this->aDstEAModes[$iOpcode & 63]->resetLatch()->writeByte($iState);
 };
