@@ -154,6 +154,8 @@ interface IShifter
     // For ROXL and ROXR, the operand size is effectively 9, 17 or 31 bits due to the inclusion of
     // the extend bit. For dynamic rotations, wcan't rely on a simple AND mask to restrict the rotate
     // to the bit count of the operand size, so we use precalculated modulo tables here.
+
+    // (0...63) % 9
     const ROXX_MOD_9 = [
         0, 1, 2, 3, 4, 5, 6, 7,
         8, 0, 1, 2, 3, 4, 5, 6,
@@ -165,11 +167,27 @@ interface IShifter
         2, 3, 4, 5, 6, 7, 8, 0,
     ];
 
+    // (0...63) % 17
     const ROXX_MOD_17 = [
-
+         0,  1,  2,  3,  4,  5,  6,  7,
+         8,  9, 10, 11, 12, 13, 14, 15,
+        16,  0,  1,  2,  3,  4,  5,  6,
+         7,  8,  9, 10, 11, 12, 13, 14,
+        15, 16,  0,  1,  2,  3,  4,  5,
+         6,  7,  8,  9, 10, 11, 12, 13,
+        14, 15, 16,  0,  1,  2,  3,  4,
+         5,  6,  7,  8,  9, 10, 11, 12,
     ];
 
+    // (0...63) % 33
     const ROXX_MOD_33 = [
-
+         0,  1,  2,  3,  4,  5,  6,  7,
+         8,  9, 10, 11, 12, 13, 14, 15,
+        16, 17, 18, 19, 20, 21, 22, 23,
+        24, 25, 26, 27, 28, 29, 30, 31,
+        32,  0,  1,  2,  3,  4,  5,  6,
+         7,  8,  9, 10, 11, 12, 13, 14,
+        15, 16, 17, 18, 19, 20, 21, 22,
+        23, 24, 25, 26, 27, 28, 29, 30,
     ];
 }
