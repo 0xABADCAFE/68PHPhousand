@@ -17,46 +17,63 @@ if (0 === $iImmediate) {
 }
 $iReg = $oParams->iOpcode & IOpcode::MASK_EA_REG;
 
+//$oParams->bDumpCode = true;
+
 ?>
 return function(int $iOpcode): void {
-    $this->iConditionRegister &= IRegister::CCR_CLEAR_XCV;
 <?php
 
 switch ($iSize) {
     case IOpcode::OP_SIZE_B:
+        // First shift up by 1, and include the X flag as the new LSB
+        // Then rotate by the size as a 9-bit field
+        // Then shift down by 1 for the result and put the 8th bit back into X, C
 ?>
-    $iValue = ($this->oDataRegisters->iReg<?= $iReg ?> & ISize::MASK_BYTE) << <?= $iImmediate ?>;
-    $iValue |= ($iValue >> 8);
+    $iValue = ($this->oDataRegisters->iReg<?= $iReg ?> & ISize::MASK_BYTE) << 1;
+    $iValue |= ($this->iConditionRegister & IRegister::CCR_EXTEND) >> 4;
+    $this->iConditionRegister &= IRegister::CCR_CLEAR_XCV;
+    $iValue <<= <?= $iImmediate ?>;
+    $iValue |= ($iValue >> 9);
+    $iValue >>= 1;
     $this->updateNZByte($iValue);
-    $this->iConditionRegister |= (
-        ($iValue & 0x100) ? IRegister::CCR_MASK_XC : 0
-    );
+    $this->iConditionRegister |= (($iValue & 0x100) ? IRegister::CCR_MASK_XC : 0);
     $this->oDataRegisters->iReg<?= $iReg ?> &= ISize::MASK_INV_BYTE;
     $this->oDataRegisters->iReg<?= $iReg ?> |= ($iValue & ISize::MASK_BYTE);
 <?php
     break;
 
     case IOpcode::OP_SIZE_W:
+        // First shift up by 1, and include the X flag as the new LSB
+        // Then rotate by the size as a 17-bit field
+        // Then shift down by 1 for the result and put the 8th bit back into X, C
 ?>
-    $iValue = ($this->oDataRegisters->iReg<?= $iReg ?> & ISize::MASK_WORD) << <?= $iImmediate ?>;
-    $iValue |= ($iValue >> 16);
+    $iValue = ($this->oDataRegisters->iReg<?= $iReg ?> & ISize::MASK_WORD) << 1;
+    $iValue |= ($this->iConditionRegister & IRegister::CCR_EXTEND) >> 4;
+    $this->iConditionRegister &= IRegister::CCR_CLEAR_XCV;
+    $iValue <<= <?= $iImmediate ?>;
+    $iValue |= ($iValue >> 17);
+    $iValue >>= 1;
     $this->updateNZWord($iValue);
-    $this->iConditionRegister |= (
-        ($iValue & 0x10000) ? IRegister::CCR_MASK_XC : 0
-    );
+    $this->iConditionRegister |= (($iValue & 0x10000) ? IRegister::CCR_MASK_XC : 0);
     $this->oDataRegisters->iReg<?= $iReg ?> &= ISize::MASK_INV_WORD;
     $this->oDataRegisters->iReg<?= $iReg ?> |= ($iValue & ISize::MASK_WORD);
 <?php
     break;
 
     case IOpcode::OP_SIZE_L:
+        // First shift up by 1, and include the X flag as the new LSB
+        // Then rotate by the size as a 33-bit field
+        // Then shift down by 1 for the result and put the 8th bit back into X, C
+
 ?>
-    $iValue = ($this->oDataRegisters->iReg<?= $iReg ?> & ISize::MASK_LONG) << <?= $iImmediate ?>;
-    $iValue |= ($iValue >> 32);
+    $iValue = ($this->oDataRegisters->iReg<?= $iReg ?> & ISize::MASK_LONG) << 1;
+    $iValue |= ($this->iConditionRegister & IRegister::CCR_EXTEND) >> 4;
+    $this->iConditionRegister &= IRegister::CCR_CLEAR_XCV;
+    $iValue <<= <?= $iImmediate ?>;
+    $iValue |= ($iValue >> 33);
+    $iValue >>= 1;
     $this->updateNZLong($iValue);
-    $this->iConditionRegister |= (
-        ($iValue & 0x100000000) ? IRegister::CCR_MASK_XC : 0
-    );
+    $this->iConditionRegister |= (($iValue & 0x100000000) ? IRegister::CCR_MASK_XC : 0);
     $this->oDataRegisters->iReg<?= $iReg ?> = ($iValue & ISize::MASK_LONG);
 <?php
     break;

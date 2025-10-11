@@ -9,8 +9,5 @@ assert(!empty($oParams), new \LogicException());
 
 ?>
 return function(int $iOpcode): void {
-    $iState = 0;
-<?php
-    require 'common.tpl.php';
-?>
+    $this->aDstEAModes[$iOpcode & 63]->resetLatch()->writeByte(0);
 };
