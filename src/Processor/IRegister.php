@@ -49,28 +49,28 @@ interface IRegister
     public const D7 = self::X7;
 
     // CCR Bits (lower byte of SR)
-    //                               XNZVC
-    public const CCR_CARRY    = 0b00000001;
-    public const CCR_OVERFLOW = 0b00000010;
-    public const CCR_ZERO     = 0b00000100;
-    public const CCR_NEGATIVE = 0b00001000;
-    public const CCR_EXTEND   = 0b00010000;
-    public const CCR_MASK     = 0b00011111;
-    public const CCR_CLEAR_NZ = 0b00010011;
-    public const CCR_CLEAR_CV = 0b00011100;
-
     //                                XNZVC
-    public const CCR_CLEAR_Z   = 0b00011011;
-    public const CCR_CLEAR_V   = 0b00011101;
-    public const CCR_CLEAR_C   = 0b00011110;
-    public const CCR_CLEAR_X   = 0b000011110;
-
-    public const CCR_CLEAR_XCV = 0b00001100;
+    public const CCR_CARRY     = 0b00000001;
+    public const CCR_OVERFLOW  = 0b00000010;
+    public const CCR_ZERO      = 0b00000100;
+    public const CCR_NEGATIVE  = 0b00001000;
+    public const CCR_EXTEND    = 0b00010000;
+    public const CCR_MASK      = 0b00011111;
     public const CCR_MASK_NV   = 0b00001010;
     public const CCR_MASK_ZNV  = 0b00001110;
     public const CCR_MASK_ZC   = 0b00000101;
     public const CCR_MASK_NZVC = 0b00001111;
     public const CCR_MASK_XC   = 0b00010001;
+
+    //                                XNZVC
+    public const CCR_CLEAR_Z   = 0b00011011;
+    public const CCR_CLEAR_V   = 0b00011101;
+    public const CCR_CLEAR_C   = 0b00011110;
+    public const CCR_CLEAR_X   = 0b00001111;
+    public const CCR_CLEAR_NZ  = 0b00010011;
+    public const CCR_CLEAR_CV  = 0b00011100;
+    public const CCR_CLEAR_XCV = 0b00001100;
+
 
     // SR Bits (upper byte of SR)
     public const SR_MASK_INT_MASK = 0b00000111;
