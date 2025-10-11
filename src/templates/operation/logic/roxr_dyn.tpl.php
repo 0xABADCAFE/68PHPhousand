@@ -41,12 +41,19 @@ switch ($iSize) {
 
     case IOpcode::OP_SIZE_W:
 ?>
-    $iValue   = ($this->oDataRegisters->iReg<?= $iReg ?> & ISize::MASK_WORD);
-    $iShifted = $iValue << (16 - $iShift);
-    $iValue   = ($iValue >> $iShift) | $iShifted;
+    $iValue = ($this->oDataRegisters->iReg<?= $iReg ?> & ISize::MASK_WORD);
+    if (($iShift = Opcode\IShifter::ROXX_MOD_17[$iShift])) {
+        $iValue |= ($this->iConditionRegister & IRegister::CCR_EXTEND) << 12;
+        $this->iConditionRegister &= IRegister::CCR_CLEAR_XCV;
+        $iValue <<= (17 - $iShift);
+        $iValue |= ($iValue >> 17);
+        $this->iConditionRegister |= (($iValue & 0x10000) ? IRegister::CCR_MASK_XC : 0);
+        $this->oDataRegisters->iReg<?= $iReg ?> &= ISize::MASK_INV_WORD;
+        $this->oDataRegisters->iReg<?= $iReg ?> |= ($iValue & ISize::MASK_WORD);
+    } else {
+        $this->iConditionRegister |= (($this->iConditionRegister & IRegister::CCR_EXTEND) >> 4);
+    }
     $this->updateNZWord($iValue);
-    $this->oDataRegisters->iReg<?= $iReg ?> &= ISize::MASK_INV_WORD;
-    $this->oDataRegisters->iReg<?= $iReg ?> |= ($iValue & ISize::MASK_WORD);
 <?php
     break;
 

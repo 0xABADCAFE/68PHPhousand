@@ -316,7 +316,17 @@ trait TShifter
         $this->buildShifterEAHandler(
             IShifter::OP_ROXR_M_W,
             function (int $iOpcode) {
-                // TODO
+                // Memory shifts are word sized, 1 bit at a time
+                $oEAMode = $this->aDstEAModes[$iOpcode & 63];
+                $iValue  = $oEAMode->readWord();
+                $iValue  |= (($this->iConditionRegister & IRegister::CCR_EXTEND) << 12);
+                $this->iConditionRegister &= IRegister::CCR_CLEAR_XCV;
+                $this->iConditionRegister |= (
+                    ($iValue & 0x1) ? IRegister::CCR_MASK_XC : 0
+                );
+                $iValue >>= 1;
+                $this->updateNZWord($iValue);
+                $oEAMode->writeWord($iValue);
             }
         );
 
