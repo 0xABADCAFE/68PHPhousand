@@ -126,4 +126,8 @@ interface IArithmetic
     const OP_TST_W      = 0b0100101001000000;
     const OP_TST_L      = 0b0100101010000000;
 
+    //                          xxx      yyy
+    const OP_ABCD_R     = 0b1100000100000000; // abcd Dx,Dy
+    const OP_ABCD_M     = 0b1100000100001000; // abcd (Ax)-,(Ay)-
+
 }

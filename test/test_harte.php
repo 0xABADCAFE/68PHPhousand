@@ -16,17 +16,19 @@ namespace ABadCafe\G8PHPhousand\Test;
 
 use ABadCafe\G8PHPhousand\TestHarness;
 
+use ABadCafe\G8PHPhousand\Processor\IRegister;
+
+
 require 'bootstrap.php';
 
 $oTomHarte = (new TestHarness\TomHarte('TomHarte/680x0'))
     ->declareBroken('e502 [ASL.b Q, D2] 1583')
-    ->declareBroken('e502 [ASL.b Q, D2] 1761');
+    ->declareBroken('e502 [ASL.b Q, D2] 1761')
+    ->declareUndefinedCCR('ABCD', IRegister::CCR_OVERFLOW);
 
-//print_r($oTomHarte->loadSuite('DIVS')->run());
-//print_r($oTomHarte->loadSuite('ASL.w')->run());
-//print_r($oTomHarte->loadSuite('ASL.l')->run());
-
-//exit;
+print_r($oTomHarte->loadSuite('ABCD')->run());
+//print_r($oTomHarte->loadSuite('Scc')->run());
+exit;
 
 $oTomHarte->runAllExcept(
     [
@@ -36,30 +38,25 @@ $oTomHarte->runAllExcept(
         'ADDX.w',
         'ADDX.l',
         'CHK',
-        'LINK',
         'MOVEM.w',
         'MOVEM.l',
         'MOVEP.w',
         'MOVEP.l',
-        'MOVEtoUSP',
-        'MOVEtoCCR',
-        'MOVEfromSR',
-        'MOVEtoSR',
-        'MOVEfromUSP',
+        'MOVEtoUSP',   // needs supervisor
+        'MOVEfromSR',  // needs supervisor
+        'MOVEtoSR',    // needs supervisor
+        'MOVEfromUSP', // needs supervisors
         'NBCD',
         'NEGX.b',
         'NEGX.w',
         'NEGX.l',
         'RESET',
         'RTE',
-        'RTR',
         'SBCD',
         'SUBX.b',
         'SUBX.w',
         'SUBX.l',
-        'TAS',
         'TRAP',
         'TRAPV',
-        'UNLINK',
     ]
 );

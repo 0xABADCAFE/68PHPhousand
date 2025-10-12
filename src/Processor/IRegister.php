@@ -63,6 +63,7 @@ interface IRegister
     public const CCR_MASK_XC   = 0b00010001;
 
     //                                XNZVC
+    public const CCR_CLEAR_N   = 0b00010111;
     public const CCR_CLEAR_Z   = 0b00011011;
     public const CCR_CLEAR_V   = 0b00011101;
     public const CCR_CLEAR_C   = 0b00011110;
@@ -70,6 +71,7 @@ interface IRegister
     public const CCR_CLEAR_NZ  = 0b00010011;
     public const CCR_CLEAR_CV  = 0b00011100;
     public const CCR_CLEAR_XCV = 0b00001100;
+    public const CCR_CLEAR_XC  = 0b00001110;
 
 
     // SR Bits (upper byte of SR)

@@ -32,12 +32,20 @@ class TomHarte
 
     private array $aDeclaredBroken = [];
 
+    private array $aDeclaredUndefinedCCR = [];
+
     public function __construct(string $sTestDir)
     {
         assert(is_readable($sTestDir) & is_dir($sTestDir), new LogicException());
         $this->sTestDir = $sTestDir;
         $this->oMemory = new Device\Memory\SparseRAM24();
         $this->oCPU    = new CPU($this->oMemory);
+    }
+
+    public function declareUndefinedCCR(string $sSuite, int $iFlags): self
+    {
+        $this->aDeclaredUndefinedCCR[$sSuite] = $iFlags;
+        return $this;
     }
 
     /** @var array<int, stdClass> */
@@ -176,6 +184,7 @@ class TomHarte
                     }
                     //print(json_encode($oTestCase, JSON_PRETTY_PRINT));
                     ob_end_flush();
+
                 }
             } catch (\Throwable $oError) {
                 printf("ERRORED:\n\t%s\n%s\n", $oError->getMessage(), $oError->getTraceAsString());
@@ -288,7 +297,11 @@ class TomHarte
             );
         }
 
-        $iCCR   =  $oTestCase->final->sr & 0xFF;
+        $iCCRMask = isset($this->aDeclaredUndefinedCCR[$this->sSuite]) ?
+            (~$this->aDeclaredUndefinedCCR[$this->sSuite]) & IRegister::CCR_MASK :
+            IRegister::CCR_MASK;
+
+        $iCCR   =  $oTestCase->final->sr & $iCCRMask;
         $iSR    =  $oTestCase->final->sr >> 8;
 
         // Choose the stack pointer depending on the state
@@ -298,7 +311,7 @@ class TomHarte
 
         if (
             ($iExpect = $iCCR) !=
-            ($iHave = $this->oCPU->getRegister('ccr'))
+            ($iHave = ($this->oCPU->getRegister('ccr') & $iCCRMask))
         ) {
             $aFailures[] = sprintf(
                 'CCR mismatch: Expected 0x%02X (%s), got 0x%02X (%s) for test case %s',
@@ -327,7 +340,7 @@ class TomHarte
         }
 
         for ($iReg = 0; $iReg < 7; ++$iReg) {
-            $aRegName = 'a' . $iReg;
+            $sRegName = 'a' . $iReg;
             if (
                 ($iExpect = $oTestCase->final->{$sRegName}) !=
                 ($iHave = $this->oCPU->getRegister($sRegName))
