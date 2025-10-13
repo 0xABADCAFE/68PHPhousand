@@ -25,12 +25,14 @@ interface IFlow
 //     const OP_STOP     = 0b0100111001110010; // exact match
 //     const OP_RTE      = 0b0100111001110011; // exact match
 //     const OP_TRAPV    = 0b0100111001110110; // exact match
-//     const OP_RTR      = 0b0100111001110111; // exact match
 
     //                              EAEAEA
     const OP_JMP      = 0b0100111011000000;
     const OP_JSR      = 0b0100111010000000;
+
     const OP_RTS      = 0b0100111001110101;
+    const OP_RTR      = 0b0100111001110111;
+
     //                            xxxxxxxx
     const OP_BSR      = 0b0110000100000000;
 

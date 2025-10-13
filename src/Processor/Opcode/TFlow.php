@@ -18,6 +18,7 @@ use ABadCafe\G8PHPhousand\Processor;
 use ABadCafe\G8PHPhousand\Processor\ISize;
 use ABadCafe\G8PHPhousand\Processor\IEffectiveAddress;
 use ABadCafe\G8PHPhousand\Processor\IOpcode;
+use ABadCafe\G8PHPhousand\Processor\IRegister;
 
 use LogicException;
 
@@ -35,7 +36,12 @@ trait TFlow
             IPrefix::OP_STOP     => $cUnhandled,
             IPrefix::OP_RTE      => $cUnhandled,
             IPrefix::OP_TRAPV    => $cUnhandled,
-            IPrefix::OP_RTR      => $cUnhandled,
+            IPrefix::OP_RTR      => function (int $iOpcode) {
+                $iSP = &$this->oAddressRegisters->iReg7;
+                $this->iConditionRegister = $this->oOutside->readWord($iSP) & IRegister::CCR_MASK;
+                $this->iProgramCounter    = $this->oOutside->readLong(($iSP + ISize::WORD) & ISize::MASK_LONG);
+                $iSP = ($iSP + 6) & ISize::MASK_LONG;
+            },
         ]);
 
         $this->buildBranchHandlers(IFlow::OP_BSR, 'bsr');

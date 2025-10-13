@@ -25,15 +25,31 @@ trait TArithmetic
 {
     use TOpcode;
 
+    use TExtendedArithmetic;
+
     protected function initArithmeticHandlers()
     {
         $this->buildEXTHandlers();
+        $this->buildCMPMHandlers();
+
+        $aEAModes = [];
+        foreach (IRegister::DATA_REGS as $iSrcReg) {
+            foreach (IRegister::DATA_REGS as $iDstReg) {
+                $aEAModes[] = ($iSrcReg << IOpcode::REG_UP_SHIFT) | $iDstReg;
+            }
+        }
+
+        $this->buildABCDHandlers($aEAModes);
+        $this->buildADDXHandlers($aEAModes);
+        $this->buildSUBXHandlers($aEAModes);
+
 
         $aEAModes = $this->generateForEAModeList(
             IEffectiveAddress::MODE_DATA_ALTERABLE
         );
 
         $this->buildNEGHandlers($aEAModes);
+        $this->buildNEGXHandlers($aEAModes);
 
         $this->buildADDIHandlers($aEAModes);
         $this->buildSUBIHandlers($aEAModes);
@@ -53,7 +69,6 @@ trait TArithmetic
 
         $this->buildCMPHandlers($aEAModes, $aEAAregs);
 
-        $this->buildCMPMHandlers();
 
         $this->buildADDEA2DHandlers($aEAModes, $aEAAregs);
         $this->buildSUBEA2DHandlers($aEAModes, $aEAAregs);
@@ -78,6 +93,87 @@ trait TArithmetic
         $this->buildSUBEA2AHandlers($aEAModes);
 
     }
+
+    private function addBCDBytes(int $iSrc, int $iDst): int
+    {
+        $iLo =
+            ($iSrc & 0xF) +
+            ($iDst & 0xF) +
+            (($this->iConditionRegister & IRegister::CCR_EXTEND) >> 4);
+
+        $this->iConditionRegister &= IRegister::CCR_CLEAR_XCV;
+
+        $iHi = ($iSrc & 0xF0) + ($iDst & 0xF0);
+
+        $iSum = $iHi + $iLo;
+        if ($iLo > 0x9) {
+            $iSum += 0x6; // Carry up
+        }
+        if (($iSum & 0x3F0) > 0x90) {
+            $iSum += 0x60;
+            $this->iConditionRegister |= IRegister::CCR_MASK_XC; // Carry up
+        }
+
+        // Mask off the byte
+        $iSum &= 0xFF;
+
+        // The Z flag should be cleared if the result is nonzero, othherwise unchanged
+        $iZeroMask = IRegister::CCR_CLEAR_Z | ($this->iConditionRegister & IRegister::CCR_ZERO);
+
+        // Documentation says that N and V flags are undefined but microcode
+        // emulation sets the N flag predicably. The V flag does not follow
+        // an obvious pattern though.
+        $this->updateNZByte($iSum);
+        $this->iConditionRegister &= $iZeroMask;
+
+        return $iSum;
+    }
+
+    private function buildABCDHandlers(array $aRegComb)
+    {
+        // ABCD Dy,Dx
+        $cABCDDyDx = function(int $iOpcode) {
+            $iRegX = &$this->oDataRegisters->aIndex[
+                ($iOpcode & IOpcode::MASK_REG_UPPER) >> IOpcode::REG_UP_SHIFT
+            ];
+            $iRegY = $this->oDataRegisters->aIndex[$iOpcode & IOpcode::MASK_EA_REG];
+            $iSum  = $this->addBCDBytes($iRegX, $iRegY);
+
+            $iRegX &= ISize::MASK_INV_BYTE;
+            $iRegX |= $iSum;
+        };
+
+        // ABCD -(Ay),-(Ax)
+        $cABCDAyAx = function (int $iOpcode) {
+
+            $oSrcEA = $this->aSrcEAModes[
+                IOpcode::LSB_EA_AIPD |
+                ($iOpcode & IOpcode::MASK_EA_REG)
+            ];
+            $oDstEA = $this->aDstEAModes[
+                IOpcode::LSB_EA_AIPD |
+                (($iOpcode & IOpcode::MASK_REG_UPPER) >> IOpcode::REG_UP_SHIFT)
+            ];
+
+            $iSrc = $oSrcEA->readByte();
+            $iDst = $oDstEA->readByte();
+
+            $oDstEA->writeByte($this->addBCDBytes($iSrc, $iDst));
+        };
+
+        $aHandlers = [];
+        foreach ($aRegComb as $iRegPair) {
+            $aHandlers[
+                IArithmetic::OP_ABCD_R | $iRegPair
+            ] = $cABCDDyDx;
+            $aHandlers[
+                IArithmetic::OP_ABCD_M | $iRegPair
+            ] = $cABCDAyAx;
+        }
+
+        $this->addExactHandlers($aHandlers);
+    }
+
 
     private function buildEXTHandlers()
     {
@@ -356,7 +452,6 @@ trait TArithmetic
         }
     }
 
-
     private function buildDIVXHandlers(array $aEAModes)
     {
         $cDIVSHandler = function(int $iOpcode) {
@@ -423,7 +518,6 @@ trait TArithmetic
                     $cDIVUHandler
                 )
             );
-
         }
     }
 
@@ -879,6 +973,4 @@ trait TArithmetic
             }
         }
     }
-
-
 }
