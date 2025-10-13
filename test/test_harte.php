@@ -26,17 +26,16 @@ $oTomHarte = (new TestHarness\TomHarte('TomHarte/680x0'))
     ->declareBroken('e502 [ASL.b Q, D2] 1761')
     ->declareUndefinedCCR('ABCD', IRegister::CCR_OVERFLOW);
 
-print_r($oTomHarte->loadSuite('ABCD')->run());
+//print_r($oTomHarte->loadSuite('SUBX.b')->run());
+//print_r($oTomHarte->loadSuite('SUBX.w')->run());
+//print_r($oTomHarte->loadSuite('SUBX.l')->run());
+
 //print_r($oTomHarte->loadSuite('Scc')->run());
-exit;
+//exit;
 
 $oTomHarte->runAllExcept(
     [
         // Not implemented yet
-        'ABCD',
-        'ADDX.b',
-        'ADDX.w',
-        'ADDX.l',
         'CHK',
         'MOVEM.w',
         'MOVEM.l',
@@ -47,15 +46,9 @@ $oTomHarte->runAllExcept(
         'MOVEtoSR',    // needs supervisor
         'MOVEfromUSP', // needs supervisors
         'NBCD',
-        'NEGX.b',
-        'NEGX.w',
-        'NEGX.l',
         'RESET',
         'RTE',
         'SBCD',
-        'SUBX.b',
-        'SUBX.w',
-        'SUBX.l',
         'TRAP',
         'TRAPV',
     ]
