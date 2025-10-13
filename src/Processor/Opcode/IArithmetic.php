@@ -46,6 +46,11 @@ interface IArithmetic
     const OP_NEG_W    = 0b0100010001000000;
     const OP_NEG_L    = 0b0100010010000000;
 
+    //                            ssEAEAEA
+    const OP_NEGX_B   = 0b0100000000000000;
+    const OP_NEGX_W   = 0b0100000001000000;
+    const OP_NEGX_L   = 0b0100000010000000;
+
 
     //                    --------ssEAEAEA
     const OP_SUBI_B   = 0b0000010000000000;
@@ -76,18 +81,28 @@ interface IArithmetic
     const OP_SUBQ_L     = 0b0101000110000000;
 
     //                          dddmmmEAEAEA
-    const OP_ADD_EA2D_B = 0b1101000000000000;
-    const OP_ADD_EA2D_W = 0b1101000001000000;
-    const OP_ADD_EA2D_L = 0b1101000010000000;
+    const OP_ADD_EA2D_B  = 0b1101000000000000;
+    const OP_ADD_EA2D_W  = 0b1101000001000000;
+    const OP_ADD_EA2D_L  = 0b1101000010000000;
 
     //                          dddmmmEAEAEA
-    const OP_ADD_EA2A_W = 0b1101000011000000;
-    const OP_ADD_EA2A_L = 0b1101000111000000;
+    const OP_ADD_EA2A_W  = 0b1101000011000000;
+    const OP_ADD_EA2A_L  = 0b1101000111000000;
 
     //                          dddmmmEAEAEA
-    const OP_ADD_D2EA_B = 0b1101000100000000;
-    const OP_ADD_D2EA_W = 0b1101000101000000;
-    const OP_ADD_D2EA_L = 0b1101000110000000;
+    const OP_ADD_D2EA_B  = 0b1101000100000000;
+    const OP_ADD_D2EA_W  = 0b1101000101000000;
+    const OP_ADD_D2EA_L  = 0b1101000110000000;
+
+    //                           xxx ss  myyy
+    const OP_ADDX_DyDx_B = 0b1101000100000000; // addx.bwl Dy,Dx
+    const OP_ADDX_DyDx_W = 0b1101000101000000; // addx.bwl Dy,Dx
+    const OP_ADDX_DyDx_L = 0b1101000110000000; // addx.bwl Dy,Dx
+
+    const OP_ADDX_AyAx_B = 0b1101000100001000; // addx.bwl -(Ay),-(Ax)
+    const OP_ADDX_AyAx_W = 0b1101000101001000; // addx.bwl -(Ay),-(Ax)
+    const OP_ADDX_AyAx_L = 0b1101000110001000; // addx.bwl -(Ay),-(Ax)
+
 
     //                          dddmmmEAEAEA
     const OP_SUB_EA2D_B = 0b1001000000000000;
@@ -102,6 +117,17 @@ interface IArithmetic
     const OP_SUB_D2EA_B = 0b1001000100000000;
     const OP_SUB_D2EA_W = 0b1001000101000000;
     const OP_SUB_D2EA_L = 0b1001000110000000;
+
+    // Note the reverse ordering of x and y as per the M68000PRM docs
+    //                           yyy ss  mxxx
+    const OP_SUBX_DxDy_B = 0b1001000100000000; // subx.bwl Dx,Dy
+    const OP_SUBX_DxDy_W = 0b1001000101000000; // subx.bwl Dx,Dy
+    const OP_SUBX_DxDy_L = 0b1001000110000000; // subx.bwl Dx,Dy
+
+    const OP_SUBX_AxAy_B = 0b1001000100001000; // subx.bwl -(Ax),-(Ay)
+    const OP_SUBX_AxAy_W = 0b1001000101001000; // subx.bwl -(Ax),-(Ay)
+    const OP_SUBX_AxAy_L = 0b1001000110001000; // subx.bwl -(Ax),-(Ay)
+
 
     //                          rrr111EAEAEA
     const OP_MULS_W     = 0b1100000111000000;

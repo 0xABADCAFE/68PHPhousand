@@ -25,17 +25,31 @@ trait TArithmetic
 {
     use TOpcode;
 
+    use TExtendedArithmetic;
+
     protected function initArithmeticHandlers()
     {
-        $this->buildABCDHandlers();
-
         $this->buildEXTHandlers();
+        $this->buildCMPMHandlers();
+
+        $aEAModes = [];
+        foreach (IRegister::DATA_REGS as $iSrcReg) {
+            foreach (IRegister::DATA_REGS as $iDstReg) {
+                $aEAModes[] = ($iSrcReg << IOpcode::REG_UP_SHIFT) | $iDstReg;
+            }
+        }
+
+        $this->buildABCDHandlers($aEAModes);
+        $this->buildADDXHandlers($aEAModes);
+        $this->buildSUBXHandlers($aEAModes);
+
 
         $aEAModes = $this->generateForEAModeList(
             IEffectiveAddress::MODE_DATA_ALTERABLE
         );
 
         $this->buildNEGHandlers($aEAModes);
+        $this->buildNEGXHandlers($aEAModes);
 
         $this->buildADDIHandlers($aEAModes);
         $this->buildSUBIHandlers($aEAModes);
@@ -55,7 +69,6 @@ trait TArithmetic
 
         $this->buildCMPHandlers($aEAModes, $aEAAregs);
 
-        $this->buildCMPMHandlers();
 
         $this->buildADDEA2DHandlers($aEAModes, $aEAAregs);
         $this->buildSUBEA2DHandlers($aEAModes, $aEAAregs);
@@ -104,36 +117,26 @@ trait TArithmetic
         // Mask off the byte
         $iSum &= 0xFF;
 
-        // The Z flag is only set for a zero result if the Z flag was set before
-        // the addition, so create a mask to keep or clear it later.
+        // The Z flag should be cleared if the result is nonzero, othherwise unchanged
         $iZeroMask = IRegister::CCR_CLEAR_Z | ($this->iConditionRegister & IRegister::CCR_ZERO);
 
         // Documentation says that N and V flags are undefined but microcode
         // emulation sets the N flag predicably. The V flag does not follow
         // an obvious pattern though.
         $this->updateNZByte($iSum);
-
         $this->iConditionRegister &= $iZeroMask;
 
         return $iSum;
     }
 
-    private function buildABCDHandlers()
+    private function buildABCDHandlers(array $aRegComb)
     {
-        $aRegComb = [];
-        foreach (IRegister::DATA_REGS as $iSrcReg) {
-            foreach (IRegister::DATA_REGS as $iDstReg) {
-                $aRegComb[] = ($iSrcReg << IOpcode::REG_UP_SHIFT) | $iDstReg;
-            }
-        }
-
         // ABCD Dy,Dx
         $cABCDDyDx = function(int $iOpcode) {
             $iRegX = &$this->oDataRegisters->aIndex[
                 ($iOpcode & IOpcode::MASK_REG_UPPER) >> IOpcode::REG_UP_SHIFT
             ];
             $iRegY = $this->oDataRegisters->aIndex[$iOpcode & IOpcode::MASK_EA_REG];
-
             $iSum  = $this->addBCDBytes($iRegX, $iRegY);
 
             $iRegX &= ISize::MASK_INV_BYTE;
@@ -142,12 +145,6 @@ trait TArithmetic
 
         // ABCD -(Ay),-(Ax)
         $cABCDAyAx = function (int $iOpcode) {
-
-            printf(
-                ">>>>> ABCD -(a%d),-(a%d)\n",
-                ($iOpcode & IOpcode::MASK_EA_REG),
-                (($iOpcode & IOpcode::MASK_REG_UPPER) >> IOpcode::REG_UP_SHIFT)
-            );
 
             $oSrcEA = $this->aSrcEAModes[
                 IOpcode::LSB_EA_AIPD |
@@ -176,6 +173,7 @@ trait TArithmetic
 
         $this->addExactHandlers($aHandlers);
     }
+
 
     private function buildEXTHandlers()
     {
@@ -454,7 +452,6 @@ trait TArithmetic
         }
     }
 
-
     private function buildDIVXHandlers(array $aEAModes)
     {
         $cDIVSHandler = function(int $iOpcode) {
@@ -521,7 +518,6 @@ trait TArithmetic
                     $cDIVUHandler
                 )
             );
-
         }
     }
 
@@ -977,6 +973,4 @@ trait TArithmetic
             }
         }
     }
-
-
 }
