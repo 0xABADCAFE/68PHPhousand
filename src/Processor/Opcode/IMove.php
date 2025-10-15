@@ -15,7 +15,8 @@ declare(strict_types=1);
 namespace ABadCafe\G8PHPhousand\Processor\Opcode;
 
 use ABadCafe\G8PHPhousand\Processor\IOpcode;
-
+use ABadCafe\G8PHPhousand\Processor\IRegister;
+use ABadCafe\G8PHPhousand\Processor\IEffectiveAddress;
 
 /**
  * Opode prefixes for conditional instructions
@@ -43,6 +44,36 @@ interface IMove
     const OP_MOVEM_R2M_L = 0b0100100011000000;
     const OP_MOVEM_M2R_W = 0b0100110010000000;
     const OP_MOVEM_M2R_L = 0b0100110011000000;
+
+    const OP_MOVEM_R2M_EA = [
+        IEffectiveAddress::MODE_AI   => IRegister::ADDR_REGS, // (aN)
+        IEffectiveAddress::MODE_AIPI => IRegister::ADDR_REGS, // (aN)+
+        IEffectiveAddress::MODE_AIPD => IRegister::ADDR_REGS, // -(aN)
+        IEffectiveAddress::MODE_AID  => IRegister::ADDR_REGS, // d16(aN)
+        IEffectiveAddress::MODE_AII  => IRegister::ADDR_REGS, // d8(xN,aN)
+        IEffectiveAddress::MODE_X    => [
+            IEffectiveAddress::MODE_X_SHORT,                  // (xxx).w
+            IEffectiveAddress::MODE_X_LONG,                   // (xxx).l
+            IEffectiveAddress::MODE_X_PC_D,                   // d16(pc)
+            IEffectiveAddress::MODE_X_PC_X,                   // d8(xN,pc)
+        ]
+    ];
+
+    const OP_MOVEM_M2R_EA = [
+        IEffectiveAddress::MODE_AI   => IRegister::ADDR_REGS, // (aN)
+        IEffectiveAddress::MODE_AIPI => IRegister::ADDR_REGS, // (aN)+
+        IEffectiveAddress::MODE_AIPD => IRegister::ADDR_REGS, // -(aN)
+        IEffectiveAddress::MODE_AID  => IRegister::ADDR_REGS, // d16(aN)
+        IEffectiveAddress::MODE_AII  => IRegister::ADDR_REGS, // d8(xN,aN)
+        IEffectiveAddress::MODE_X    => [
+            IEffectiveAddress::MODE_X_SHORT,                  // (xxx).w
+            IEffectiveAddress::MODE_X_LONG,                   // (xxx).l
+            IEffectiveAddress::MODE_X_PC_D,                   // d16(pc)
+            IEffectiveAddress::MODE_X_PC_X,                   // d8(xN,pc)
+        ]
+    ];
+
+
 
     const OP_MOVE_2_CCR  = 0b0100010011000000;
 

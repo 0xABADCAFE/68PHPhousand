@@ -41,6 +41,7 @@ trait TMove
         $this->buildMOVEHandlers();
         $this->buildMOVEAHandlers();
         $this->buildMOVEQHandlers();
+        $this->buildMOVEMHandlers();
         $this->buildSWAPHandlers();
         $this->buildEXGHandlers();
         $this->buildSCCHandlers(IMove::OP_ST,  'st');
@@ -73,6 +74,64 @@ trait TMove
         foreach ($this->aDstEAModes as $iMode => $oEAMode) {
             $this->aMoveDstEAModes[$this->aEAToDstEAMap[$iMode]] = $oEAMode;
         }
+    }
+
+
+    private function buildMOVEMHandlers()
+    {
+        // MOVEM.wl <list>,<ea>
+        $aEAList = $this->generateForEAModeList(IMove::OP_MOVEM_R2M_EA);
+        $this->addExactHandlers(
+            array_fill_keys(
+                $this->mergePrefixForModeList(
+                    IMove::OP_MOVEM_R2M_W,
+                    $aEAList
+                ),
+                function(int $iOpcode) {
+
+                }
+            )
+        );
+
+        $this->addExactHandlers(
+            array_fill_keys(
+                $this->mergePrefixForModeList(
+                    IMove::OP_MOVEM_R2M_L,
+                    $aEAList
+                ),
+                function(int $iOpcode) {
+
+                }
+            )
+        );
+
+        // MOVEM.wl <ea>,<list>
+        $aEAList = $this->generateForEAModeList(IMove::OP_MOVEM_M2R_EA);
+        $this->addExactHandlers(
+            array_fill_keys(
+                $this->mergePrefixForModeList(
+                    IMove::OP_MOVEM_M2R_W,
+                    $aEAList
+                ),
+                function(int $iOpcode) {
+
+                }
+            )
+        );
+
+        $this->addExactHandlers(
+            array_fill_keys(
+                $this->mergePrefixForModeList(
+                    IMove::OP_MOVEM_M2R_L,
+                    $aEAList
+                ),
+                function(int $iOpcode) {
+
+                }
+            )
+        );
+
+
     }
 
     private function buildMoveSpecialHandlers()
