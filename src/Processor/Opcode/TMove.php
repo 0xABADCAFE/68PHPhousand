@@ -80,7 +80,7 @@ trait TMove
     private function buildMOVEMHandlers()
     {
         // MOVEM.wl <list>,<ea>
-        $aEAList = $this->generateForEAModeList(IMove::OP_MOVEM_R2M_EA);
+        $aEAList = $this->generateForEAModeList(IMove::OP_MOVEM_R2M_BASE_EA);
         $this->addExactHandlers(
             array_fill_keys(
                 $this->mergePrefixForModeList(
@@ -88,10 +88,12 @@ trait TMove
                     $aEAList
                 ),
                 function(int $iOpcode) {
-
+                    $iMask = $this->oOutside->readWord($this->iProgramCounter);
+                    $this->iPrgramCounter += ISize::WORD;
                 }
             )
         );
+
 
         $this->addExactHandlers(
             array_fill_keys(
@@ -100,13 +102,31 @@ trait TMove
                     $aEAList
                 ),
                 function(int $iOpcode) {
+                    $iMask = $this->oOutside->readWord($this->iProgramCounter);
+                    $this->iProgramCounter += ISize::WORD;
+                    $iAddress = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]->getAddress();
+
+                    for ($i = 0; $i < 8; ++$i) {
+                        if ($iMask & (1 << $i)) {
+                            $this->oOutside->writeLong($iAddress, $this->oDataRegisters->aIndex[$i]);
+                            $iAddress += ISize::LONG;
+                        }
+                    }
+                    for ($i = 0; $i < 8; ++$i) {
+                        if ($iMask & (256 << $i)) {
+                            $this->oOutside->writeLong($iAddress, $this->oAddressRegisters->aIndex[$i]);
+                            $iAddress += ISize::LONG;
+                        }
+                    }
+
+                    echo ">>>>>>> DONE Reg To Mem\n";
 
                 }
             )
         );
 
         // MOVEM.wl <ea>,<list>
-        $aEAList = $this->generateForEAModeList(IMove::OP_MOVEM_M2R_EA);
+        $aEAList = $this->generateForEAModeList(IMove::OP_MOVEM_M2R_BASE_EA);
         $this->addExactHandlers(
             array_fill_keys(
                 $this->mergePrefixForModeList(
@@ -114,7 +134,8 @@ trait TMove
                     $aEAList
                 ),
                 function(int $iOpcode) {
-
+                    $iMask = $this->oOutside->readWord($this->iProgramCounter);
+                    $this->iPrgramCounter += ISize::WORD;
                 }
             )
         );
@@ -126,7 +147,24 @@ trait TMove
                     $aEAList
                 ),
                 function(int $iOpcode) {
+                    $iMask = $this->oOutside->readWord($this->iProgramCounter);
+                    $this->iProgramCounter += ISize::WORD;
+                    $iAddress = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]->getAddress();
 
+                    for ($i = 0; $i < 8; ++$i) {
+                        if ($iMask & (1 << $i)) {
+                            $this->oDataRegisters->aIndex[$i] = $this->oOutside->readLong($iAddress);
+                            $iAddress += ISize::LONG;
+                        }
+                    }
+                    for ($i = 0; $i < 8; ++$i) {
+                        if ($iMask & (256 << $i)) {
+                            $this->oAddressRegisters->aIndex[$i] = $this->oOutside->readLong($iAddress);
+                            $iAddress += ISize::LONG;
+                        }
+                    }
+
+                    echo ">>>>>>> DONE Mem To Reg\n";
                 }
             )
         );

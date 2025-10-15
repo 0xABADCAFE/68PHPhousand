@@ -22,12 +22,19 @@ use ValueError;
 
 require 'bootstrap.php';
 
-const BASE_ADDRESS = 0x4;
+const BASE_ADDRESS = 0x400;
 
 $oObjectCode = (new TestHarness\Assembler\Vasmm68k())->assemble('
-    move.b #127,d0
-    move.b #-2,d1
-    cmp.b d0,d1
+    movem.l d0/d2/d4/d6,$1234(a0)
+
+    nop
+
+    movem.l d0/d2/d4/d6,($1234).w
+
+    nop
+;    move.b #127,d0
+;    move.b #-2,d1
+;    cmp.b d0,d1
     stop #0
 data:
     dc.l $ABADCAFE

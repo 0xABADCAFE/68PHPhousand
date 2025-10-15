@@ -45,10 +45,23 @@ interface IMove
     const OP_MOVEM_M2R_W = 0b0100110010000000;
     const OP_MOVEM_M2R_L = 0b0100110011000000;
 
-    const OP_MOVEM_R2M_EA = [
+    // Effective address families for MOVEM operations
+    const OP_MOVEM_R2M_BASE_EA = [
         IEffectiveAddress::MODE_AI   => IRegister::ADDR_REGS, // (aN)
-        IEffectiveAddress::MODE_AIPI => IRegister::ADDR_REGS, // (aN)+
+        IEffectiveAddress::MODE_AID  => IRegister::ADDR_REGS, // d16(aN)
+        IEffectiveAddress::MODE_AII  => IRegister::ADDR_REGS, // d8(xN,aN)
+        IEffectiveAddress::MODE_X    => [
+            IEffectiveAddress::MODE_X_SHORT,                  // (xxx).w
+            IEffectiveAddress::MODE_X_LONG,                   // (xxx).l
+        ]
+    ];
+
+    const OP_MOVEM_R2M_PREDEC_EA = [
         IEffectiveAddress::MODE_AIPD => IRegister::ADDR_REGS, // -(aN)
+    ];
+
+    const OP_MOVEM_M2R_BASE_EA = [
+        IEffectiveAddress::MODE_AI   => IRegister::ADDR_REGS, // (aN)
         IEffectiveAddress::MODE_AID  => IRegister::ADDR_REGS, // d16(aN)
         IEffectiveAddress::MODE_AII  => IRegister::ADDR_REGS, // d8(xN,aN)
         IEffectiveAddress::MODE_X    => [
@@ -59,20 +72,9 @@ interface IMove
         ]
     ];
 
-    const OP_MOVEM_M2R_EA = [
-        IEffectiveAddress::MODE_AI   => IRegister::ADDR_REGS, // (aN)
+    const OP_MOVEM_M2R_POSTINC_EA = [
         IEffectiveAddress::MODE_AIPI => IRegister::ADDR_REGS, // (aN)+
-        IEffectiveAddress::MODE_AIPD => IRegister::ADDR_REGS, // -(aN)
-        IEffectiveAddress::MODE_AID  => IRegister::ADDR_REGS, // d16(aN)
-        IEffectiveAddress::MODE_AII  => IRegister::ADDR_REGS, // d8(xN,aN)
-        IEffectiveAddress::MODE_X    => [
-            IEffectiveAddress::MODE_X_SHORT,                  // (xxx).w
-            IEffectiveAddress::MODE_X_LONG,                   // (xxx).l
-            IEffectiveAddress::MODE_X_PC_D,                   // d16(pc)
-            IEffectiveAddress::MODE_X_PC_X,                   // d8(xN,pc)
-        ]
     ];
-
 
 
     const OP_MOVE_2_CCR  = 0b0100010011000000;
