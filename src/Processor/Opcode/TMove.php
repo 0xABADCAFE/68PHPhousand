@@ -42,6 +42,7 @@ trait TMove
         $this->buildMOVEAHandlers();
         $this->buildMOVEQHandlers();
         $this->buildMOVEMHandlers();
+        $this->buildMOVEPHandlers();
         $this->buildSWAPHandlers();
         $this->buildEXGHandlers();
         $this->buildSCCHandlers(IMove::OP_ST,  'st');
@@ -79,7 +80,7 @@ trait TMove
 
     private function buildMOVEMHandlers()
     {
-        // MOVEM.wl <list>,<ea>
+        // MOVEM.w #<list>,<ea>
         $aEAList = $this->generateForEAModeList(IMove::OP_MOVEM_R2M_BASE_EA);
         $this->addExactHandlers(
             array_fill_keys(
@@ -89,12 +90,25 @@ trait TMove
                 ),
                 function(int $iOpcode) {
                     $iMask = $this->oOutside->readWord($this->iProgramCounter);
-                    $this->iPrgramCounter += ISize::WORD;
+                    $this->iProgramCounter += ISize::WORD;
+                    $iAddress = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]->getAddress();
+                    for ($i = 0; $i < 8; ++$i) {
+                        if ($iMask & (1 << $i)) {
+                            $this->oOutside->writeWord($iAddress, $this->oDataRegisters->aIndex[$i]);
+                            $iAddress += ISize::WORD;
+                        }
+                    }
+                    for ($i = 0; $i < 8; ++$i) {
+                        if ($iMask & (256 << $i)) {
+                            $this->oOutside->writeWord($iAddress, $this->oAddressRegisters->aIndex[$i]);
+                            $iAddress += ISize::WORD;
+                        }
+                    }
                 }
             )
         );
 
-
+        // MOVEM.l #<list>,<ea>
         $this->addExactHandlers(
             array_fill_keys(
                 $this->mergePrefixForModeList(
@@ -105,7 +119,6 @@ trait TMove
                     $iMask = $this->oOutside->readWord($this->iProgramCounter);
                     $this->iProgramCounter += ISize::WORD;
                     $iAddress = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]->getAddress();
-
                     for ($i = 0; $i < 8; ++$i) {
                         if ($iMask & (1 << $i)) {
                             $this->oOutside->writeLong($iAddress, $this->oDataRegisters->aIndex[$i]);
@@ -118,14 +131,82 @@ trait TMove
                             $iAddress += ISize::LONG;
                         }
                     }
-
-                    echo ">>>>>>> DONE Reg To Mem\n";
-
                 }
             )
         );
 
-        // MOVEM.wl <ea>,<list>
+        $aEAList = $this->generateForEAModeList(IMove::OP_MOVEM_R2M_PREDEC_EA);
+
+        /**
+         * MOVEM.w #<list>,-(aX)
+         *
+         * Reg to Mem, Predecrement mode is special
+         */
+        $this->addExactHandlers(
+            array_fill_keys(
+                $this->mergePrefixForModeList(
+                    IMove::OP_MOVEM_R2M_W,
+                    $aEAList
+                ),
+                function(int $iOpcode) {
+                    $iMask = $this->oOutside->readWord($this->iProgramCounter);
+                    $this->iProgramCounter += ISize::WORD;
+                    $iAddress = $this->oAddressRegisters->aIndex[$iOpcode & IOpcode::MASK_EA_REG];
+                    for ($i = 0; $i < 8; ++$i) {
+                        if ($iMask & (1 << $i)) {
+                            $iAddress -= ISize::WORD;
+                            $this->oOutside->writeWord($iAddress, $this->oAddressRegisters->aIndex[7-$i]);
+                        }
+                    }
+                    for ($i = 0; $i < 8; ++$i) {
+                        if ($iMask & (256 << $i)) {
+                            $iAddress -= ISize::WORD;
+                            $this->oOutside->writeWord($iAddress, $this->oDataRegisters->aIndex[7-$i]);
+                        }
+                    }
+
+                    // Update the decremented register last
+                    $this->oAddressRegisters->aIndex[$iOpcode & IOpcode::MASK_EA_REG] = $iAddress & ISize::MASK_LONG;
+                }
+            )
+        );
+
+        /**
+         * MOVEM.l #<list>,-(aX)
+         *
+         * Reg to Mem, Predecrement mode is special
+         */
+        $this->addExactHandlers(
+            array_fill_keys(
+                $this->mergePrefixForModeList(
+                    IMove::OP_MOVEM_R2M_L,
+                    $aEAList
+                ),
+                function(int $iOpcode) {
+                    $iMask = $this->oOutside->readWord($this->iProgramCounter);
+                    $this->iProgramCounter += ISize::WORD;
+                    $iAddress = $this->oAddressRegisters->aIndex[$iOpcode & IOpcode::MASK_EA_REG];
+                    for ($i = 0; $i < 8; ++$i) {
+                        if ($iMask & (1 << $i)) {
+                            $iAddress -= ISize::LONG;
+                            $this->oOutside->writeLong($iAddress, $this->oAddressRegisters->aIndex[7-$i]);
+                        }
+                    }
+                    for ($i = 0; $i < 8; ++$i) {
+                        if ($iMask & (256 << $i)) {
+                            $iAddress -= ISize::LONG;
+                            $this->oOutside->writeLong($iAddress, $this->oDataRegisters->aIndex[7-$i]);
+                        }
+                    }
+
+                    // Update the decremented register last
+                    $this->oAddressRegisters->aIndex[$iOpcode & IOpcode::MASK_EA_REG] = $iAddress & ISize::MASK_LONG;
+                }
+            )
+        );
+
+
+        // MOVEM.w <ea>,#<list> - words sign extended to 32 bits
         $aEAList = $this->generateForEAModeList(IMove::OP_MOVEM_M2R_BASE_EA);
         $this->addExactHandlers(
             array_fill_keys(
@@ -135,11 +216,26 @@ trait TMove
                 ),
                 function(int $iOpcode) {
                     $iMask = $this->oOutside->readWord($this->iProgramCounter);
-                    $this->iPrgramCounter += ISize::WORD;
+                    $this->iProgramCounter += ISize::WORD;
+                    $iAddress = $this->aSrcEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]->getAddress();
+
+                    for ($i = 0; $i < 8; ++$i) {
+                        if ($iMask & (1 << $i)) {
+                            $this->oDataRegisters->aIndex[$i] = ISize::MASK_LONG & Sign::extWord($this->oOutside->readWord($iAddress));
+                            $iAddress += ISize::WORD;
+                        }
+                    }
+                    for ($i = 0; $i < 8; ++$i) {
+                        if ($iMask & (256 << $i)) {
+                            $this->oAddressRegisters->aIndex[$i] = ISize::MASK_LONG & Sign::extWord($this->oOutside->readWord($iAddress));
+                            $iAddress += ISize::WORD;
+                        }
+                    }
                 }
             )
         );
 
+        // MOVEM.l <ea>,#<list>
         $this->addExactHandlers(
             array_fill_keys(
                 $this->mergePrefixForModeList(
@@ -149,7 +245,7 @@ trait TMove
                 function(int $iOpcode) {
                     $iMask = $this->oOutside->readWord($this->iProgramCounter);
                     $this->iProgramCounter += ISize::WORD;
-                    $iAddress = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]->getAddress();
+                    $iAddress = $this->aSrcEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]->getAddress();
 
                     for ($i = 0; $i < 8; ++$i) {
                         if ($iMask & (1 << $i)) {
@@ -163,12 +259,156 @@ trait TMove
                             $iAddress += ISize::LONG;
                         }
                     }
-
-                    echo ">>>>>>> DONE Mem To Reg\n";
                 }
             )
         );
 
+        $aEAList = $this->generateForEAModeList(IMove::OP_MOVEM_M2R_POSTINC_EA);
+
+        /**
+         * MOVEM.w (aX)+,#<list>
+         *
+         * Reg to Mem, Predecrement mode is special
+         */
+        $this->addExactHandlers(
+            array_fill_keys(
+                $this->mergePrefixForModeList(
+                    IMove::OP_MOVEM_M2R_W,
+                    $aEAList
+                ),
+                function(int $iOpcode) {
+                    $iMask = $this->oOutside->readWord($this->iProgramCounter);
+                    $this->iProgramCounter += ISize::WORD;
+                    $iAddress = $this->oAddressRegisters->aIndex[$iOpcode & IOpcode::MASK_EA_REG];
+                    for ($i = 0; $i < 8; ++$i) {
+                        if ($iMask & (1 << $i)) {
+                            $this->oDataRegisters->aIndex[$i] = ISize::MASK_LONG & Sign::extWord($this->oOutside->readWord($iAddress));
+                            $iAddress += ISize::WORD;
+                        }
+                    }
+                    for ($i = 0; $i < 8; ++$i) {
+                        if ($iMask & (256 << $i)) {
+                            $this->oAddressRegisters->aIndex[$i] = ISize::MASK_LONG & Sign::extWord($this->oOutside->readWord($iAddress));
+                            $iAddress += ISize::WORD;
+                        }
+                    }
+
+                    // Update the decremented register last
+                    $this->oAddressRegisters->aIndex[$iOpcode & IOpcode::MASK_EA_REG] = $iAddress & ISize::MASK_LONG;
+                }
+            )
+        );
+
+        /**
+         * MOVEM.l (aX)+,#<list>
+         *
+         * Reg to Mem, Predecrement mode is special
+         */
+        $this->addExactHandlers(
+            array_fill_keys(
+                $this->mergePrefixForModeList(
+                    IMove::OP_MOVEM_M2R_L,
+                    $aEAList
+                ),
+                function(int $iOpcode) {
+                    $iMask = $this->oOutside->readWord($this->iProgramCounter);
+                    $this->iProgramCounter += ISize::WORD;
+                    $iAddress = $this->oAddressRegisters->aIndex[$iOpcode & IOpcode::MASK_EA_REG];
+                    for ($i = 0; $i < 8; ++$i) {
+                        if ($iMask & (1 << $i)) {
+                            $this->oDataRegisters->aIndex[$i] = $this->oOutside->readLong($iAddress);
+                            $iAddress += ISize::LONG;
+                        }
+                    }
+                    for ($i = 0; $i < 8; ++$i) {
+                        if ($iMask & (256 << $i)) {
+                            $this->oAddressRegisters->aIndex[$i] = $this->oOutside->readLong($iAddress);
+                            $iAddress += ISize::LONG;
+                        }
+                    }
+
+                    // Update the decremented register last
+                    $this->oAddressRegisters->aIndex[$iOpcode & IOpcode::MASK_EA_REG] = $iAddress & ISize::MASK_LONG;
+                }
+            )
+        );
+
+    }
+
+    private function buildMOVEPHandlers()
+    {
+        $aOperandList = [];
+        foreach (IRegister::DATA_REGS as $iDReg) {
+            foreach (IRegister::DATA_REGS as $iAReg) {
+                $aOperandList[] = ($iDReg << IOpcode::REG_UP_SHIFT) | $iAReg;
+            }
+        }
+        $this->addExactHandlers(
+            array_fill_keys(
+                $this->mergePrefixForModeList(
+                    IMove::OP_MOVEP_M2R_W,
+                    $aOperandList
+                ),
+                function(int $iOpcode) {
+                    // TODO MOVEP.w d16(Ay),Dx
+                    $iAddress = $this->aSrcEAModes[IOpcode::LSB_EA_AD|($iOpcode & IOpcode::MASK_EA_REG)]->getAddress();
+                    $iDReg    = &$this->oDataRegisters->aIndex[$iOpcode & IOpcode::MASK_REG_UPPER];
+                    $iWord    = $this->oOutside->readByte($iAddress) << 8 | $this->oOutside->readByte($iAddress + 2);
+                    $iDReg   &= ISize::MASK_INV_WORD;
+                    $iDReg   |= $iWord;
+                }
+            )
+        );
+        $this->addExactHandlers(
+            array_fill_keys(
+                $this->mergePrefixForModeList(
+                    IMove::OP_MOVEP_M2R_L,
+                    $aOperandList
+                ),
+                function(int $iOpcode) {
+                    // TODO MOVEP.l d16(Ay),Dx
+                    $iAddress = $this->aSrcEAModes[IOpcode::LSB_EA_AD|($iOpcode & IOpcode::MASK_EA_REG)]->getAddress();
+                    $iDReg    = &$this->oDataRegisters->aIndex[$iOpcode & IOpcode::MASK_REG_UPPER];
+                    $iDReg    = $this->oOutside->readByte($iAddress) << 24 |
+                        $this->oOutside->readByte($iAddress + 2) << 16 |
+                        $this->oOutside->readByte($iAddress + 4) << 8 |
+                        $this->oOutside->readByte($iAddress + 6);
+                }
+            )
+        );
+        $this->addExactHandlers(
+            array_fill_keys(
+                $this->mergePrefixForModeList(
+                    IMove::OP_MOVEP_R2M_W,
+                    $aOperandList
+                ),
+                function(int $iOpcode) {
+                    // TODO MOVEP.w Dx,d16(Ay)
+                    $iAddress = $this->aDstEAModes[IOpcode::LSB_EA_AD|($iOpcode & IOpcode::MASK_EA_REG)]->getAddress();
+                    $iWord    = $this->oDataRegisters->aIndex[$iOpcode & IOpcode::MASK_REG_UPPER];
+                    $this->oOutside->writeByte($iAddress, $iWord >> 8);
+                    $this->oOutside->writeByte($iAddress + 2, $iWord & ISize::MASK_BYTE);
+                }
+            )
+        );
+        $this->addExactHandlers(
+            array_fill_keys(
+                $this->mergePrefixForModeList(
+                    IMove::OP_MOVEP_R2M_L,
+                    $aOperandList
+                ),
+                function(int $iOpcode) {
+                    // TODO MOVEP.l Dx,d16(Ay)
+                    $iAddress = $this->aDstEAModes[IOpcode::LSB_EA_AD|($iOpcode & IOpcode::MASK_EA_REG)]->getAddress();
+                    $iWord    = $this->oDataRegisters->aIndex[$iOpcode & IOpcode::MASK_REG_UPPER];
+                    $this->oOutside->writeByte($iAddress, $iWord >> 24);
+                    $this->oOutside->writeByte($iAddress + 2, $iWord >> 16);
+                    $this->oOutside->writeByte($iAddress + 4, $iWord >> 8);
+                    $this->oOutside->writeByte($iAddress + 6, $iWord);
+
+                }
+            )
+        );
 
     }
 

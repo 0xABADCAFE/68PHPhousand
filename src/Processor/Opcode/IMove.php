@@ -76,6 +76,12 @@ interface IMove
         IEffectiveAddress::MODE_AIPI => IRegister::ADDR_REGS, // (aN)+
     ];
 
+    //                       0000xxxmmm001yyy
+    const OP_MOVEP_M2R_W = 0b0000000100001000; // movep.w d16(aY),dX
+    const OP_MOVEP_M2R_L = 0b0000000101001000; // movep.l d16(aY),dX
+    const OP_MOVEP_R2M_W = 0b0000000110001000; // movep.w dX,d16(aY)
+    const OP_MOVEP_R2M_L = 0b0000000111001000; // movep.l dX,d16(aY)
+
 
     const OP_MOVE_2_CCR  = 0b0100010011000000;
 
