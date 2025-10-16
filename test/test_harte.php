@@ -24,10 +24,12 @@ require 'bootstrap.php';
 $oTomHarte = (new TestHarness\TomHarte('TomHarte/680x0'))
     ->declareBroken('e502 [ASL.b Q, D2] 1583')
     ->declareBroken('e502 [ASL.b Q, D2] 1761')
-    ->declareUndefinedCCR('ABCD', IRegister::CCR_OVERFLOW);
+    ->declareUndefinedCCR('ABCD', IRegister::CCR_OVERFLOW)
+    ->declareUndefinedCCR('NBCD', IRegister::CCR_OVERFLOW)
+    ->declareUndefinedCCR('SBCD', IRegister::CCR_OVERFLOW);
+;
 
-//print_r($oTomHarte->loadSuite('MOVEP.w')->run());
-//print_r($oTomHarte->loadSuite('MOVEP.l')->run());
+//print_r($oTomHarte->loadSuite('SBCD')->run());
 //exit;
 
 $oTomHarte->runAllExcept(
@@ -38,10 +40,8 @@ $oTomHarte->runAllExcept(
         'MOVEfromSR',  // needs supervisor
         'MOVEtoSR',    // needs supervisor
         'MOVEfromUSP', // needs supervisors
-        'NBCD',
         'RESET',
         'RTE',
-        'SBCD',
         'TRAP',
         'TRAPV',
     ]

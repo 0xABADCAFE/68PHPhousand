@@ -42,6 +42,7 @@ trait TArithmetic
         }
 
         $this->buildABCDHandlers($aEAModes);
+        $this->buildSBCDHandlers($aEAModes);
         $this->buildADDXHandlers($aEAModes);
         $this->buildSUBXHandlers($aEAModes);
 
@@ -50,8 +51,10 @@ trait TArithmetic
             IEffectiveAddress::MODE_DATA_ALTERABLE
         );
 
+
         $this->buildNEGHandlers($aEAModes);
         $this->buildNEGXHandlers($aEAModes);
+        $this->buildNBCDHandlers($aEAModes);
 
         $this->buildADDIHandlers($aEAModes);
         $this->buildSUBIHandlers($aEAModes);
