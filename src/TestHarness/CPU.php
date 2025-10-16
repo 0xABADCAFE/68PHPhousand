@@ -109,7 +109,8 @@ class CPU extends Processor\Base
         );
 
         for ($i = 7; $i >=0 ; --$i) {
-            $oSourceInfo = $oObjectCode ?? $oObjectCode->aSourceMap[$iProgramCounter] ?? null;
+            $oSourceInfo = $oObjectCode->aSourceMap[$iProgramCounter] ?? null;
+
             printf(
                 "\td%d [0x%08X] %11d %6d %4d | a%d [0x%08X] | SP: %+3d [0x%08X] 0x%04X | PC: %+3d [0x%08X] 0x%04X %s %s\n",
                 $i,

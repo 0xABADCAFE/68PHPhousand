@@ -18,44 +18,41 @@ if (0 === $iImmediate) {
 return function(int $iOpcode): void {
     $oEAMode = $this->aDstEAModes[$iOpcode & 63];
 <?php
+if ($oParams->oAdditional->bAddressTarget) {
+?>
+    $iDst = $oEAMode->readLong();
+    $iRes = $iDst - <?= $iImmediate ?>;
+    $oEAMode->writeLong($iRes);
+<?php
+} else {
 
-switch ($iSize) {
-    case IOpcode::OP_SIZE_B:
+    switch ($iSize) {
+        case IOpcode::OP_SIZE_B:
 ?>
     $iDst = $oEAMode->readByte();
     $iRes = $iDst - <?= $iImmediate ?>;
     $this->updateCCRMathByte(<?= $iImmediate ?>, $iDst, $iRes, false);
     $oEAMode->writeByte($iRes);
 <?php
-        break;
-    case IOpcode::OP_SIZE_W:
+            break;
+        case IOpcode::OP_SIZE_W:
 ?>
     $iDst = $oEAMode->readWord();
     $iRes = $iDst - <?= $iImmediate ?>;
-<?php
-    if (!$oParams->oAdditional->bNoCCR) {
-?>
     $this->updateCCRMathWord(<?= $iImmediate ?>, $iDst, $iRes, false);
-<?php
-    }
-?>
     $oEAMode->writeWord($iRes);
 <?php
-        break;
-    case IOpcode::OP_SIZE_L:
+            break;
+        case IOpcode::OP_SIZE_L:
 ?>
     $iDst = $oEAMode->readLong();
     $iRes = $iDst - <?= $iImmediate ?>;
-<?php
-    if (!$oParams->oAdditional->bNoCCR) {
-?>
     $this->updateCCRMathLong(<?= $iImmediate ?>, $iDst, $iRes, false);
-<?php
-    }
-?>
     $oEAMode->writeLong($iRes);
 <?php
-        break;
+            break;
+    }
+
 }
 
 

@@ -108,19 +108,19 @@ interface IEffectiveAddress
     ];
 
     const MODE_ALL = [
-        self::MODE_D    => IRegister::DATA_REGS,
-        self::MODE_A    => IRegister::ADDR_REGS,
-        self::MODE_AI   => IRegister::ADDR_REGS,
-        self::MODE_AIPI => IRegister::ADDR_REGS,
-        self::MODE_AIPD => IRegister::ADDR_REGS,
-        self::MODE_AID  => IRegister::ADDR_REGS,
-        self::MODE_AII  => IRegister::ADDR_REGS,
+        self::MODE_D    => IRegister::DATA_REGS, // dN
+        self::MODE_A    => IRegister::ADDR_REGS, // aN
+        self::MODE_AI   => IRegister::ADDR_REGS, // (aN)
+        self::MODE_AIPI => IRegister::ADDR_REGS, // (aN)+
+        self::MODE_AIPD => IRegister::ADDR_REGS, // -(aN)
+        self::MODE_AID  => IRegister::ADDR_REGS, // d16(aN)
+        self::MODE_AII  => IRegister::ADDR_REGS, // d8(xN,aN)
         self::MODE_X    => [
-            self::MODE_X_SHORT,
-            self::MODE_X_LONG,
-            self::MODE_X_PC_D,
-            self::MODE_X_PC_X,
-            self::MODE_X_IMM
+            self::MODE_X_SHORT,                  // (xxx).w
+            self::MODE_X_LONG,                   // (xxx).l
+            self::MODE_X_PC_D,                   // d16(pc)
+            self::MODE_X_PC_X,                   // d8(xN,pc)
+            self::MODE_X_IMM                     // #<data>
         ]
     ];
 
