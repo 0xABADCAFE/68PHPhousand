@@ -350,7 +350,6 @@ trait TMove
                     $aOperandList
                 ),
                 function(int $iOpcode) {
-                    // TODO MOVEP.w d16(Ay),Dx
                     $iAddress = $this->aSrcEAModes[IOpcode::LSB_EA_AD|($iOpcode & IOpcode::MASK_EA_REG)]->getAddress();
                     $iDReg    = &$this->oDataRegisters->aIndex[$iOpcode & IOpcode::MASK_REG_UPPER];
                     $iWord    = $this->oOutside->readByte($iAddress) << 8 | $this->oOutside->readByte($iAddress + 2);
@@ -366,7 +365,6 @@ trait TMove
                     $aOperandList
                 ),
                 function(int $iOpcode) {
-                    // TODO MOVEP.l d16(Ay),Dx
                     $iAddress = $this->aSrcEAModes[IOpcode::LSB_EA_AD|($iOpcode & IOpcode::MASK_EA_REG)]->getAddress();
                     $iDReg    = &$this->oDataRegisters->aIndex[$iOpcode & IOpcode::MASK_REG_UPPER];
                     $iDReg    = $this->oOutside->readByte($iAddress) << 24 |
@@ -383,7 +381,6 @@ trait TMove
                     $aOperandList
                 ),
                 function(int $iOpcode) {
-                    // TODO MOVEP.w Dx,d16(Ay)
                     $iAddress = $this->aDstEAModes[IOpcode::LSB_EA_AD|($iOpcode & IOpcode::MASK_EA_REG)]->getAddress();
                     $iWord    = $this->oDataRegisters->aIndex[$iOpcode & IOpcode::MASK_REG_UPPER];
                     $this->oOutside->writeByte($iAddress, $iWord >> 8);
@@ -398,7 +395,6 @@ trait TMove
                     $aOperandList
                 ),
                 function(int $iOpcode) {
-                    // TODO MOVEP.l Dx,d16(Ay)
                     $iAddress = $this->aDstEAModes[IOpcode::LSB_EA_AD|($iOpcode & IOpcode::MASK_EA_REG)]->getAddress();
                     $iWord    = $this->oDataRegisters->aIndex[$iOpcode & IOpcode::MASK_REG_UPPER];
                     $this->oOutside->writeByte($iAddress, $iWord >> 24);
@@ -409,7 +405,6 @@ trait TMove
                 }
             )
         );
-
     }
 
     private function buildMoveSpecialHandlers()
