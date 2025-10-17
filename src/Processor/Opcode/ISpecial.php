@@ -42,4 +42,8 @@ interface ISpecial
     const OP_LINK     = 0b0100111001010000;
     //                                 AAA
     const OP_UNLK     = 0b0100111001011000;
+
+    // TODO - probably need to be in a different location
+    const MASK_TRAP_NUM = 0xF; // 0-15
+    const TRAP_USER_OFS = 32;  // 32-47
 }

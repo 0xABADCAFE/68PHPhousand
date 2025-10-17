@@ -120,10 +120,28 @@ trait TSpecial
                     ISpecial::OP_TRAP|15
                 ),
                 function (int $iOpcode) {
-                    $iVector = 32 + ($iOpcode & 0xF);
+                    $iVector = ISpecial::TRAP_USER_OFS + ($iOpcode & ISpecial::MASK_TRAP_NUM);
 
-                    printf("TRAP => VECTOR %d\n", $iVector);
+                    $this->syncSupervisorState();
 
+                    // a7 is now SSP
+                    $this->oAddressRegisters->iReg7 -= ISize::LONG;
+                    $this->oOutside->writeLong(
+                        $this->oAddressRegisters->iReg7,
+                        $this->iProgramCounter
+                    );
+
+                    $this->oAddressRegisters->iReg7 -= ISize::WORD;
+                    $this->oOutside->writeWord(
+                        $this->oAddressRegisters->iReg7,
+                        ($this->iStatusRegister << 8) |
+                        ($this->iConditionRegister)
+                    );
+
+                    // Jump!
+                    $this->iProgramCounter = $this->oOutside->readLong(
+                        $this->iVectorBaseRegister + ($iVector << 2)
+                    );
                 }
             )
         );
