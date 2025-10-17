@@ -88,5 +88,39 @@ abstract class Base implements I68KProcessor, IOpcode, Opcode\IPrefix
         return $this;
     }
 
+    /**
+     * Helper function for helping transitioning into supervisor state.
+     *
+     * If we are in the user state, current a7 is saved to the usp and is then reloaded from
+     * the ssp. Otherwise, current a7 is synced to the ssp.
+     *
+     * The status register is not modified.
+     */
+    protected function syncSupervisorState()
+    {
+        if ($this->iStatusRegister & IRegister::SR_MASK_SUPER) {
+            $this->iSupervisorStackPtrRegister = $this->oAddressRegisters->iReg7;
+        } else {
+            $this->iUserStackPtrRegister = $this->oAddressRegisters->iReg7;
+            $this->oAddressRegisters->iReg7 = $this->iSupervisorStackPtrRegister;
+        }
+    }
 
+    /**
+     * Helper function for helping transitioning into user state.
+     *
+     * If we are in the supervisor state, current a7 is saved to the ssp and is then reloaded from
+     * the usp. Otherwise, current a7 is synced to the usp.
+     *
+     * The status register is not modified.
+     */
+    protected function syncUserState()
+    {
+        if ($this->iStatusRegister & IRegister::SR_MASK_SUPER) {
+            $this->iSupervisorStackPtrRegister = $this->oAddressRegisters->iReg7;
+            $this->oAddressRegisters->iReg7 = $this->iUserStackPtrRegister;
+        } else {
+            $this->iUserStackPtrRegister = $this->oAddressRegisters->iReg7;
+        }
+    }
 }

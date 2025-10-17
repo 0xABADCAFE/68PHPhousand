@@ -18,15 +18,21 @@ use LogicException;
 use ValueError;
 
 /**
+ * Main Register unit
  */
 trait TRegisterUnit
 {
-    protected int $iProgramCounter    = 0;
-    protected int $iStatusRegister    = 0;
-    protected int $iConditionRegister = 0;
-
+    // User regs
+    protected int $iProgramCounter     = 0;
+    protected int $iConditionRegister  = 0;
+    protected DataRegisterSet    $oDataRegisters;
     protected AddressRegisterSet $oAddressRegisters;
-    protected DataRegisterSet $oDataRegisters;
+
+    // Supervisor regs
+    protected int $iStatusRegister             = 0;
+    protected int $iUserStackPtrRegister       = 0;
+    protected int $iSupervisorStackPtrRegister = 0;
+    protected int $iVectorBaseRegister         = 0; // 68010+
 
     protected array $aRegisterNames = [];
 
@@ -68,6 +74,10 @@ trait TRegisterUnit
         $this->aRegisterNames[IRegister::PC_NAME]  = &$this->iProgramCounter;
         $this->aRegisterNames[IRegister::SR_NAME]  = &$this->iStatusRegister;
         $this->aRegisterNames[IRegister::CCR_NAME] = &$this->iConditionRegister;
+        $this->aRegisterNames[IRegister::USP_NAME] = &$this->iUserStackPtrRegister;
+        $this->aRegisterNames[IRegister::SSP_NAME] = &$this->iSupervisorStackPtrRegister;
+        $this->aRegisterNames[IRegister::VBR_NAME] = &$this->iVectorBaseRegister;
+
         foreach (IRegister::ADDR_NAMES as $iIndex => $sName) {
             $this->aRegisterNames[$sName] = &$this->oAddressRegisters->aIndex[$iIndex];
         }
@@ -78,9 +88,12 @@ trait TRegisterUnit
 
     protected function registerReset(): void
     {
-        $this->iProgramCounter = 0;
-        $this->iStatusRegister = 0;
-        $this->iConditionRegister = 0;
+        $this->iProgramCounter             = 0;
+        $this->iStatusRegister             = 0;
+        $this->iConditionRegister          = 0;
+        $this->iUserStackPtrRegister       = 0;
+        $this->iSupervisorStackPtrRegister = 0;
+        $this->iVectorBaseRegister         = 0; // 68010+
         $this->oAddressRegisters->reset();
         $this->oDataRegisters->reset();
     }

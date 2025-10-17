@@ -29,6 +29,8 @@ trait TSpecial
 
     protected function initSpecialHandlers()
     {
+        $this->addTRAPHandlers();
+
         $cUnhandled = function(int $iOpcode) {
             throw new LogicException(sprintf('Unhandled special operation 0x%4X (TODO)', $iOpcode));
         };
@@ -104,6 +106,24 @@ trait TSpecial
                         $iSP += ISize::LONG;
                         $iSP &= ISize::MASK_LONG;
                     }
+                }
+            )
+        );
+    }
+
+    private function addTRAPHandlers()
+    {
+        $this->addExactHandlers(
+            array_fill_keys(
+                range(
+                    ISpecial::OP_TRAP|0,
+                    ISpecial::OP_TRAP|15
+                ),
+                function (int $iOpcode) {
+                    $iVector = 32 + ($iOpcode & 0xF);
+
+                    printf("TRAP => VECTOR %d\n", $iVector);
+
                 }
             )
         );

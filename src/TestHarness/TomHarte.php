@@ -151,7 +151,7 @@ class TomHarte
                 ++$iSkipped;
                 continue;
             }
-            if ($this->usesVectorTable($oTestCase)) {
+            if (false && $this->usesVectorTable($oTestCase)) {
                 printf(
                     "Skipping %s - requires exception vector\n",
                     $oTestCase->name
@@ -277,6 +277,9 @@ class TomHarte
         $this->oCPU->setRegister('a5',  $oTestCase->initial->a5);
         $this->oCPU->setRegister('a6',  $oTestCase->initial->a6);
         $this->oCPU->setRegister('a7',  $iStack);
+        $this->oCPU->setRegister('usp', $oTestCase->initial->usp);
+        $this->oCPU->setRegister('ssp', $oTestCase->initial->ssp);
+
     }
 
     public function checkTestResult(stdClass $oTestCase): array

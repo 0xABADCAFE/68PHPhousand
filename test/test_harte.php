@@ -29,8 +29,8 @@ $oTomHarte = (new TestHarness\TomHarte('TomHarte/680x0'))
     ->declareUndefinedCCR('SBCD', IRegister::CCR_OVERFLOW);
 ;
 
-//print_r($oTomHarte->loadSuite('SBCD')->run());
-//exit;
+print_r($oTomHarte->loadSuite('TRAP')->run());
+exit;
 
 $oTomHarte->runAllExcept(
     [
