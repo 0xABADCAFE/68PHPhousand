@@ -29,6 +29,8 @@ trait TSpecial
 
     protected function initSpecialHandlers()
     {
+        $this->addTRAPHandlers();
+
         $cUnhandled = function(int $iOpcode) {
             throw new LogicException(sprintf('Unhandled special operation 0x%4X (TODO)', $iOpcode));
         };
@@ -104,6 +106,42 @@ trait TSpecial
                         $iSP += ISize::LONG;
                         $iSP &= ISize::MASK_LONG;
                     }
+                }
+            )
+        );
+    }
+
+    private function addTRAPHandlers()
+    {
+        $this->addExactHandlers(
+            array_fill_keys(
+                range(
+                    ISpecial::OP_TRAP|0,
+                    ISpecial::OP_TRAP|15
+                ),
+                function (int $iOpcode) {
+                    $iVector = ISpecial::TRAP_USER_OFS + ($iOpcode & ISpecial::MASK_TRAP_NUM);
+
+                    $this->syncSupervisorState();
+
+                    // a7 is now SSP
+                    $this->oAddressRegisters->iReg7 -= ISize::LONG;
+                    $this->oOutside->writeLong(
+                        $this->oAddressRegisters->iReg7,
+                        $this->iProgramCounter
+                    );
+
+                    $this->oAddressRegisters->iReg7 -= ISize::WORD;
+                    $this->oOutside->writeWord(
+                        $this->oAddressRegisters->iReg7,
+                        ($this->iStatusRegister << 8) |
+                        ($this->iConditionRegister)
+                    );
+
+                    // Jump!
+                    $this->iProgramCounter = $this->oOutside->readLong(
+                        $this->iVectorBaseRegister + ($iVector << 2)
+                    );
                 }
             )
         );

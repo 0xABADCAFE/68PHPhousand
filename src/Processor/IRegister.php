@@ -104,5 +104,8 @@ interface IRegister
     public const PC_NAME  = 'pc';
     public const SR_NAME  = 'sr';
     public const CCR_NAME = 'ccr';
+    public const USP_NAME = 'usp';
+    public const SSP_NAME = 'ssp';
+    public const VBR_NAME = 'vbr'; // 010+
 }
 
