@@ -80,6 +80,12 @@ trait TArithmetic
         $this->buildMULXHandlers($aEAModes);
         $this->buildDIVXHandlers($aEAModes);
 
+        // 68020+ 32-bit multiply/divide
+        if ($this->iProcessorModel >= IProcessorModel::MC68020) {
+            $this->build32BitMULHandlers($aEAModes);
+            $this->build32BitDIVHandlers($aEAModes);
+        }
+
         $aEAModes = $this->generateForEAModeList(
             IEffectiveAddress::MODE_MEM_ALTERABLE
         );
@@ -723,6 +729,172 @@ trait TArithmetic
                     )
                 );
             }
+        }
+    }
+
+    /**
+     * MULS.L / MULU.L (68020+)
+     * 32×32→32 or 32×32→64 multiply
+     */
+    private function build32BitMULHandlers(array $aEAModes)
+    {
+        $cMUL32Handler = function(int $iOpcode) {
+            // Read extension word
+            $iExtWord = $this->oOutside->readWord($this->iProgramCounter);
+            $this->iProgramCounter += ISize::WORD;
+
+            // Parse extension word
+            $iDl = ($iExtWord >> 12) & 0x7;     // Result register (low)
+            $iDh = $iExtWord & 0x7;              // High register (for 64-bit)
+            $bSigned = 0 === ($iExtWord & 0x0800); // Bit 11: 0=signed, 1=unsigned
+            $b64Bit = 0 !== ($iExtWord & 0x0400);  // Bit 10: 0=32-bit, 1=64-bit
+
+            // Get EA value
+            $oEAMode = $this->aSrcEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
+            $iMultiplicand = $oEAMode->readLong();
+
+            // Get multiplicand from Dl
+            $iMultiplier = $this->oDataRegisters->aIndex[$iDl];
+
+            // Perform multiplication
+            if ($bSigned) {
+                // Signed multiply
+                $iMultiplicand = Sign::extLong($iMultiplicand);
+                $iMultiplier = Sign::extLong($iMultiplier);
+            }
+
+            // PHP int is 64-bit on 64-bit platforms
+            $iProduct = $iMultiplicand * $iMultiplier;
+
+            if ($b64Bit) {
+                // Store 64-bit result in Dh:Dl
+                $this->oDataRegisters->aIndex[$iDh] = ($iProduct >> 32) & 0xFFFFFFFF;
+                $this->oDataRegisters->aIndex[$iDl] = $iProduct & 0xFFFFFFFF;
+
+                // Condition codes for 64-bit result
+                $this->iConditionRegister &= IRegister::CCR_CLEAR_NV | IRegister::CCR_CLEAR_C;
+                if ($iProduct < 0) {
+                    $this->iConditionRegister |= IRegister::CCR_NEGATIVE;
+                }
+                if ($iProduct === 0) {
+                    $this->iConditionRegister |= IRegister::CCR_ZERO;
+                }
+                // V always clear for 64-bit multiply
+                // C always clear
+            } else {
+                // Store 32-bit result in Dl only
+                $iResult32 = $iProduct & 0xFFFFFFFF;
+                $this->oDataRegisters->aIndex[$iDl] = $iResult32;
+
+                // Check overflow - result doesn't fit in 32 bits
+                $bOverflow = false;
+                if ($bSigned) {
+                    $bOverflow = ($iProduct > 0x7FFFFFFF) || ($iProduct < -0x80000000);
+                } else {
+                    $bOverflow = ($iProduct > 0xFFFFFFFF) || ($iProduct < 0);
+                }
+
+                $this->updateNZLong($iResult32);
+                $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
+                if ($bOverflow) {
+                    $this->iConditionRegister |= IRegister::CCR_OVERFLOW;
+                }
+                // C always clear
+            }
+
+            return 43; // Approximate cycle count
+        };
+
+        // Add handler for all EA modes
+        foreach ($aEAModes as $iEAMode) {
+            $iFullOpcode = IArithmetic::OP_MUL_L | $iEAMode;
+            $this->aExactHandler[$iFullOpcode] = $cMUL32Handler;
+        }
+    }
+
+    /**
+     * DIVS.L / DIVU.L (68020+)
+     * 32÷32→32 or 64÷32→32 divide
+     */
+    private function build32BitDIVHandlers(array $aEAModes)
+    {
+        $cDIV32Handler = function(int $iOpcode) {
+            // Read extension word
+            $iExtWord = $this->oOutside->readWord($this->iProgramCounter);
+            $this->iProgramCounter += ISize::WORD;
+
+            // Parse extension word
+            $iDq = ($iExtWord >> 12) & 0x7;     // Quotient register
+            $iDr = $iExtWord & 0x7;              // Remainder register
+            $bSigned = 0 === ($iExtWord & 0x0800); // Bit 11: 0=signed, 1=unsigned
+            $b64Bit = 0 !== ($iExtWord & 0x0400);  // Bit 10: 0=32-bit dividend, 1=64-bit dividend
+
+            // Get divisor from EA
+            $oEAMode = $this->aSrcEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
+            $iDivisor = $oEAMode->readLong();
+
+            // Check for divide by zero
+            if ($iDivisor === 0) {
+                throw new LogicException('Divide by zero');
+            }
+
+            if ($bSigned) {
+                $iDivisor = Sign::extLong($iDivisor);
+            }
+
+            // Get dividend
+            if ($b64Bit) {
+                // 64-bit dividend from Dr:Dq
+                $iDividendHigh = $this->oDataRegisters->aIndex[$iDr];
+                $iDividendLow = $this->oDataRegisters->aIndex[$iDq];
+
+                if ($bSigned) {
+                    $iDividendHigh = Sign::extLong($iDividendHigh);
+                }
+
+                $iDividend = ($iDividendHigh << 32) | $iDividendLow;
+            } else {
+                // 32-bit dividend from Dq only
+                $iDividend = $this->oDataRegisters->aIndex[$iDq];
+                if ($bSigned) {
+                    $iDividend = Sign::extLong($iDividend);
+                }
+            }
+
+            // Perform division
+            $iQuotient = (int)($iDividend / $iDivisor);
+            $iRemainder = $iDividend % $iDivisor;
+
+            // Check for overflow - quotient doesn't fit in 32 bits
+            $bOverflow = false;
+            if ($bSigned) {
+                $bOverflow = ($iQuotient > 0x7FFFFFFF) || ($iQuotient < -0x80000000);
+            } else {
+                $bOverflow = ($iQuotient > 0xFFFFFFFF) || ($iQuotient < 0);
+            }
+
+            if ($bOverflow) {
+                // Set overflow flag, don't update registers
+                $this->iConditionRegister &= IRegister::CCR_CLEAR_NC | IRegister::CCR_CLEAR_Z;
+                $this->iConditionRegister |= IRegister::CCR_OVERFLOW;
+            } else {
+                // Store results
+                $this->oDataRegisters->aIndex[$iDq] = $iQuotient & 0xFFFFFFFF;
+                $this->oDataRegisters->aIndex[$iDr] = $iRemainder & 0xFFFFFFFF;
+
+                // Update condition codes based on quotient
+                $this->updateNZLong($iQuotient & 0xFFFFFFFF);
+                $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
+                // V clear, C clear
+            }
+
+            return 90; // Approximate cycle count
+        };
+
+        // Add handler for all EA modes
+        foreach ($aEAModes as $iEAMode) {
+            $iFullOpcode = IArithmetic::OP_DIV_L | $iEAMode;
+            $this->aExactHandler[$iFullOpcode] = $cDIV32Handler;
         }
     }
 }

@@ -141,6 +141,11 @@ interface IArithmetic
     //                          rrr011EAEAEA
     const OP_DIVU_W     = 0b1000000011000000;
 
+    // 68020+ 32-bit multiply/divide
+    //                          ------EAEAEA (uses extension word)
+    const OP_MUL_L      = 0b0100110000000000; // MULS.L/MULU.L <ea>,Dl (or Dh:Dl)
+    const OP_DIV_L      = 0b0100110001000000; // DIVS.L/DIVU.L <ea>,Dr:Dq
+
 
     //                      0100100mmm000rrr
     const OP_EXT_W      = 0b0100100010000000;

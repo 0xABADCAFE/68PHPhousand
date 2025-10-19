@@ -51,12 +51,26 @@
 
 ---
 
-### ✅ Phase 4: Enhanced Arithmetic (PARTIAL)
-**Status**: EXTB.L verified, 32-bit MUL/DIV noted for future
+### ✅ Phase 4: Enhanced Arithmetic (COMPLETE)
+**Status**: All 68020 arithmetic instructions implemented
 
 **Changes**:
 - Verified EXTB.L (byte to long sign extension) already implemented in ext.tpl.php template
 - Existing EXT.W and EXT.L work correctly
+- Added IArithmetic::OP_MUL_L (0x4C00) and OP_DIV_L (0x4C40) opcodes
+- Implemented `build32BitMULHandlers()` in TArithmetic
+  - Extension word parsing for register selection
+  - Signed/unsigned flag (bit 11)
+  - 32-bit vs 64-bit result selection (bit 10)
+  - Overflow detection for 32-bit results
+  - Proper condition code handling
+- Implemented `build32BitDIVHandlers()` in TArithmetic
+  - 32-bit or 64-bit dividend support
+  - Quotient and remainder register selection
+  - Divide-by-zero exception
+  - Overflow detection
+  - Signed/unsigned division
+- Integrated into initArithmeticHandlers() for 68020+ processors
 
 **What Works**:
 - EXT.W (byte → word sign extension)
@@ -64,12 +78,12 @@
 - EXTB.L (byte → long sign extension) - 68020 specific
 - MULS.W, MULU.W (16-bit multiply)
 - DIVS.W, DIVU.W (16-bit divide)
+- **MULS.L** (32×32→32 and 32×32→64) - NEW
+- **MULU.L** (unsigned 32-bit multiply) - NEW
+- **DIVS.L** (32÷32→32 and 64÷32→32 with remainder) - NEW
+- **DIVU.L** (unsigned 32-bit divide) - NEW
 
-**Not Yet Implemented**:
-- MULS.L (32×32→32 and 32×32→64)
-- MULU.L (unsigned 32-bit multiply)
-- DIVS.L (64÷32→32 with remainder)
-- DIVU.L (unsigned 64÷32→32)
+**Verification**: ✓ Passed test_memory.php
 
 ---
 
@@ -105,18 +119,6 @@
 - VBR-based exception vectoring (deferred to Phase 11)
 
 **Verification**: ✓ Passed test_memory.php, test_eamodes.php
-
----
-
-### Phase 4: Enhanced Arithmetic (INCOMPLETE)
-**Estimated**: ~300 LOC remaining
-
-**Needs**:
-- 32-bit multiply handlers (MULS.L, MULU.L)
-- 32-bit divide handlers (DIVS.L, DIVU.L)
-- Extension word parsing for register selection
-- 64-bit result handling for multiply
-- Overflow detection for divide
 
 ---
 
