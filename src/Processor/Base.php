@@ -38,6 +38,7 @@ abstract class Base implements I68KProcessor, IOpcode, Opcode\IPrefix
     use Opcode\TShifter;
     use Opcode\TFlow;
     use Opcode\TSpecial;
+    use Opcode\TControlRegister;
 
     public function __construct(
         Device\IBus $oOutside,
@@ -72,6 +73,12 @@ abstract class Base implements I68KProcessor, IOpcode, Opcode\IPrefix
         $this->initShifterHandlers();
         $this->initFlowHandlers();
         $this->initSpecialHandlers();
+
+        // Install 68010+ handlers if applicable
+        if ($iProcessorModel >= IProcessorModel::MC68010) {
+            $this->initControlRegisterHandlers();
+        }
+
         $this->clearCompilerCache();
 
         $fElapsed = microtime(true) - $fMark;
