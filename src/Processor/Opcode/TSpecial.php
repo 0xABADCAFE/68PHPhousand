@@ -107,5 +107,34 @@ trait TSpecial
                 }
             )
         );
+
+        // 68020+ Module operations (stubbed - rarely used, removed in 68030+)
+        if ($this->iProcessorModel >= IProcessorModel::MC68020) {
+            // CALLM stub - complex module call descriptor, rarely used
+            $aCtrlModes = $this->generateForEAModeList(IEffectiveAddress::MODE_CONTROL);
+            $this->addExactHandlers(
+                array_fill_keys(
+                    $this->mergePrefixForModeList(ISpecial::OP_CALLM, $aCtrlModes),
+                    function(int $iOpcode) {
+                        throw new LogicException(
+                            sprintf('CALLM instruction not implemented (opcode $%04X)', $iOpcode)
+                        );
+                    }
+                )
+            );
+
+            // RTM stub - return from module
+            $this->addExactHandlers(
+                array_fill_keys(
+                    range(ISpecial::OP_RTM, ISpecial::OP_RTM | 0xF),
+                    function(int $iOpcode) {
+                        $iReg = $iOpcode & 0xF;
+                        throw new LogicException(
+                            sprintf('RTM instruction not implemented (register %d)', $iReg)
+                        );
+                    }
+                )
+            );
+        }
     }
 }

@@ -38,4 +38,9 @@ interface ISpecial
     const OP_LINK     = 0b0100111001010000;
     //                                 AAA
     const OP_UNLK     = 0b0100111001011000;
+
+    // 68020 Module operations (removed in 68030+, rarely used)
+    //                            EAEAEA
+    const OP_CALLM    = 0b0000011011000000;  // CALLM #<data>,<ea>
+    const OP_RTM      = 0b0000011011000000;  // RTM Rn (uses bits 0-3 for register)
 }

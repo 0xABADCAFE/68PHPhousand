@@ -226,13 +226,19 @@
 
 ---
 
-### Phase 10: CALLM/RTM (NOT STARTED)
-**Estimated**: ~100 LOC (stub)
+### ✅ Phase 10: CALLM/RTM (COMPLETE - Stubbed)
+**Status**: Stubbed with informative exceptions
 
-**Recommendation**: Stub with "Unimplemented" exception
-- Rarely used, removed in 68030+
-- Complex module descriptor format
-- Can implement later if needed
+**Changes**:
+- Added ISpecial::OP_CALLM and OP_RTM opcodes (0x06C0)
+- Implemented stubs in TSpecial for 68020+ processors
+- CALLM throws exception with opcode information
+- RTM throws exception with register number
+- Handlers registered for all valid EA modes/registers
+
+**Rationale**: CALLM/RTM were rarely used and removed in 68030+. Complex module descriptor format not worth implementing for an emulator focused on common use cases.
+
+**Verification**: ✓ Passed test_memory.php
 
 ---
 
