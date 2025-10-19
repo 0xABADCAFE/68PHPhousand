@@ -27,18 +27,22 @@ class TomHarte
     private string $sTestDir;
     private string $sSuite;
 
-    private Device\IMemory $oMemory;
+    private Device\IBus $oMemory;
     private CPU $oCPU;
+
+
+    private bool $bSkipSupervisorChange = true;
+    private bool $bSkipExceptionCases   = true;
 
     private array $aDeclaredBroken = [];
 
     private array $aDeclaredUndefinedCCR = [];
 
-    public function __construct(string $sTestDir)
+    public function __construct(string $sTestDir, ?Device\IBus $oMemory = null)
     {
         assert(is_readable($sTestDir) & is_dir($sTestDir), new LogicException());
         $this->sTestDir = $sTestDir;
-        $this->oMemory = new Device\Memory\SparseRAM24();
+        $this->oMemory = $oMemory ?? new SparseRAM24();
         $this->oCPU    = new CPU($this->oMemory);
     }
 
@@ -122,6 +126,31 @@ class TomHarte
         return $this;
     }
 
+    public function includeSupervisorStateChangeCases(): self
+    {
+        $this->bSkipSupervisorChange = false;
+        return $this;
+    }
+
+    public function includeExceptionCases(): self
+    {
+        $this->bSkipExceptionCases = false;
+        return $this;
+    }
+
+    public function excludeSupervisorStateChangeCases(): self
+    {
+        $this->bSkipSupervisorChange = true;
+        return $this;
+    }
+
+    public function excludeExceptionCases(): self
+    {
+        $this->bSkipExceptionCases = false;
+        return $this;
+    }
+
+
     public function run(): stdClass
     {
         $iErrored   = 0;
@@ -143,7 +172,7 @@ class TomHarte
 
             }
 
-            if ($this->changesSupervisorState($oTestCase)){
+            if ($this->bSkipSupervisorChange && $this->changesSupervisorState($oTestCase)){
                 printf(
                     "Skipping %s - triggers supervisor state change\n",
                     $oTestCase->name
@@ -151,7 +180,7 @@ class TomHarte
                 ++$iSkipped;
                 continue;
             }
-            if (false && $this->usesVectorTable($oTestCase)) {
+            if ($this->bSkipExceptionCases && $this->usesVectorTable($oTestCase)) {
                 printf(
                     "Skipping %s - requires exception vector\n",
                     $oTestCase->name

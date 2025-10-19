@@ -54,8 +54,8 @@ class CPU extends Processor\Base
         $iOpcode = $this->oOutside->readWord($this->iProgramCounter);
         $this->iProgramCounter += Processor\ISize::WORD;
 
+
         $cHandler = $this->aExactHandler[$iOpcode] ??
-            $this->aPrefixHandler[$iOpcode & Processor\IOpcode::MASK_OP_PREFIX] ??
             throw new LogicException(
                 sprintf(
                     'Unhandled Opcode 0x%04X [%s]',
@@ -64,7 +64,16 @@ class CPU extends Processor\Base
                 )
             );
 
-        $cHandler($iOpcode);
+        try {
+            $cHandler($iOpcode);
+        }
+        catch (Processor\Fault\MisalignedRead $oReadFault) {
+            // TODO
+            throw new LogicException('Intercepted misaligned read from ' . $oReadFault->iAddress);
+        } catch (Processor\Fault\MisalignedWrite $oWriteFault) {
+            // TODO
+            throw new LogicException('Intercepted misaligned write to ' . $oWriteFault->iAddress);
+        }
     }
 
     public function executeTimed(int $iAddress): \stdClass

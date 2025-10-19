@@ -30,10 +30,11 @@ const CLASS_MAP = [
   'ABadCafe\\G8PHPhousand\\Device\\IByteConv' => '/Device/IByteConv.php',
   'ABadCafe\\G8PHPhousand\\Device\\IReadable' => '/Device/IReadable.php',
   'ABadCafe\\G8PHPhousand\\Device\\PageMap' => '/Device/PageMap.php',
+  'ABadCafe\\G8PHPhousand\\Device\\Adapter\\Address24Bit' => '/Device/Adapter/Address24Bit.php',
+  'ABadCafe\\G8PHPhousand\\Device\\Adapter\\WordAligned' => '/Device/Adapter/WordAligned.php',
   'ABadCafe\\G8PHPhousand\\Device\\Memory\\BinaryRAM' => '/Device/Memory/BinaryRAM.php',
   'ABadCafe\\G8PHPhousand\\Device\\Memory\\SparseWordRAM' => '/Device/Memory/SparseWordRAM.php',
   'ABadCafe\\G8PHPhousand\\Device\\Memory\\SparseRAM' => '/Device/Memory/SparseRAM.php',
-  'ABadCafe\\G8PHPhousand\\Device\\Memory\\SparseRAM24' => '/Device/Memory/SparseRAM24.php',
   'ABadCafe\\G8PHPhousand\\Device\\Memory\\IDiagnostic' => '/Device/Memory/IDiagnostic.php',
   'ABadCafe\\G8PHPhousand\\Device\\Memory\\CodeROM' => '/Device/Memory/CodeROM.php',
   'ABadCafe\\G8PHPhousand\\TestHarness\\CPU' => '/TestHarness/CPU.php',
@@ -102,6 +103,9 @@ const CLASS_MAP = [
   'ABadCafe\\G8PHPhousand\\Processor\\Opcode\\TSpecial' => '/Processor/Opcode/TSpecial.php',
   'ABadCafe\\G8PHPhousand\\Processor\\Opcode\\Template\\Params' => '/Processor/Opcode/Template/Params.php',
   'ABadCafe\\G8PHPhousand\\Processor\\Opcode\\Template\\TGenerator' => '/Processor/Opcode/Template/TGenerator.php',
+  'ABadCafe\\G8PHPhousand\\Processor\\Fault\\MisalignedRead' => '/Processor/Fault/MisalignedRead.php',
+  'ABadCafe\\G8PHPhousand\\Processor\\Fault\\MisalignedAccess' => '/Processor/Fault/MisalignedAccess.php',
+  'ABadCafe\\G8PHPhousand\\Processor\\Fault\\MisalignedWrite' => '/Processor/Fault/MisalignedWrite.php',
 ];
 
 const PROJ_SRC_BASE = __DIR__;
