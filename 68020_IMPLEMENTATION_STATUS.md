@@ -201,14 +201,36 @@
 
 ---
 
-### Phase 8: Bounds Checking (NOT STARTED)
-**Estimated**: ~200 LOC
+### ✅ Phase 8: Bounds Checking (COMPLETE)
+**Status**: All bounds checking instructions implemented
 
-**Needs**:
-- CHK2 instruction (trap if out of bounds)
-- CMP2 instruction (compare against bounds)
-- Support for byte, word, long sizes
-- Exception generation for CHK2
+**Changes**:
+- Created `Processor\Opcode\IBounds` interface with OP_CHK2_CMP2 opcode (0x00C0)
+- Created `Processor\Opcode\TBounds` trait
+  - `initBoundsHandlers()` method for 68020+ processors
+  - `executeCHK2CMP2()` method for unified CHK2/CMP2 handling
+- Extension word parsing:
+  - Register selection (D0-D7, A0-A7)
+  - Size selection (byte, word, long)
+  - CHK2 vs CMP2 differentiation (bit 11)
+- CHK2 implementation:
+  - Reads two consecutive values from memory (lower bound, upper bound)
+  - Compares register value against bounds
+  - Generates exception if out of bounds (CHK exception, vector 6)
+  - Sets Z flag if equal to either bound
+  - Sets C flag if out of bounds
+- CMP2 implementation:
+  - Same comparison logic as CHK2
+  - Sets condition codes (Z, C) but no exception
+- Support for byte, word, long sizes with proper sign extension
+- Uses control addressing modes for bounds location
+- Integrated into Base.php for 68020+ processors
+
+**What Works**:
+- **CHK2.B/W/L <ea>,Rn** - Check register against bounds with exception
+- **CMP2.B/W/L <ea>,Rn** - Compare register against bounds (condition codes only)
+
+**Verification**: ✓ Passed test_memory.php, test_eamodes.php
 
 ---
 

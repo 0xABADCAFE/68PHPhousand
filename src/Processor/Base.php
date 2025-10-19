@@ -40,6 +40,7 @@ abstract class Base implements I68KProcessor, IOpcode, Opcode\IPrefix
     use Opcode\TSpecial;
     use Opcode\TControlRegister;
     use Opcode\TAtomic;
+    use Opcode\TBounds;
     use Opcode\TCoprocessor;
 
     public function __construct(
@@ -84,6 +85,7 @@ abstract class Base implements I68KProcessor, IOpcode, Opcode\IPrefix
         // Install 68020+ handlers if applicable
         if ($iProcessorModel >= IProcessorModel::MC68020) {
             $this->initAtomicHandlers();
+            $this->initBoundsHandlers();
             $this->initCoprocessorHandlers();
         }
 
