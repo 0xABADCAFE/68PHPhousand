@@ -21,9 +21,11 @@ use LogicException;
 
 class CPU extends Processor\Base
 {
-    public function __construct(Device\IBus $oOutside)
-    {
-        parent::__construct($oOutside, false);
+    public function __construct(
+        Device\IBus $oOutside,
+        int $iProcessorModel = Processor\IProcessorModel::MC68000
+    ) {
+        parent::__construct($oOutside, false, $iProcessorModel);
     }
 
     public function getName(): string

@@ -21,9 +21,13 @@ use LogicException;
 
 class CachedCPU extends CPU
 {
-    public function __construct(Device\IBus $oOutside)
-    {
-        parent __construct($oOutside, true);
+    public function __construct(
+        Device\IBus $oOutside,
+        int $iProcessorModel = Processor\IProcessorModel::MC68000
+    ) {
+        // CachedCPU doesn't actually use cache parameter anymore since it extends CPU
+        // Just pass through the model
+        parent::__construct($oOutside, $iProcessorModel);
     }
 
     public function getName(): string

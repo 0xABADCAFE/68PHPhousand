@@ -39,9 +39,17 @@ abstract class Base implements I68KProcessor, IOpcode, Opcode\IPrefix
     use Opcode\TFlow;
     use Opcode\TSpecial;
 
-    public function __construct(Device\IBus $oOutside, bool $bCache = false)
-    {
+    public function __construct(
+        Device\IBus $oOutside,
+        bool $bCache = false,
+        int $iProcessorModel = IProcessorModel::MC68000
+    ) {
         $this->oOutside  = $oOutside;
+        $this->iProcessorModel = $iProcessorModel;
+        $this->iAddressMask = IProcessorModel::ADDRESS_MASK[$iProcessorModel];
+
+        echo "Initializing ", IProcessorModel::NAMES[$iProcessorModel], " emulator\n";
+
         $this->initRegIndexes();
         $this->initEAModes();
 

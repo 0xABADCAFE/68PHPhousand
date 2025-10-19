@@ -30,6 +30,10 @@ trait TRegisterUnit
 
     protected array $aRegisterNames = [];
 
+    // Processor model and address mask
+    protected int $iProcessorModel = IProcessorModel::MC68000;
+    protected int $iAddressMask = 0x00FFFFFF; // Default to 68000's 24-bit
+
     public function getPC(): int
     {
         return $this->iProgramCounter;
@@ -38,8 +42,18 @@ trait TRegisterUnit
     public function setPC(int $iAddress): self
     {
         assert(0 === ($iAddress & 1), new LogicException('Misaligned PC'));
-        $this->iProgramCounter = $iAddress & 0xFFFFFFFF;
+        $this->iProgramCounter = $iAddress & $this->iAddressMask;
         return $this;
+    }
+
+    public function getModel(): int
+    {
+        return $this->iProcessorModel;
+    }
+
+    public function getModelName(): string
+    {
+        return IProcessorModel::NAMES[$this->iProcessorModel];
     }
 
     public function getRegister(string $sRegName): int
