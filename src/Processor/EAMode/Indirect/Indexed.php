@@ -48,19 +48,32 @@ class Indexed extends Basic
         $iExtension = $this->oOutside->readWord($this->iProgramCounter);
         $this->iProgramCounter += ISize::WORD;
 
-        // Get the value in the index register
-        $iIndex = ($this->aIndexRegisters[$iExtension & IOpcode::BXW_IDX_REG]);
+        if (Processor\ExtensionWord::isBriefFormat($iExtension)) {
+            // Brief format (68000/68020 compatible)
+            // Get the value in the index register
+            $iIndex = ($this->aIndexRegisters[$iExtension & IOpcode::BXW_IDX_REG]);
 
-        // If the size bit is clear, the index is a signed word, otherwise signed long.
-        // There is no scale applied (020+ only)
-        if (!($iExtension & IOpcode::BXW_IDX_SIZE)) {
-            $iIndex = Processor\Sign::extWord($iIndex);
+            // If the size bit is clear, the index is a signed word, otherwise signed long.
+            if (!($iExtension & IOpcode::BXW_IDX_SIZE)) {
+                $iIndex = Processor\Sign::extWord($iIndex);
+            }
+
+            // 68020 adds scale factor support (even in brief format)
+            // On 68000, this will always be 1
+            $iScale = Processor\ExtensionWord::getScale($iExtension);
+            $iIndex *= $iScale;
+
+            // Get the fixed 8-bit displacement
+            $iDisplacement = Processor\Sign::extByte($iExtension & IOpcode::BXW_DISP_MASK);
+
+            return $this->iAddress = ($iDisplacement + $this->iRegister + $iIndex) & ISize::MASK_LONG;
+        } else {
+            // Full format (68020+ only) - not yet implemented
+            // For now, throw exception
+            throw new \LogicException(
+                sprintf('Full extension word format not yet implemented: $%04X', $iExtension)
+            );
         }
-
-        // Get the fixed 8-bit displacement
-        $iDisplacement = Processor\Sign::extByte($iExtension & IOpcode::BXW_DISP_MASK);
-
-        return $this->iAddress = ($iDisplacement + $this->iRegister + $iIndex) & ISize::MASK_LONG;
     }
 
     private function bindIndexRegisters(
