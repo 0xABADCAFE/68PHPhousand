@@ -30,6 +30,8 @@ abstract class Base implements I68KProcessor, IOpcode, Opcode\IPrefix
     use TAddressUnit;
     use TCache;
 
+    use Fault\TProcess; // Faulty process, lol
+
     use Opcode\Template\TGenerator;
     use Opcode\TMove;
     use Opcode\TLogical;

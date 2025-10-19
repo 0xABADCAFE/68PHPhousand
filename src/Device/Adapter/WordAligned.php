@@ -27,14 +27,12 @@ class WordAligned implements IBus
 {
     private IBus $oDevice;
 
-    protected Fault\MisalignedRead  $oMisalignedRead;
-    protected Fault\MisalignedWrite $oMisalignedWrite;
+    protected Fault\Address  $oFault;
 
     public function __construct(IBus $oDevice)
     {
         $this->oDevice = $oDevice;
-        $this->oMisalignedRead  = new Fault\MisalignedRead();
-        $this->oMisalignedWrite = new Fault\MisalignedWrite();
+        $this->oFault  = new Fault\Address();
     }
 
     public function getName(): string
@@ -61,13 +59,13 @@ class WordAligned implements IBus
 
     public function readWord(int $iAddress): int
     {
-        ($iAddress & 1) && $this->oMisalignedRead->raise($iAddress, ISize::WORD);
+        ($iAddress & 1) && $this->oFault->raise($iAddress, ISize::WORD, false);
         return $this->oDevice->readWord($iAddress);
     }
 
     public function readLong(int $iAddress): int
     {
-        ($iAddress & 1) && $this->oMisalignedRead->raise($iAddress, ISize::LONG);
+        ($iAddress & 1) && $this->oFault->raise($iAddress, ISize::LONG, false);
         return $this->oDevice->readLong($iAddress);
     }
 
@@ -78,13 +76,13 @@ class WordAligned implements IBus
 
     public function writeWord(int $iAddress, int $iValue): void
     {
-        ($iAddress & 1) && $this->oMisalignedWrite->raise($iAddress, ISize::WORD);
+        ($iAddress & 1) && $this->oFault->raise($iAddress, ISize::WORD, true);
         $this->oDevice->writeWord($iAddress, $iValue);
     }
 
     public function writeLong(int $iAddress, int $iValue): void
     {
-        ($iAddress & 1) && $this->oMisalignedWrite->raise($iAddress, ISize::LONG);
+        ($iAddress & 1) && $this->oFault->raise($iAddress, ISize::LONG, true);
         $this->oDevice->writeLong($iAddress, $iValue);
     }
 

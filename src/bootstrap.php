@@ -103,9 +103,9 @@ const CLASS_MAP = [
   'ABadCafe\\G8PHPhousand\\Processor\\Opcode\\TSpecial' => '/Processor/Opcode/TSpecial.php',
   'ABadCafe\\G8PHPhousand\\Processor\\Opcode\\Template\\Params' => '/Processor/Opcode/Template/Params.php',
   'ABadCafe\\G8PHPhousand\\Processor\\Opcode\\Template\\TGenerator' => '/Processor/Opcode/Template/TGenerator.php',
-  'ABadCafe\\G8PHPhousand\\Processor\\Fault\\MisalignedRead' => '/Processor/Fault/MisalignedRead.php',
-  'ABadCafe\\G8PHPhousand\\Processor\\Fault\\MisalignedAccess' => '/Processor/Fault/MisalignedAccess.php',
-  'ABadCafe\\G8PHPhousand\\Processor\\Fault\\MisalignedWrite' => '/Processor/Fault/MisalignedWrite.php',
+  'ABadCafe\\G8PHPhousand\\Processor\\Fault\\TProcess' => '/Processor/Fault/TProcess.php',
+  'ABadCafe\\G8PHPhousand\\Processor\\Fault\\IVector' => '/Processor/Fault/IVector.php',
+  'ABadCafe\\G8PHPhousand\\Processor\\Fault\\Address' => '/Processor/Fault/Address.php',
 ];
 
 const PROJ_SRC_BASE = __DIR__;

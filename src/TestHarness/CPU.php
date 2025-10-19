@@ -54,7 +54,6 @@ class CPU extends Processor\Base
         $iOpcode = $this->oOutside->readWord($this->iProgramCounter);
         $this->iProgramCounter += Processor\ISize::WORD;
 
-
         $cHandler = $this->aExactHandler[$iOpcode] ??
             throw new LogicException(
                 sprintf(
@@ -67,24 +66,8 @@ class CPU extends Processor\Base
         try {
             $cHandler($iOpcode);
         }
-        catch (Processor\Fault\MisalignedRead $oReadFault) {
-            // TODO
-            // PROTOTYPE - export all the logic to an appropriate helper
-            $this->syncSupervisorState(); // Transition to supervisor mode
-
-            // Allocate Exception Frame (14 bytes)
-            $this->oAddressRegisters->iReg7 -= 14;
-
-            // TODO - populate it
-
-            // Reload the PC from vector 0xC (AddressError), include VBR
-            $this->iProgramCounter = $this->oOutside->readLong(
-                $this->iVectorBaseRegister + 0xC
-            );
-
-        } catch (Processor\Fault\MisalignedWrite $oWriteFault) {
-            // TODO
-            //throw new LogicException('Intercepted misaligned write to ' . $oWriteFault->iAddress);
+        catch (Processor\Fault\Address $oFault) {
+            $this->prepareAddressError($oFault);
         }
     }
 
