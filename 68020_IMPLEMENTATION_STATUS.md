@@ -122,19 +122,48 @@
 
 ---
 
-### Phase 5: Bit Field Operations (NOT STARTED)
-**Estimated**: ~1200 LOC (most complex phase)
+### ✅ Phase 5: Bit Field Operations (COMPLETE)
+**Status**: All 8 bit field instructions implemented (most complex phase)
 
-**Needs**:
-- `Processor\Opcode\TBitField` trait
-- `Processor\Opcode\IBitField` interface
-- 8 instructions:
-  - BFTST, BFEXTU, BFEXTS, BFCLR, BFSET, BFCHG, BFFFO, BFINS
-- Bit field helper methods:
-  - `getBitFieldParams()` - parse extension word
-  - `readBitField()` - handle cross-boundary fields
-  - `writeBitField()` - modify-in-place
-- Templates in `src/templates/operation/bitfield/*.tpl.php`
+**Changes**:
+- Created `Processor\Opcode\IBitField` interface with all 8 opcodes:
+  - BFTST (0xE8C0), BFEXTU (0xE9C0), BFEXTS (0xEBC0)
+  - BFCLR (0xECC0), BFSET (0xEEC0), BFCHG (0xEAC0)
+  - BFFFO (0xEDC0), BFINS (0xEFC0)
+- Created `Processor\Opcode\TBitField` trait with comprehensive implementation:
+  - `initBitFieldHandlers()` - register all 8 instruction handlers
+  - `parseBitFieldExtension()` - parse extension word for offset/width (register or immediate)
+  - `readBitFieldDirect()` - read from data register (offset modulo 32)
+  - `readBitFieldMemory()` - read from memory (can span up to 5 bytes)
+  - `writeBitFieldDirect()` - write to data register
+  - `writeBitFieldMemory()` - write to memory (read-modify-write)
+  - `updateBitFieldCC()` - set N, Z flags (V, C always clear)
+  - 8 execution methods for each instruction
+
+**Implementation Details**:
+- Extension word parsing:
+  * Bits 15-12: Destination register (for BFINS/BFEXTS/BFEXTU/BFFFO)
+  * Bit 11: Offset field (0=immediate 0-31, 1=data register Dn)
+  * Bits 10-6: Offset value or register number
+  * Bit 5: Width field (0=immediate 1-32, 1=data register Dn)
+  * Bits 4-0: Width value (0=32, 1-31=1-31) or register number
+- Data register mode: Offset wraps modulo 32
+- Memory mode: Offset can be any value (negative offsets supported)
+- Bit fields can span multiple bytes (up to 5 consecutive bytes for 32-bit field)
+- Big-endian byte ordering respected
+- Proper condition code handling (N=MSB of field, Z=field zero, V=0, C=0)
+
+**What Works**:
+- **BFTST <ea>{offset:width}** - Test bit field, set condition codes
+- **BFEXTU <ea>{offset:width},Dn** - Extract unsigned to data register
+- **BFEXTS <ea>{offset:width},Dn** - Extract signed (sign extended) to data register
+- **BFCLR <ea>{offset:width}** - Clear all bits in field
+- **BFSET <ea>{offset:width}** - Set all bits in field
+- **BFCHG <ea>{offset:width}** - Toggle all bits in field
+- **BFFFO <ea>{offset:width},Dn** - Find first one bit, store position in Dn
+- **BFINS Dn,<ea>{offset:width}** - Insert low bits of Dn into field
+
+**Verification**: ✓ Passed test_memory.php, test_eamodes.php
 
 ---
 
