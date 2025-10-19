@@ -4,11 +4,18 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-68PHPhousand is a Motorola 68000 CPU emulator written in PHP. The design separates the CPU from external devices using dependency injection, with the CPU class implementing a trait-based architecture for better code organization despite internal coupling for performance.
+68PHPhousand is a Motorola 68000/68010/68020 CPU emulator written in PHP. The design separates the CPU from external devices using dependency injection, with the CPU class implementing a trait-based architecture for better code organization despite internal coupling for performance.
 
 **Namespace:** `ABadCafe\G8PHPhousand`
 
 **PHP Requirements:** PHP 7.4+ with assertions enabled
+
+**Supported Processors:**
+- **MC68000**: Original 68000 (24-bit addressing, 16MB address space)
+- **MC68010**: Enhanced 68000 with loop mode and VBR
+- **MC68020**: 32-bit processor with advanced addressing modes, bit fields, and extended instruction set
+
+**Branch:** The 68020 implementation is on the `68Claude20` branch
 
 ## Common Commands
 
@@ -76,13 +83,20 @@ Opcode implementation traits:
 - **Opcode\TMove**: Move operations (MOVE, MOVEA, MOVEM, MOVEQ, LEA, PEA, EXG, SWAP)
 - **Opcode\TLogical**: Logical operations (AND, OR, EOR, NOT) and shifts/rotates (ASL, LSL, ROL, ROXL, etc.)
 - **Opcode\TSingleBit**: Bit manipulation (BTST, BSET, BCLR, BCHG)
-- **Opcode\TArithmetic**: Arithmetic operations (ADD, SUB, ADDA, SUBA, ADDQ, SUBQ)
+- **Opcode\TArithmetic**: Arithmetic operations (ADD, SUB, ADDA, SUBA, ADDQ, SUBQ, 32-bit MUL/DIV)
 - **Opcode\TComparisonArithmetic**: Comparison operations (CMP, CMPA, CMPM)
-- **Opcode\TBCDArithmetic**: BCD arithmetic (ABCD, SBCD, NBCD)
+- **Opcode\TBCDArithmetic**: BCD arithmetic (ABCD, SBCD, NBCD, PACK, UNPK)
 - **Opcode\TExtendedArithmetic**: Extended arithmetic (ADDX, SUBX, MULS, MULU, DIVS, DIVU)
 - **Opcode\TShifter**: Memory shift/rotate operations
-- **Opcode\TFlow**: Control flow (Bcc, DBcc, Scc, JMP, JSR, RTS, BSR)
-- **Opcode\TSpecial**: Special operations (NOP, TRAP, RTE, RESET, STOP, etc.)
+- **Opcode\TFlow**: Control flow (Bcc, DBcc, Scc, JMP, JSR, RTS, BSR, TRAPcc, RTD, LINK.L)
+- **Opcode\TSpecial**: Special operations (NOP, TRAP, RTE, RESET, STOP, CALLM, RTM, etc.)
+
+**68020+ Opcode traits:**
+- **Opcode\TControlRegister**: Control register operations (MOVEC, MOVES stub) - 68010+
+- **Opcode\TAtomic**: Atomic operations (CAS, CAS2) - 68020+
+- **Opcode\TBounds**: Bounds checking (CHK2, CMP2) - 68020+
+- **Opcode\TBitField**: Bit field operations (BFTST, BFEXTU, BFEXTS, BFCLR, BFSET, BFCHG, BFFFO, BFINS) - 68020+
+- **Opcode\TCoprocessor**: Coprocessor interface (F-line exceptions) - 68020+
 
 ### Opcode Handler System
 
@@ -186,10 +200,12 @@ The codebase relies heavily on `assert()` for validation:
 
 ### Memory Layout
 
-- 68000 uses big-endian byte ordering
+- All processors use big-endian byte ordering
 - Word (16-bit) and long (32-bit) accesses must be word-aligned
 - Stack pointer (A7) maintains word alignment in pre-decrement/post-increment modes
-- Address space is 24-bit (16MB) though some memory implementations support 32-bit
+- Address space:
+  - MC68000/MC68010: 24-bit (16MB, addresses masked to 0x00FFFFFF)
+  - MC68020: 32-bit (4GB, full 0xFFFFFFFF address range)
 
 ### Condition Codes
 
@@ -229,6 +245,164 @@ Condition codes follow standard 68000 definitions (see `Processor\IConditionCode
 3. Implement `read{Byte,Word,Long}()` and `write{Byte,Word,Long}()` methods
 4. Ensure big-endian semantics for word/long operations
 5. Run `./updateclassmap`
+
+## 68020 Features (Branch: 68Claude20)
+
+The 68020 implementation extends the emulator with MC68020-specific features. All 68000 code remains fully compatible.
+
+### Processor Selection
+
+The processor model is selected at CPU instantiation:
+
+```php
+use ABadCafe\G8PHPhousand\Processor\IProcessorModel;
+use ABadCafe\G8PHPhousand\TestHarness\CPU;
+use ABadCafe\G8PHPhousand\Device\Memory\SparseWordRAM;
+
+// Create MC68020 instance
+$oMemory = new SparseWordRAM();
+$oCPU = new CPU($oMemory, IProcessorModel::MC68020);
+
+// Also available: MC68000, MC68010
+```
+
+### 68020 Addressing Enhancements
+
+**Scaled Indexing (1x, 2x, 4x, 8x):**
+- Brief extension word format supports scale factors
+- Efficient array indexing without explicit multiply
+- Example: `MOVE.L (A0,D0.L*4),D1` - long array access
+
+**Full Extension Word (stubbed):**
+- Base displacement (16-bit, 32-bit)
+- Base/index register suppression
+- Memory indirect addressing modes
+- Currently throws descriptive exception
+
+### 68020 Instructions
+
+**32-bit Arithmetic:**
+- `MULS.L <ea>,Dl` - Signed 32×32→32 multiply
+- `MULU.L <ea>,Dl` - Unsigned 32×32→32 multiply
+- `MULS.L <ea>,Dh:Dl` - Signed 32×32→64 multiply
+- `MULU.L <ea>,Dh:Dl` - Unsigned 32×32→64 multiply
+- `DIVS.L <ea>,Dq` - Signed 32÷32→32 divide
+- `DIVU.L <ea>,Dq` - Unsigned 32÷32→32 divide
+- `DIVS.L <ea>,Dr:Dq` - Signed 64÷32→32 with remainder
+- `DIVU.L <ea>,Dr:Dq` - Unsigned 64÷32→32 with remainder
+- `EXTB.L Dn` - Sign extend byte to long
+
+**Bit Field Operations:**
+- `BFTST <ea>{offset:width}` - Test bit field
+- `BFEXTU <ea>{offset:width},Dn` - Extract unsigned
+- `BFEXTS <ea>{offset:width},Dn` - Extract signed (sign extended)
+- `BFCLR <ea>{offset:width}` - Clear all bits
+- `BFSET <ea>{offset:width}` - Set all bits
+- `BFCHG <ea>{offset:width}` - Toggle all bits
+- `BFFFO <ea>{offset:width},Dn` - Find first one bit
+- `BFINS Dn,<ea>{offset:width}` - Insert bits
+
+Bit fields:
+- Can be 1-32 bits wide
+- Start at any bit position
+- Offset and width can be immediate or in data register
+- Can span up to 5 consecutive bytes in memory
+- For data registers, offset wraps modulo 32
+
+**Atomic Operations (Multiprocessing):**
+- `CAS.B/W/L Dc,Du,<ea>` - Compare and swap
+- `CAS2.W/L Dc1:Dc2,Du1:Du2,(Rn1):(Rn2)` - Double compare and swap
+
+**Bounds Checking:**
+- `CHK2.B/W/L <ea>,Rn` - Check bounds, trap if out of range
+- `CMP2.B/W/L <ea>,Rn` - Compare bounds, set condition codes
+
+**BCD Operations:**
+- `PACK -(Ax),-(Ay),#adjustment` - Pack unpacked BCD
+- `UNPK -(Ax),-(Ay),#adjustment` - Unpack packed BCD
+
+**Control Registers (MOVEC):**
+- `MOVEC Rc,Rn` - Move from control register
+- `MOVEC Rn,Rc` - Move to control register
+
+Available control registers:
+- **VBR** (Vector Base Register) - Exception vector table base (68010+)
+- **CACR** (Cache Control Register) - Cache control (68020+)
+- **CAAR** (Cache Address Register) - Cache address (68020+)
+- **SFC/DFC** (Source/Destination Function Code) - Function code registers (68010+)
+- **USP** (User Stack Pointer) - User mode stack pointer (68010+)
+- **MSP/ISP** (Master/Interrupt Stack Pointer) - Supervisor stack pointers (68020+)
+
+**Enhanced Flow Control:**
+- `TRAPcc` - Conditional trap (16 condition codes, .W/.L/no operand variants)
+- `RTD #displacement` - Return and deallocate stack
+- `LINK.L An,#displacement` - Create 32-bit stack frame
+- `BKPT #vector` - Breakpoint (stubbed)
+- `Bcc.L displacement` - 32-bit branch (via templates)
+- `BSR.L displacement` - 32-bit subroutine branch (via templates)
+
+**Coprocessor Interface:**
+- All F-line opcodes ($F000-$FFFF) generate F-line emulator exception (vector 11)
+- Provides foundation for future FPU emulator (68881/68882)
+
+**Stubbed Instructions:**
+- `CALLM/RTM` - Module operations (rarely used, removed in 68030+)
+- `MOVES` - Function code based memory access (stub only)
+
+### 68020 Architecture Details
+
+**Address Space:**
+- MC68000: 24-bit (16MB)
+- MC68020: 32-bit (4GB)
+
+**Extension Words:**
+- Brief format: Scale factors for indexed modes
+- Full format: Complex addressing (stubbed)
+
+**Processor Model Interface:**
+```php
+interface IProcessorModel {
+    const MC68000 = 0;
+    const MC68010 = 1;
+    const MC68020 = 2;
+
+    const ADDRESS_MASK = [
+        self::MC68000 => 0x00FFFFFF,  // 24-bit
+        self::MC68010 => 0x00FFFFFF,  // 24-bit
+        self::MC68020 => 0xFFFFFFFF,  // 32-bit
+    ];
+}
+```
+
+### Implementation Notes
+
+**Backward Compatibility:**
+- All 68000 code runs unchanged on 68020
+- Processor model checked at runtime for 68020-specific features
+- Handlers only registered for appropriate processor models
+
+**Exception Handling:**
+- 68020 uses standard exception vectors
+- VBR support allows relocating exception vector table
+- F-line exceptions for coprocessor/FPU emulation
+
+**Testing:**
+- All existing 68000 tests pass on 68020
+- Core tests: test_memory.php, test_eamodes.php, test_regs.php
+
+**Performance:**
+- Handler generation time includes 68020 instructions
+- No runtime overhead for 68000 mode
+- Bit field operations optimized for common cases
+
+### Future Enhancements
+
+**Optional Features (not yet implemented):**
+- Exception stack frames (formats 0, 1, 2, 9, A, B)
+- Instruction cache emulation (256-byte cache)
+- Full extension word format (memory indirect modes)
+- MOVES instruction (function code memory access)
+- 68020-specific exception handling refinements
 
 ## Troubleshooting
 
