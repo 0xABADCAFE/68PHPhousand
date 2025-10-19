@@ -39,6 +39,7 @@ abstract class Base implements I68KProcessor, IOpcode, Opcode\IPrefix
     use Opcode\TFlow;
     use Opcode\TSpecial;
     use Opcode\TControlRegister;
+    use Opcode\TAtomic;
 
     public function __construct(
         Device\IBus $oOutside,
@@ -77,6 +78,11 @@ abstract class Base implements I68KProcessor, IOpcode, Opcode\IPrefix
         // Install 68010+ handlers if applicable
         if ($iProcessorModel >= IProcessorModel::MC68010) {
             $this->initControlRegisterHandlers();
+        }
+
+        // Install 68020+ handlers if applicable
+        if ($iProcessorModel >= IProcessorModel::MC68020) {
+            $this->initAtomicHandlers();
         }
 
         $this->clearCompilerCache();
