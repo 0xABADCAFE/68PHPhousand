@@ -31,14 +31,40 @@ use LogicException;
 trait TControlRegister
 {
     /**
-     * Initialize MOVEC instruction handlers
+     * Initialize MOVEC and MOVES instruction handlers
      *
      * MOVEC opcodes:
      *   0x4E7B - MOVEC Rn,Rc (general -> control)
      *   0x4E7A - MOVEC Rc,Rn (control -> general)
+     *
+     * MOVES opcode prefix:
+     *   0x0E00-0x0FFF - MOVES (move to/from address space with function code)
      */
     private function initControlRegisterHandlers(): void
     {
+        // MOVES - Move to/from address space (68010+)
+        // This is a stub implementation - MOVES uses SFC/DFC for memory access
+        // Full implementation would require function code based bus access
+        $this->aPrefixHandler[0x0E00] = [
+            'mask' => 0xFF00,
+            'handler' => function(int $iOpcode): int {
+                // Privilege check - MOVES is supervisor only
+                assert(
+                    $this->isSupervisor(),
+                    new LogicException('MOVES requires supervisor mode')
+                );
+
+                // MOVES stub - not yet fully implemented
+                // Would need to:
+                // 1. Read extension word to get register and direction
+                // 2. Use SFC (source) or DFC (destination) function code
+                // 3. Perform memory access with function code
+                throw new LogicException(
+                    sprintf('MOVES instruction not yet fully implemented (opcode $%04X)', $iOpcode)
+                );
+            }
+        ];
+
         // MOVEC Rn,Rc - Move to control register
         $this->aExactHandler[0x4E7B] = function (): int {
             // Privilege check - MOVEC is supervisor only

@@ -75,21 +75,36 @@
 
 ## Remaining Phases
 
-### Phase 3: Control Registers (NOT STARTED)
-**Estimated**: ~400 LOC
+### ✅ Phase 3: Control Registers (COMPLETE)
+**Status**: Core functionality implemented
 
-**Needs**:
-- `Processor\IControlRegister` interface
-- Add to `TRegisterUnit`:
-  - VBR (Vector Base Register)
-  - CACR (Cache Control Register)
-  - CAAR (Cache Address Register)
-  - SFC/DFC (Function Code registers)
-  - MSP/ISP (Master/Interrupt Stack Pointers)
-- `Processor\Opcode\TControlRegister` trait
-  - MOVEC instruction
-  - MOVES instruction
-- Update exception handling to use VBR
+**Changes**:
+- Created `Processor\IControlRegister` interface with control register codes
+  - VBR, CACR, CAAR, SFC, DFC, USP, MSP, ISP
+  - Function code values (USER_DATA, USER_PROGRAM, SUPERVISOR_DATA, etc.)
+  - CACR control bits (ENABLE, FREEZE, CLEAR_ENTRY, CLEAR_ALL)
+  - Processor model requirements per register
+- Added control register storage to `TRegisterUnit`
+  - All 68010+ and 68020+ control registers
+  - `getControlRegister()` and `setControlRegister()` with model validation
+  - Reset handlers for all control registers
+- Created `Processor\Opcode\TControlRegister` trait
+  - MOVEC instruction (0x4E7A, 0x4E7B) - fully implemented
+  - MOVES instruction (0x0E00-0x0FFF) - stubbed with clear message
+  - Supervisor mode privilege checking
+- Integrated into `Processor\Base` for 68010+ processors
+
+**What Works**:
+- MOVEC Rc,Rn (move from control register to general register)
+- MOVEC Rn,Rc (move from general register to control register)
+- Processor model validation (prevents 68000 from using 68010+ registers)
+- All existing tests pass
+
+**Not Yet Implemented**:
+- MOVES full implementation (function code based memory access)
+- VBR-based exception vectoring (deferred to Phase 11)
+
+**Verification**: ✓ Passed test_memory.php, test_eamodes.php
 
 ---
 
