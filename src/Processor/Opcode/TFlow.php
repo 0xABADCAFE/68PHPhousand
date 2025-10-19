@@ -124,6 +124,129 @@ trait TFlow
             }
         ]);
 
+        // 68020+ Enhanced Flow Control
+        if ($this->iProcessorModel >= IProcessorModel::MC68020) {
+            $this->init68020FlowHandlers();
+        }
+
+    }
+
+    /**
+     * Initialize 68020+ flow control handlers
+     */
+    private function init68020FlowHandlers(): void
+    {
+        // RTD - Return and Deallocate
+        $this->addExactHandlers([
+            IFlow::OP_RTD => function(int $iOpcode) {
+                // Read displacement
+                $iDisplacement = Sign::extWord($this->oOutside->readWord($this->iProgramCounter));
+                $this->iProgramCounter += ISize::WORD;
+
+                // Pop return address
+                $this->iProgramCounter = $this->oOutside->readLong(
+                    $this->oAddressRegisters->iReg7
+                );
+
+                // Deallocate stack space (SP = SP + 4 + displacement)
+                $this->oAddressRegisters->iReg7 += ISize::LONG + $iDisplacement;
+                $this->oAddressRegisters->iReg7 &= ISize::MASK_LONG;
+            }
+        ]);
+
+        // LINK.L - Link with 32-bit displacement
+        $this->addExactHandlers(
+            array_fill_keys(
+                range(
+                    IFlow::OP_LINK_L | IRegister::A0,
+                    IFlow::OP_LINK_L | IRegister::A7
+                ),
+                function (int $iOpcode) {
+                    $iSP  = &$this->oAddressRegisters->iReg7;
+                    $iReg = &$this->oAddressRegisters->aIndex[$iOpcode & IOpcode::MASK_EA_REG];
+
+                    // Push An
+                    $iSP -= ISize::LONG;
+                    $iSP &= ISize::MASK_LONG;
+                    $this->oOutside->writeLong($iSP, $iReg);
+
+                    // An = SP
+                    $iReg = $iSP;
+
+                    // SP = SP + displacement (32-bit)
+                    $iDisplacement = Sign::extLong($this->oOutside->readLong($this->iProgramCounter));
+                    $this->iProgramCounter += ISize::LONG;
+                    $iSP += $iDisplacement;
+                    $iSP &= ISize::MASK_LONG;
+                }
+            )
+        );
+
+        // BKPT - Breakpoint (stub for now)
+        $this->addExactHandlers(
+            array_fill_keys(
+                range(IFlow::OP_BKPT, IFlow::OP_BKPT | 0x7),
+                function(int $iOpcode) {
+                    $iVector = $iOpcode & 0x7;
+                    throw new LogicException(sprintf('BKPT #%d not implemented', $iVector));
+                }
+            )
+        );
+
+        // TRAPcc - Conditional Trap
+        $this->buildTRAPccHandlers(IFlow::OP_TRAPT,  IOpcode::CC_T);   // Always
+        $this->buildTRAPccHandlers(IFlow::OP_TRAPF,  IOpcode::CC_F);   // Never
+        $this->buildTRAPccHandlers(IFlow::OP_TRAPHI, IOpcode::CC_HI);
+        $this->buildTRAPccHandlers(IFlow::OP_TRAPLS, IOpcode::CC_LS);
+        $this->buildTRAPccHandlers(IFlow::OP_TRAPCC, IOpcode::CC_CC);
+        $this->buildTRAPccHandlers(IFlow::OP_TRAPCS, IOpcode::CC_CS);
+        $this->buildTRAPccHandlers(IFlow::OP_TRAPNE, IOpcode::CC_NE);
+        $this->buildTRAPccHandlers(IFlow::OP_TRAPEQ, IOpcode::CC_EQ);
+        $this->buildTRAPccHandlers(IFlow::OP_TRAPVC, IOpcode::CC_VC);
+        $this->buildTRAPccHandlers(IFlow::OP_TRAPVS, IOpcode::CC_VS);
+        $this->buildTRAPccHandlers(IFlow::OP_TRAPPL, IOpcode::CC_PL);
+        $this->buildTRAPccHandlers(IFlow::OP_TRAPMI, IOpcode::CC_MI);
+        $this->buildTRAPccHandlers(IFlow::OP_TRAPGE, IOpcode::CC_GE);
+        $this->buildTRAPccHandlers(IFlow::OP_TRAPLT, IOpcode::CC_LT);
+        $this->buildTRAPccHandlers(IFlow::OP_TRAPGT, IOpcode::CC_GT);
+        $this->buildTRAPccHandlers(IFlow::OP_TRAPLE, IOpcode::CC_LE);
+    }
+
+    /**
+     * Build TRAPcc handlers for a specific condition code
+     */
+    private function buildTRAPccHandlers(int $iOpcode, int $iCondition): void
+    {
+        // TRAPcc.W with word operand (opcode | 0x2)
+        $this->aExactHandler[$iOpcode | 0x2] = function(int $iOpcode) use ($iCondition) {
+            if ($this->testCondition($iCondition)) {
+                // Read and discard operand word
+                $this->iProgramCounter += ISize::WORD;
+                throw new LogicException('TRAP exception (TRAPcc)');
+            } else {
+                // Skip operand word
+                $this->iProgramCounter += ISize::WORD;
+            }
+        };
+
+        // TRAPcc.L with long operand (opcode | 0x3)
+        $this->aExactHandler[$iOpcode | 0x3] = function(int $iOpcode) use ($iCondition) {
+            if ($this->testCondition($iCondition)) {
+                // Read and discard operand long
+                $this->iProgramCounter += ISize::LONG;
+                throw new LogicException('TRAP exception (TRAPcc)');
+            } else {
+                // Skip operand long
+                $this->iProgramCounter += ISize::LONG;
+            }
+        };
+
+        // TRAPcc with no operand (opcode | 0x4)
+        $this->aExactHandler[$iOpcode | 0x4] = function(int $iOpcode) use ($iCondition) {
+            if ($this->testCondition($iCondition)) {
+                throw new LogicException('TRAP exception (TRAPcc)');
+            }
+        };
     }
 
     private function buildBranchHandlers(int $iPrefix, string $sName)

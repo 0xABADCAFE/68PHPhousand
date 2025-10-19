@@ -171,16 +171,33 @@
 
 ---
 
-### Phase 9: Enhanced Flow Control (NOT STARTED)
-**Estimated**: ~400 LOC
+### ✅ Phase 9: Enhanced Flow Control (COMPLETE)
+**Status**: All 68020 flow control instructions implemented
 
-**Needs**:
-- TRAPcc (16 conditional trap variants)
-- Bcc.L (32-bit branch displacement)
-- BSR.L (32-bit subroutine branch)
-- RTD (Return and Deallocate)
-- LINK.L (32-bit link)
-- BKPT (Breakpoint)
+**Changes**:
+- Added IFlow opcode constants for 68020+ instructions:
+  - TRAPcc (16 conditional trap variants: 0x5FC8-0x5FF8)
+  - RTD (0x4E74)
+  - LINK.L (0x4808-0x480F)
+  - BKPT (0x4848-0x484F)
+- Verified Bcc.L and BSR.L already supported via templates (LSB=$FF)
+- Implemented `init68020FlowHandlers()` in TFlow
+  - RTD with 16-bit displacement deallocate
+  - LINK.L with 32-bit displacement
+  - BKPT stub (throws exception with vector number)
+  - TRAPcc with three variants (.W, .L, no operand)
+- `buildTRAPccHandlers()` for all 16 condition codes
+- Integrated into initFlowHandlers() for 68020+ processors
+
+**What Works**:
+- **Bcc.L** - 32-bit branch displacement (via existing templates)
+- **BSR.L** - 32-bit subroutine branch (via existing templates)
+- **TRAPcc** - Conditional trap with word, long, or no operand
+- **RTD** - Return and Deallocate stack frame
+- **LINK.L** - Create 32-bit stack frame
+- **BKPT** - Breakpoint stub (throws exception)
+
+**Verification**: ✓ Passed test_memory.php, test_eamodes.php
 
 ---
 

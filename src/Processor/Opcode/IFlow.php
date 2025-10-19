@@ -71,4 +71,28 @@ interface IFlow
     const OP_DBLT     = self::OP_DBT|IOpcode::CC_LT;
     const OP_DBGT     = self::OP_DBT|IOpcode::CC_GT;
     const OP_DBLE     = self::OP_DBT|IOpcode::CC_LE;
+
+    // 68020+ Enhanced Flow Control
+    //                    0101cccc11111xxx // TRAPcc (trap conditionally)
+    const OP_TRAPT    = 0b0101111111111000;  // TRAP always
+    const OP_TRAPF    = self::OP_TRAPT|IOpcode::CC_F;
+    const OP_TRAPHI   = self::OP_TRAPT|IOpcode::CC_HI;
+    const OP_TRAPLS   = self::OP_TRAPT|IOpcode::CC_LS;
+    const OP_TRAPCC   = self::OP_TRAPT|IOpcode::CC_CC;
+    const OP_TRAPCS   = self::OP_TRAPT|IOpcode::CC_CS;
+    const OP_TRAPNE   = self::OP_TRAPT|IOpcode::CC_NE;
+    const OP_TRAPEQ   = self::OP_TRAPT|IOpcode::CC_EQ;
+    const OP_TRAPVC   = self::OP_TRAPT|IOpcode::CC_VC;
+    const OP_TRAPVS   = self::OP_TRAPT|IOpcode::CC_VS;
+    const OP_TRAPPL   = self::OP_TRAPT|IOpcode::CC_PL;
+    const OP_TRAPMI   = self::OP_TRAPT|IOpcode::CC_MI;
+    const OP_TRAPGE   = self::OP_TRAPT|IOpcode::CC_GE;
+    const OP_TRAPLT   = self::OP_TRAPT|IOpcode::CC_LT;
+    const OP_TRAPGT   = self::OP_TRAPT|IOpcode::CC_GT;
+    const OP_TRAPLE   = self::OP_TRAPT|IOpcode::CC_LE;
+
+    //                                 AAA
+    const OP_RTD      = 0b0100111001110100;  // RTD #displacement (Return and Deallocate)
+    const OP_LINK_L   = 0b0100100000001000;  // LINK.L An,#displacement (32-bit link)
+    const OP_BKPT     = 0b0100100001001000;  // BKPT #vector (Breakpoint)
 }
