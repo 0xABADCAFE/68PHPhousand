@@ -46,6 +46,11 @@ trait TArithmetic
         $this->buildADDXHandlers($aEAModes);
         $this->buildSUBXHandlers($aEAModes);
 
+        // 68020+ BCD pack/unpack
+        if ($this->iProcessorModel >= IProcessorModel::MC68020) {
+            $this->buildPACKHandlers($aEAModes);
+            $this->buildUNPKHandlers($aEAModes);
+        }
 
         $aEAModes = $this->generateForEAModeList(
             IEffectiveAddress::MODE_DATA_ALTERABLE

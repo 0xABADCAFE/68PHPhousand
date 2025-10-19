@@ -167,4 +167,9 @@ interface IArithmetic
     const OP_SBCD_R     = 0b1000000100000000; // abcd Dx,Dy
     const OP_SBCD_M     = 0b1000000100001000; // abcd (Ax)-,(Ay)
 
+    // 68020+ BCD pack/unpack
+    //                          xxx      yyy
+    const OP_PACK       = 0b1000000101000000; // pack -(Ax),-(Ay),#adjustment (68020+)
+    const OP_UNPK       = 0b1000000110000000; // unpk -(Ax),-(Ay),#adjustment (68020+)
+
 }

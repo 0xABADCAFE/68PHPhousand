@@ -229,4 +229,108 @@ trait TBCDArithmetic
         $this->addExactHandlers($aHandlers);
     }
 
+    /**
+     * Build PACK instruction handlers (68020+)
+     *
+     * PACK -(Ax),-(Ay),#adjustment
+     * Converts two unpacked BCD bytes to one packed BCD byte with adjustment.
+     *
+     * Operation:
+     * 1. Read two bytes from -(Ax) (source, unpacked BCD)
+     * 2. Pack into single byte: (high_nibble << 4) | low_nibble
+     * 3. Add 16-bit adjustment constant
+     * 4. Write result byte to -(Ay) (destination)
+     */
+    private function buildPACKHandlers(array $aRegComb): void
+    {
+        $cPACK = function(int $iOpcode) {
+            // Extract register numbers
+            $iRegX = ($iOpcode & IOpcode::MASK_EA_REG);         // Source register (Ax)
+            $iRegY = ($iOpcode & IOpcode::MASK_REG_UPPER) >> IOpcode::REG_UP_SHIFT; // Dest register (Ay)
+
+            // Get predecrement EA modes for source and destination
+            $oSrcEA = $this->aSrcEAModes[IOpcode::LSB_EA_AIPD | $iRegX];
+            $oDstEA = $this->aDstEAModes[IOpcode::LSB_EA_AIPD | $iRegY];
+
+            // Read adjustment constant (16-bit immediate word after opcode)
+            $iAdjustment = Sign::extWord($this->oOutside->readWord($this->iProgramCounter));
+            $this->iProgramCounter += ISize::WORD;
+            $this->iProgramCounter &= ISize::MASK_LONG;
+
+            // Read two unpacked BCD bytes from source (predecrement reads in reverse)
+            // First read gets low digit, second read gets high digit
+            $iLowDigit = $oSrcEA->readByte() & 0x0F;
+            $iHighDigit = $oSrcEA->readByte() & 0x0F;
+
+            // Pack: combine high and low nibbles
+            $iPacked = (($iHighDigit << 4) | $iLowDigit);
+
+            // Add adjustment (lower 8 bits only)
+            $iPacked = ($iPacked + $iAdjustment) & ISize::MASK_BYTE;
+
+            // Write packed result to destination
+            $oDstEA->writeByte($iPacked);
+        };
+
+        $aHandlers = [];
+        foreach ($aRegComb as $iRegPair) {
+            $aHandlers[IArithmetic::OP_PACK | $iRegPair] = $cPACK;
+        }
+
+        $this->addExactHandlers($aHandlers);
+    }
+
+    /**
+     * Build UNPK instruction handlers (68020+)
+     *
+     * UNPK -(Ax),-(Ay),#adjustment
+     * Converts one packed BCD byte to two unpacked BCD bytes with adjustment.
+     *
+     * Operation:
+     * 1. Read one packed byte from -(Ax) (source)
+     * 2. Unpack into two bytes: high_nibble and low_nibble
+     * 3. Add 16-bit adjustment constant (split across two bytes)
+     * 4. Write two result bytes to -(Ay) (destination)
+     */
+    private function buildUNPKHandlers(array $aRegComb): void
+    {
+        $cUNPK = function(int $iOpcode) {
+            // Extract register numbers
+            $iRegX = ($iOpcode & IOpcode::MASK_EA_REG);         // Source register (Ax)
+            $iRegY = ($iOpcode & IOpcode::MASK_REG_UPPER) >> IOpcode::REG_UP_SHIFT; // Dest register (Ay)
+
+            // Get predecrement EA modes for source and destination
+            $oSrcEA = $this->aSrcEAModes[IOpcode::LSB_EA_AIPD | $iRegX];
+            $oDstEA = $this->aDstEAModes[IOpcode::LSB_EA_AIPD | $iRegY];
+
+            // Read adjustment constant (16-bit immediate word after opcode)
+            $iAdjustment = $this->oOutside->readWord($this->iProgramCounter);
+            $this->iProgramCounter += ISize::WORD;
+            $this->iProgramCounter &= ISize::MASK_LONG;
+
+            // Read one packed BCD byte from source
+            $iPacked = $oSrcEA->readByte();
+
+            // Unpack into two nibbles
+            $iHighDigit = ($iPacked >> 4) & 0x0F;
+            $iLowDigit = $iPacked & 0x0F;
+
+            // Add adjustment (high byte to high digit, low byte to low digit)
+            $iLowResult = ($iLowDigit + ($iAdjustment & 0xFF)) & ISize::MASK_BYTE;
+            $iHighResult = ($iHighDigit + (($iAdjustment >> 8) & 0xFF)) & ISize::MASK_BYTE;
+
+            // Write unpacked results to destination (predecrement writes in reverse)
+            // First write is low digit, second write is high digit
+            $oDstEA->writeByte($iLowResult);
+            $oDstEA->writeByte($iHighResult);
+        };
+
+        $aHandlers = [];
+        foreach ($aRegComb as $iRegPair) {
+            $aHandlers[IArithmetic::OP_UNPK | $iRegPair] = $cUNPK;
+        }
+
+        $this->addExactHandlers($aHandlers);
+    }
+
 }

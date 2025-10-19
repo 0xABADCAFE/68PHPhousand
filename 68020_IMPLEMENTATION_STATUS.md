@@ -138,13 +138,29 @@
 
 ---
 
-### Phase 6: PACK/UNPK (NOT STARTED)
-**Estimated**: ~200 LOC
+### ✅ Phase 6: PACK/UNPK (COMPLETE)
+**Status**: All BCD pack/unpack instructions implemented
 
-**Needs**:
-- PACK instruction (BCD pack with adjustment)
-- UNPK instruction (BCD unpack with adjustment)
-- Both use predecrement addressing only
+**Changes**:
+- Added IArithmetic::OP_PACK (0x8140) and OP_UNPK (0x8180) opcodes
+- Implemented `buildPACKHandlers()` in TBCDArithmetic
+  - Reads two unpacked BCD bytes from -(Ax)
+  - Packs into single byte: (high_nibble << 4) | low_nibble
+  - Adds 16-bit adjustment constant (lower 8 bits)
+  - Writes packed result to -(Ay)
+- Implemented `buildUNPKHandlers()` in TBCDArithmetic
+  - Reads one packed BCD byte from -(Ax)
+  - Unpacks into two nibbles
+  - Adds 16-bit adjustment (high byte to high digit, low byte to low digit)
+  - Writes two unpacked bytes to -(Ay)
+- Both instructions use predecrement addressing mode only
+- Integrated into initArithmeticHandlers() for 68020+ processors
+
+**What Works**:
+- **PACK -(Ax),-(Ay),#adjustment** - Pack two unpacked BCD bytes
+- **UNPK -(Ax),-(Ay),#adjustment** - Unpack one packed BCD byte
+
+**Verification**: ✓ Passed test_memory.php, test_eamodes.php
 
 ---
 
