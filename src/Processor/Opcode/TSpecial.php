@@ -19,6 +19,7 @@ use ABadCafe\G8PHPhousand\Processor\IOpcode;
 use ABadCafe\G8PHPhousand\Processor\IRegister;
 use ABadCafe\G8PHPhousand\Processor\ISize;
 use ABadCafe\G8PHPhousand\Processor\IEffectiveAddress;
+use ABadCafe\G8PHPhousand\Processor\IProcessorModel;
 use ABadCafe\G8PHPhousand\Processor\Sign;
 
 use LogicException;
