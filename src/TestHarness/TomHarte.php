@@ -211,7 +211,6 @@ class TomHarte
                     foreach ($aFailures as $sMessage) {
                         printf("\t%s\n", $sMessage);
                     }
-                    //print(json_encode($oTestCase, JSON_PRETTY_PRINT));
                     ob_end_flush();
 
                 }
@@ -268,14 +267,18 @@ class TomHarte
             $this->oMemory->writeWord($iAddress, $iOpcode);
             $iAddress += ISize::WORD;
         }
-        foreach ($oTestCase->initial->ram as $aPair) {
+
+        $aMemory = array_column($oTestCase->final->ram, 1, 0);
+        ksort($aMemory);
+
+        foreach ($aMemory as $iAddress => $iByte) {
             printf(
                 "\tSetting byte at 0x%08X to 0x%02X (%d)\n",
-                $aPair[0],
-                $aPair[1],
-                Sign::extByte($aPair[1])
+                $iAddress,
+                $iByte,
+                Sign::extByte($iByte)
             );
-            $this->oMemory->writeByte($aPair[0], $aPair[1]);
+            $this->oMemory->writeByte($iAddress, $iByte);
         }
 
         $iCCR   =  $oTestCase->initial->sr & 0xFF;
@@ -401,17 +404,20 @@ class TomHarte
             );
         }
 
+        $aMemory = array_column($oTestCase->final->ram, 1, 0);
+        ksort($aMemory);
+
         // Memory
-        foreach ($oTestCase->final->ram as $aPair) {
+        foreach ($aMemory as $iAddress => $iByte) {
             if (
-                ($iExpect = $aPair[1]) !=
-                ($iHave = $this->oMemory->readByte($aPair[0]))
+                ($iExpect = $iByte) !=
+                ($iHave = $this->oMemory->readByte($iAddress))
             ) {
                 $aFailures[] = sprintf(
-                    'RAM mismatch: Expected 0x%02X (%d) at 0x%08X, got 0x%02X (%d) for test case %s',
+                    'RAM mismatch: Expected 0x%02X (%4d) at 0x%08X, got 0x%02X (%4d) for test case %s',
                     $iExpect,
                     Sign::extByte($iExpect),
-                    $aPair[0],
+                    $iAddress,
                     $iHave,
                     Sign::extByte($iHave),
                     $oTestCase->name

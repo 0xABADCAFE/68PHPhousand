@@ -67,7 +67,11 @@ class CPU extends Processor\Base
             $cHandler($iOpcode);
         }
         catch (Processor\Fault\Address $oFault) {
-            $this->prepareAddressError($oFault);
+            $this->prepareAddressError(
+                $oFault,
+                $this->iProgramCounter - Processor\ISize::WORD,
+                $iOpcode
+            );
         }
     }
 

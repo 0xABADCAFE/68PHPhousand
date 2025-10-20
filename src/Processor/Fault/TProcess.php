@@ -8,6 +8,11 @@
  *    _/_/     _/_/    _/       _/    _/  _/       _/    _/   _/_/    _/_/_/  _/_/_/      _/_/_/  _/    _/   _/_/_/
  *
  *   >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> Damn you, linkedin, what have you started ? <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+ *
+ *
+ * TODO - Everywhere where the CCR is modified sequentially, we need to ensure that
+ * any operands have been fetched since access may trigger an access error. The CCR
+ * must be unaffected.
  */
 
 declare(strict_types=1);
@@ -51,14 +56,40 @@ trait TProcess
         );
     }
 
-    protected function prepareAddressError(Address $oFault)
+    protected function prepareAddressError(Address $oFault, int $iPCAddress, int $iOpcode)
     {
         // TODO
         // PROTOTYPE - export all the logic to an appropriate helper
         $this->syncSupervisorState(); // Transition to supervisor mode
 
+        // Populate exception frame
+
+        // Faulting address
+        $this->oOutside->writeLong(
+            ($this->oAddressRegisters->iReg7 -= ISize::LONG),
+            $iPCAddress
+        );
+
+        // Full status register
+        $this->oOutside->writeWord(
+            ($this->oAddressRegisters->iReg7 -= ISize::WORD),
+            $this->iStatusRegister << 8 | $this->iConditionRegister
+        );
+
+        // Faulting instruction
+        $this->oOutside->writeWord(
+            ($this->oAddressRegisters->iReg7 -= ISize::WORD),
+            $iOpcode
+        );
+
+        // Access address
+        $this->oOutside->writeLong(
+            ($this->oAddressRegisters->iReg7 -= ISize::LONG),
+            $oFault->iAddress
+        );
+
         // Allocate Exception Frame (14 bytes)
-        $this->oAddressRegisters->iReg7 -= 14;
+        $this->oAddressRegisters->iReg7 -= 2;
 
         // TODO - populate it
 

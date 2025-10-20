@@ -451,13 +451,13 @@ trait TMove
                     $aEAModes
                 ),
                 function(int $iOpcode) {
+                    $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]
+                        ->resetLatch()
+                        ->writeByte(0);
                     // Preserve X, clear NVC and set Z
                     $this->iConditionRegister = (
                         $this->iConditionRegister & IRegister::CCR_EXTEND
                     ) | IRegister::CCR_ZERO;
-                    $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]
-                        ->resetLatch()
-                        ->writeByte(0);
                 }
             )
         );
@@ -470,13 +470,13 @@ trait TMove
                     $aEAModes
                 ),
                 function(int $iOpcode) {
+                    $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]
+                        ->resetLatch()
+                        ->writeWord(0);
                     // Preserve X, clear NVC and set Z
                     $this->iConditionRegister = (
                         $this->iConditionRegister & IRegister::CCR_EXTEND
                     ) | IRegister::CCR_ZERO;
-                    $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]
-                        ->resetLatch()
-                        ->writeWord(0);
                 }
             )
         );
@@ -489,13 +489,13 @@ trait TMove
                     $aEAModes
                 ),
                 function(int $iOpcode) {
+                    $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]
+                        ->resetLatch()
+                        ->writeLong(0);
                     // Preserve X, clear NVC and set Z
                     $this->iConditionRegister = (
                         $this->iConditionRegister & IRegister::CCR_EXTEND
                     ) | IRegister::CCR_ZERO;
-                    $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]
-                        ->resetLatch()
-                        ->writeLong(0);
                 }
             )
         );

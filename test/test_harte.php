@@ -39,7 +39,12 @@ $oTomHarte = (new TestHarness\TomHarte(
 ;
 
 //print_r($oTomHarte->loadSuite('TRAP')->run());
-print_r($oTomHarte->loadSuite('MOVE.w')->run());
+//print_r($oTomHarte->loadSuite('TST.w')->run());
+
+print_r($oTomHarte->loadSuite('TST.w')->run());
+print_r($oTomHarte->loadSuite('TST.l')->run());
+print_r($oTomHarte->loadSuite('CLR.w')->run());
+print_r($oTomHarte->loadSuite('CLR.l')->run());
 exit;
 
 $oTomHarte->runAllExcept(
