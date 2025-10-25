@@ -38,6 +38,11 @@ class TomHarte
 
     private array $aDeclaredUndefinedCCR = [];
 
+    private array $aIgnoredMemoryChanges = [];
+
+    /** @var array<int, stdClass> */
+    private array $aTestCases = [];
+
     public function __construct(string $sTestDir, ?Device\IBus $oMemory = null)
     {
         assert(is_readable($sTestDir) & is_dir($sTestDir), new LogicException());
@@ -52,8 +57,11 @@ class TomHarte
         return $this;
     }
 
-    /** @var array<int, stdClass> */
-    private array $aTestCases = [];
+    public function ignoreMemoryChanged(int $iAddress): self
+    {
+        $this->aIgnoredMemoryChanges[$iAddress] = 1;
+        return $this;
+    }
 
     public function runAllExcept(array $aExclude)
     {
@@ -268,8 +276,9 @@ class TomHarte
             $iAddress += ISize::WORD;
         }
 
-        $aMemory = array_column($oTestCase->final->ram, 1, 0);
+        $aMemory = array_column($oTestCase->initial->ram, 1, 0);
         ksort($aMemory);
+
 
         foreach ($aMemory as $iAddress => $iByte) {
             printf(
@@ -410,6 +419,7 @@ class TomHarte
         // Memory
         foreach ($aMemory as $iAddress => $iByte) {
             if (
+                empty($this->aIgnoredMemoryChanges[$iAddress]) &&
                 ($iExpect = $iByte) !=
                 ($iHave = $this->oMemory->readByte($iAddress))
             ) {

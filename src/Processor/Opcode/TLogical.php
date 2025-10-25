@@ -358,9 +358,9 @@ trait TLogical
                 function(int $iOpcode) {
                     $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
                     $iValue = ~$oEAMode->readByte();
+                    $oEAMode->writeByte($iValue);
                     $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
                     $this->updateNZByte($iValue);
-                    $oEAMode->writeByte($iValue);
                 }
             )
         );
@@ -392,9 +392,9 @@ trait TLogical
                 function(int $iOpcode) {
                     $oEAMode = $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA];
                     $iValue = ~$oEAMode->readLong();
+                    $oEAMode->writeLong($iValue);
                     $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
                     $this->updateNZLong($iValue);
-                    $oEAMode->writeLong($iValue);
                 }
             )
         );

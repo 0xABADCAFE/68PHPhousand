@@ -46,4 +46,15 @@ interface ISpecial
     // TODO - probably need to be in a different location
     const MASK_TRAP_NUM = 0xF; // 0-15
     const TRAP_USER_OFS = 32;  // 32-47
+
+    // Function Codes FC0-FC2
+    const EXCEPTION_FC_UNDEF_000  = 0b000;
+    const EXCEPTION_FC_USER_DATA  = 0b001;
+    const EXCEPTION_FC_USER_PROG  = 0b010;
+    const EXCEPTION_FC_UNDEF_011  = 0b011;
+    const EXCEPTION_FC_UNDEF_100  = 0b100;
+    const EXCEPTION_FC_SUPER_DATA = 0b101;
+    const EXCEPTION_FC_SUPER_PROG = 0b110;
+    const EXCEPTION_FC_CPU_SPACE  = 0b111;
+
 }
