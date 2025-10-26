@@ -25,7 +25,40 @@ An internal array maps 68000 opcode words to specific closure handelers that exe
 
 The CPU class is rather monolithic and quite coupled internally for performance reasons. To make the code more manageable, logical areas of concern are separated out into traits that are composed together.
 
-## Work In Progress
+## Intentional Differences from 68000
+
+By design, there are some differences to the 68000 the emulation core does not specifically handle. The following divergences affect both user and supervisor mode:
+
+- 24-bit addressing:
+
+    - All 32 bits of the address are exposed to the IBus implementation.
+    - An IBus Address24Bit adapter is provided that masks off the upper 8 bits of an address to better simulate the original addressing behaviour.
+
+- Bus width:
+    - The original 68000 transfers 16-bit word at a time. For predecrement and postincrement addressing modes, this means that should an address or access fault occur for a long sized access, a given register may only have been half updated, e.g. adjusted by 2 and not 4.
+    - IBus accesses will always transfer a full byte, word or long and any registers affected by predecrement/postincrement updated accordingly.
+
+- Misaligned accesses:
+
+    - The original 68000 is incapable of accessing a word or long on an odd address boundary, triggering an access fault.
+    - This will not happen by default. An IBus WordAligned adapter is provided that will trigger an access fault for misalgned word/long accesses.
+
+- Branch displacements:
+    - Branch displacements recognise 0xFF in the short displacement field as indicating that a 32-bit long branch displacement follows, as per the 68020+
+
+Using the WordAligned and Address24Bit adapters together more faithfully recreate the access fault behaviour of the original 68000 at the cost of making memory accesses slower.
+
+Without these adapters, the normal user mode operation is more akin to a 68020 running 68000 object code.
+
+## Intentional Supervisor mode differences from the 68000
+
+The following supervisor mode differces are intentional:
+
+- Vector Base Register:
+    - Initially set to 0, this allows the relocation of the vector base for exception handling.
+
+
+# Work In Progress
 
 Follows a similar design principle to [SixPHPhive02](https://github.com/0xABADCAFE/sixphphive02/tree/main) with a decoupled memory / CPU model.
 
