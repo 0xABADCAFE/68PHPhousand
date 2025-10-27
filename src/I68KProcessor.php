@@ -26,5 +26,7 @@ interface I68KProcessor extends IDevice
     public function getRegister(string $sRegName): int;
     public function setRegister(string $sRegName, int $iValue): self;
 
+    public function setSupervisorMode(bool $isSupervisor): self;
+
 }
 

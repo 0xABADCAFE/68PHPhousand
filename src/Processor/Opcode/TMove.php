@@ -423,6 +423,24 @@ trait TMove
             )
         );
 
+        // Move to SR
+        $this->addExactHandlers(
+            array_fill_keys(
+                $this->generateForEAModeList(
+                    IEffectiveAddress::MODE_ALL_EXCEPT_AREGS,
+                    IMove::OP_MOVE_2_SR
+                ),
+                function (int $iOpcode) {
+                    if ($this->iStatusRegister & IRegister::SR_MASK_SUPER) {
+                        $this->iStatusRegister = $this->aSrcEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]->readWord();
+                        $this->iConditionRegister = $this->iStatusRegister & IRegister::CCR_MASK;
+                    } else {
+                        throw new LogicException('Privilege Violation: MOVE to SR');
+                    }
+                }
+            )
+        );
+
         // Move from CCR (68010+)
         $this->addExactHandlers(
             array_fill_keys(

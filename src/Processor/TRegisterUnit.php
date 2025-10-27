@@ -24,6 +24,7 @@ trait TRegisterUnit
     protected int $iProgramCounter    = 0;
     protected int $iStatusRegister    = 0;
     protected int $iConditionRegister = 0;
+    protected int $iUserStackPointer  = 0;
 
     protected AddressRegisterSet $oAddressRegisters;
     protected DataRegisterSet $oDataRegisters;
@@ -44,6 +45,11 @@ trait TRegisterUnit
 
     public function getRegister(string $sRegName): int
     {
+        if ($sRegName === IRegister::ADDR_NAMES[IRegister::A7]) {
+            return ($this->iStatusRegister & IRegister::SR_MASK_SUPER)
+                ? $this->oAddressRegisters->aIndex[IRegister::A7]
+                : $this->iUserStackPointer;
+        }
         assert(
             isset($this->aRegisterNames[$sRegName]),
             new ValueError('Illegal register name ' . $sRegName)
@@ -53,6 +59,14 @@ trait TRegisterUnit
 
     public function setRegister(string $sRegName, int $iValue): self
     {
+        if ($sRegName === IRegister::ADDR_NAMES[IRegister::A7]) {
+            if ($this->iStatusRegister & IRegister::SR_MASK_SUPER) {
+                $this->oAddressRegisters->aIndex[IRegister::A7] = $iValue & 0xFFFFFFFF;
+            } else {
+                $this->iUserStackPointer = $iValue & 0xFFFFFFFF;
+            }
+            return $this;
+        }
         assert(
             isset($this->aRegisterNames[$sRegName]),
             new ValueError('Illegal register name ' . $sRegName)
@@ -78,10 +92,21 @@ trait TRegisterUnit
 
     protected function registerReset(): void
     {
-        $this->iProgramCounter = 0;
-        $this->iStatusRegister = 0;
+        $this->iProgramCounter    = 0;
+        $this->iStatusRegister    = 0;
         $this->iConditionRegister = 0;
+        $this->iUserStackPointer  = 0;
         $this->oAddressRegisters->reset();
         $this->oDataRegisters->reset();
+    }
+
+    public function setSupervisorMode(bool $isSupervisor): self
+    {
+        if ($isSupervisor) {
+            $this->iStatusRegister |= IRegister::SR_MASK_SUPER;
+        } else {
+            $this->iStatusRegister &= ~IRegister::SR_MASK_SUPER;
+        }
+        return $this;
     }
 }
