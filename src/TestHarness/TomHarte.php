@@ -40,6 +40,9 @@ class TomHarte
 
     private array $aIgnoredMemoryChanges = [];
 
+    private array $aIgnoredMemoryBitMaskChanges = [];
+
+
     /** @var array<int, stdClass> */
     private array $aTestCases = [];
 
@@ -62,6 +65,13 @@ class TomHarte
         $this->aIgnoredMemoryChanges[$iAddress] = 1;
         return $this;
     }
+
+    public function ignoreMemoryBitMask(int $iAddress, $iMask): self
+    {
+        $this->aIgnoredMemoryBitMaskChanges[$iAddress] = ~$iMask;
+        return $this;
+    }
+
 
     public function runAllExcept(array $aExclude)
     {
@@ -418,10 +428,11 @@ class TomHarte
 
         // Memory
         foreach ($aMemory as $iAddress => $iByte) {
+            $iMask = $this->aIgnoredMemoryBitMaskChanges[$iAddress] ?? 0xFF;
             if (
                 empty($this->aIgnoredMemoryChanges[$iAddress]) &&
-                ($iExpect = $iByte) !=
-                ($iHave = $this->oMemory->readByte($iAddress))
+                ($iExpect = ($iByte & $iMask)) !=
+                ($iHave = ($this->oMemory->readByte($iAddress) & $iMask))
             ) {
                 $aFailures[] = sprintf(
                     'RAM mismatch: Expected 0x%02X (%4d) at 0x%08X, got 0x%02X (%4d) for test case %s',
