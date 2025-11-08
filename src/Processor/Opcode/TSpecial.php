@@ -20,6 +20,7 @@ use ABadCafe\G8PHPhousand\Processor\IRegister;
 use ABadCafe\G8PHPhousand\Processor\ISize;
 use ABadCafe\G8PHPhousand\Processor\IEffectiveAddress;
 use ABadCafe\G8PHPhousand\Processor\Sign;
+use ABadCafe\G8PHPhousand\Processor\Fault\IVector;
 
 use LogicException;
 
@@ -124,5 +125,32 @@ trait TSpecial
                 }
             )
         );
+
+        $this->addExactHandlers([
+            ISpecial::OP_TRAPV => function($iOpcode) {
+                if ($this->iConditionRegister & IRegister::CCR_OVERFLOW) {
+                    $this->syncSupervisorState();
+
+                    // a7 is now SSP
+                    $this->oAddressRegisters->iReg7 -= ISize::LONG;
+                    $this->oOutside->writeLong(
+                        $this->oAddressRegisters->iReg7,
+                        $this->iProgramCounter
+                    );
+
+                    $this->oAddressRegisters->iReg7 -= ISize::WORD;
+                    $this->oOutside->writeWord(
+                        $this->oAddressRegisters->iReg7,
+                        ($this->iStatusRegister << 8) |
+                        ($this->iConditionRegister)
+                    );
+
+                    // Jump!
+                    $this->iProgramCounter = $this->oOutside->readLong(
+                        $this->iVectorBaseRegister + IVector::VOFS_TRAPV_INSTRUCTION
+                    );
+                }
+            }
+        ]);
     }
 }

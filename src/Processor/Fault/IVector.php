@@ -24,6 +24,8 @@ interface IVector
     const VOFS_INTEGER_DIVIDE_BY_ZERO     = 0x014;
     const VOFS_CHK_INSTRUCTION            = 0x018;
 
+    const VOFS_TRAPV_INSTRUCTION          = 0x01C;
+
     const VOFS_TRAP_USER                  = 0x080;
 
     const MASK_TRAP_VECTOR_NUM            = 0x00F;

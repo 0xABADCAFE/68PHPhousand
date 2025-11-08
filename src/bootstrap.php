@@ -105,6 +105,8 @@ const CLASS_MAP = [
   'ABadCafe\\G8PHPhousand\\Processor\\Opcode\\Template\\TGenerator' => '/Processor/Opcode/Template/TGenerator.php',
   'ABadCafe\\G8PHPhousand\\Processor\\Fault\\TProcess' => '/Processor/Fault/TProcess.php',
   'ABadCafe\\G8PHPhousand\\Processor\\Fault\\IVector' => '/Processor/Fault/IVector.php',
+  'ABadCafe\\G8PHPhousand\\Processor\\Fault\\IFunctionCode' => '/Processor/Fault/IFunctionCode.php',
+  'ABadCafe\\G8PHPhousand\\Processor\\Fault\\ISpecialStatusWord' => '/Processor/Fault/ISpecialStatusWord.php',
   'ABadCafe\\G8PHPhousand\\Processor\\Fault\\Address' => '/Processor/Fault/Address.php',
 ];
 

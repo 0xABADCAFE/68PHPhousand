@@ -42,7 +42,10 @@ $oTomHarte = (new TestHarness\TomHarte(
     ->ignoreMemoryChanged(0x000007F3)
 ;
 
-//exit;
+//$oTomHarte->loadSuite('DIVS')->run();
+$oTomHarte->loadSuite('DIVU')->run();
+
+exit;
 
 $oTomHarte->runAllExcept(
     [
@@ -53,8 +56,6 @@ $oTomHarte->runAllExcept(
         'MOVEtoSR',    // needs supervisor
         'MOVEfromUSP', // needs supervisors
         'RESET',
-        'RTE',
-        'TRAP',
-        'TRAPV',
+        'RTE'
     ]
 );

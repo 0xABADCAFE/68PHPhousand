@@ -67,11 +67,14 @@ class CPU extends Processor\Base
             $cHandler($iOpcode);
         }
         catch (Processor\Fault\Address $oFault) {
-            $this->prepareAddressError(
+            $this->processAddressError(
                 $oFault,
                 $this->iProgramCounter - Processor\ISize::WORD,
                 $iOpcode
             );
+        }
+        catch (\DivisionByZeroError $oFault) {
+            $this->processZeroDivideError();
         }
     }
 
@@ -119,8 +122,10 @@ class CPU extends Processor\Base
         for ($i = 7; $i >=0 ; --$i) {
             $oSourceInfo = $oObjectCode->aSourceMap[$iProgramCounter] ?? null;
 
+            // We have to access memory data as bytes just in case we have an alignment adaptor in place.
+
             printf(
-                "\td%d [0x%08X] %11d %6d %4d | a%d [0x%08X] | SP: %+3d [0x%08X] 0x%04X | PC: %+3d [0x%08X] 0x%04X %s %s\n",
+                "\td%d [0x%08X] %11d %6d %4d | a%d [0x%08X] | SP: %+3d [0x%08X] 0x%02X%02X | PC: %+3d [0x%08X] 0x%02X%02X %s %s\n",
                 $i,
                 $this->oDataRegisters->aIndex[$i],
                 Processor\Sign::extLong($this->oDataRegisters->aIndex[$i]),
@@ -130,10 +135,13 @@ class CPU extends Processor\Base
                 $this->oAddressRegisters->aIndex[$i],
                 $iStackOffset,
                 $iStackAddress,
-                $this->oOutside->readWord($iStackAddress),
+                $this->oOutside->readByte($iStackAddress),
+                $this->oOutside->readByte($iStackAddress + 1),
                 $iPCOffset,
                 $iProgramCounter,
-                $this->oOutside->readWord($iProgramCounter),
+                $this->oOutside->readByte($iProgramCounter),
+                $this->oOutside->readByte($iProgramCounter + 1),
+
                 $iPCOffset ? '   ' : '>>>',
                 $oSourceInfo ? $oSourceInfo->sLineSrc : ""
             );

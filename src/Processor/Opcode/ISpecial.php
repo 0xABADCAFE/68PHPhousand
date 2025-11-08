@@ -31,7 +31,6 @@ interface ISpecial
 
     //                                vvvv - trap #<0-15>
     const OP_TRAP     = 0b0100111001000000;
-
     const OP_TRAPV    = 0b0100111001110110;
     const OP_RTR      = 0b0100111001110111;
 

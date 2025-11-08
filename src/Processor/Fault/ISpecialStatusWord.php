@@ -27,4 +27,16 @@ interface ISpecialStatusWord
     const SIZE_LONG         = 0b0000000000110000;
     const SIZE_WORD         = 0b0000000000010000;
     const FUNCTION_CODE     = 0b0000000000000111;
+
+    // Examples
+
+    //                          $D  $C  $7  $D
+    //                          1101110001110101
+    //                                       ^^^ FUNCTION_CODE: SUPER_DATA
+    //                                    ^^ SIZE: TBC
+    //                                   ^ READ_MODIFY_WRITE
+    //                              ^^ RESERVED (undefined)
+    //                             ^ RERUN_STAGE_B
+    //                           ^ FAULT_STAGE_B
+    //                          ^ FAULT_STAGE_C
 }
