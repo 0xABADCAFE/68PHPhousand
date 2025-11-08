@@ -26,15 +26,12 @@ use ABadCafe\G8PHPhousand\Processor\ISize;
  */
 trait TProcess
 {
-    protected function processZeroDivideError()
+    protected function beginStackFrame(int $iProgramCounter)
     {
-        $this->syncSupervisorState();
-
-        // a7 is now SSP
         $this->oAddressRegisters->iReg7 -= ISize::LONG;
         $this->oOutside->writeLong(
             $this->oAddressRegisters->iReg7,
-            $this->iProgramCounter
+            $iProgramCounter
         );
 
         $this->oAddressRegisters->iReg7 -= ISize::WORD;
@@ -43,7 +40,12 @@ trait TProcess
             ($this->iStatusRegister << 8) |
             ($this->iConditionRegister)
         );
+    }
 
+    protected function processZeroDivideError()
+    {
+        $this->syncSupervisorState();
+        $this->beginStackFrame($this->iProgramCounter);
         // Jump!
         $this->iProgramCounter = $this->oOutside->readLong(
             $this->iVectorBaseRegister + IVector::VOFS_TRAPV_INSTRUCTION
@@ -60,19 +62,7 @@ trait TProcess
 
         $this->syncSupervisorState();
 
-        // a7 is now SSP
-        $this->oAddressRegisters->iReg7 -= ISize::LONG;
-        $this->oOutside->writeLong(
-            $this->oAddressRegisters->iReg7,
-            $this->iProgramCounter
-        );
-
-        $this->oAddressRegisters->iReg7 -= ISize::WORD;
-        $this->oOutside->writeWord(
-            $this->oAddressRegisters->iReg7,
-            ($this->iStatusRegister << 8) |
-            ($this->iConditionRegister)
-        );
+        $this->beginStackFrame($this->iProgramCounter);
 
         // Jump!
         $this->iProgramCounter = $this->oOutside->readLong(
@@ -82,23 +72,11 @@ trait TProcess
 
     protected function processAddressError(Address $oFault, int $iPCAddress, int $iOpcode)
     {
-        // TODO
-        // PROTOTYPE - export all the logic to an appropriate helper
         $this->syncSupervisorState(); // Transition to supervisor mode
 
-        // Populate exception frame
+        $this->beginStackFrame($iPCAddress);
 
-        // Faulting address
-        $this->oOutside->writeLong(
-            ($this->oAddressRegisters->iReg7 -= ISize::LONG),
-            $iPCAddress
-        );
-
-        // Full status register
-        $this->oOutside->writeWord(
-            ($this->oAddressRegisters->iReg7 -= ISize::WORD),
-            $this->iStatusRegister << 8 | $this->iConditionRegister
-        );
+        // Extended frame data
 
         // Faulting instruction
         $this->oOutside->writeWord(
@@ -115,7 +93,7 @@ trait TProcess
         // Allocate Exception Frame (14 bytes)
         $this->oAddressRegisters->iReg7 -= 2;
 
-        // TODO - populate it
+        // TODO - populate it with the remaining
 
         // Reload the PC from vector 0xC (AddressError), include VBR
         $this->iProgramCounter = $this->oOutside->readLong(
