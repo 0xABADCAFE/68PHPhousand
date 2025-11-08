@@ -437,6 +437,46 @@ trait TMove
                 }
             )
         );
+
+        // MOVE to USP
+        $this->addExactHandlers(
+            array_fill_keys(
+                range(
+                    IMove::OP_MOVE_A2USP|IRegister::A0,
+                    IMove::OP_MOVE_A2USP|IRegister::A7
+                ),
+                function (int $iOpcode) {
+                    if ($this->iStatusRegister & IRegister::SR_MASK_SUPER) {
+                        $this->iUserStackPtrRegister = $this->oAddressRegisters->aIndex[
+                            $iOpcode & IOpcode::MASK_EA_REG
+                        ];
+                    } else {
+                        $this->processPrivilegeViolation();
+                    }
+                }
+            )
+        );
+
+        // MOVE from USP
+        $this->addExactHandlers(
+            array_fill_keys(
+                range(
+                    IMove::OP_MOVE_USP2A|IRegister::A0,
+                    IMove::OP_MOVE_USP2A|IRegister::A7
+                ),
+                function (int $iOpcode) {
+                    if ($this->iStatusRegister & IRegister::SR_MASK_SUPER) {
+                        $iIndex = $iOpcode & IOpcode::MASK_EA_REG;
+                        $this->oAddressRegisters->aIndex[$iIndex] = $this->iUserStackPtrRegister;
+                        if (IRegister::A7 === $iIndex) {
+                            $this->iSupervisorStackPtrRegister = $this->iUserStackPtrRegister;
+                        }
+                    } else {
+                        $this->processPrivilegeViolation();
+                    }
+                }
+            )
+        );
     }
 
     private function buildCLRHandlers()

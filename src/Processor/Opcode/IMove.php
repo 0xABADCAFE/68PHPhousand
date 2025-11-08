@@ -45,6 +45,10 @@ interface IMove
     const OP_MOVEM_M2R_W = 0b0100110010000000;
     const OP_MOVEM_M2R_L = 0b0100110011000000;
 
+    // Supervisor move operations         aaa
+    const OP_MOVE_A2USP  = 0b0100111001100000;
+    const OP_MOVE_USP2A  = 0b0100111001101000;
+
     // Effective address families for MOVEM operations
     const OP_MOVEM_R2M_BASE_EA = [
         IEffectiveAddress::MODE_AI   => IRegister::ADDR_REGS, // (aN)

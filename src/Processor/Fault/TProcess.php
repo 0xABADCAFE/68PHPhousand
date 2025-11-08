@@ -20,6 +20,7 @@ declare(strict_types=1);
 namespace ABadCafe\G8PHPhousand\Processor\Fault;
 
 use ABadCafe\G8PHPhousand\Processor\ISize;
+use ABadCafe\G8PHPhousand\Processor\IRegister;
 
 /**
  * Mixin of helper logic for dealing with faults
@@ -42,13 +43,22 @@ trait TProcess
         );
     }
 
-    protected function processZeroDivideError()
+    protected function processPrivilegeViolation()
     {
         $this->syncSupervisorState();
         $this->beginStackFrame($this->iProgramCounter);
-        // Jump!
         $this->iProgramCounter = $this->oOutside->readLong(
-            $this->iVectorBaseRegister + IVector::VOFS_TRAPV_INSTRUCTION
+            $this->iVectorBaseRegister + IVector::VOFS_PRIVILEGE_VIOLATION
+        );
+    }
+
+    protected function processZeroDivideError()
+    {
+        $this->syncSupervisorState();
+        $this->iConditionRegister &= IRegister::CCR_EXTEND;
+        $this->beginStackFrame($this->iProgramCounter);
+        $this->iProgramCounter = $this->oOutside->readLong(
+            $this->iVectorBaseRegister + IVector::VOFS_INTEGER_DIVIDE_BY_ZERO
         );
     }
 
@@ -59,12 +69,8 @@ trait TProcess
             new \LogicException('Invalid TRAP number')
         );
 
-
         $this->syncSupervisorState();
-
         $this->beginStackFrame($this->iProgramCounter);
-
-        // Jump!
         $this->iProgramCounter = $this->oOutside->readLong(
             $this->iVectorBaseRegister + ($iTrapNumber << 2) + IVector::VOFS_TRAP_USER
         );

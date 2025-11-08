@@ -125,4 +125,12 @@ abstract class Base implements I68KProcessor, IOpcode, Opcode\IPrefix
         }
     }
 
+    protected function syncFromStackPointer()
+    {
+        if ($this->iStatusRegister & IRegister::SR_MASK_SUPER) {
+            $this->iSupervisorStackPtrRegister = $this->oAddressRegisters->iReg7;
+        } else {
+            $this->iUserStackPtrRegister = $this->oAddressRegisters->iReg7;
+        }
+    }
 }

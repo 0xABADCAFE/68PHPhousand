@@ -38,6 +38,8 @@ class TomHarte
 
     private array $aDeclaredUndefinedCCR = [];
 
+    private array $aRequireUSPCheck = [];
+
     private array $aIgnoredMemoryChanges = [];
 
     private array $aIgnoredMemoryBitMaskChanges = [];
@@ -141,6 +143,13 @@ class TomHarte
     public function declareBroken(string $sTestCase): self
     {
         $this->aDeclaredBroken[$sTestCase] = 1;
+        return $this;
+    }
+
+
+    public function requireUSPCheck(string $sTestCase): self
+    {
+        $this->aRequireUSPCheck[$sTestCase] = 1;
         return $this;
     }
 
@@ -409,8 +418,6 @@ class TomHarte
             }
         }
 
-
-
         if (
             ($iExpect = $iStack) !=
             ($iHave = $this->oCPU->getRegister('a7'))
@@ -422,6 +429,31 @@ class TomHarte
                 $oTestCase->name
             );
         }
+
+        if (isset($this->aRequireUSPCheck[$this->sSuite])) {
+            if (
+                ($iExpect = $oTestCase->final->usp) !=
+                ($iHave = $this->oCPU->getRegister('usp'))
+            ) {
+                $aFailures[] = sprintf(
+                    'USP mismatch: Expected 0x%08X, got 0x%08X for test case %s',
+                    $iExpect,
+                    $iHave,
+                    $oTestCase->name
+                );
+            }
+        }
+//         if (
+//             ($iExpect = $oTestCase->final->ssp) !=
+//             ($iHave = $this->oCPU->getRegister('ssp'))
+//         ) {
+//             $aFailures[] = sprintf(
+//                 'SSP mismatch: Expected 0x%08X, got 0x%08X for test case %s',
+//                 $iExpect,
+//                 $iHave,
+//                 $oTestCase->name
+//             );
+//         }
 
         $aMemory = array_column($oTestCase->final->ram, 1, 0);
         ksort($aMemory);
