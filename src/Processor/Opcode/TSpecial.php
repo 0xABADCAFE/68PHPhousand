@@ -31,6 +31,7 @@ trait TSpecial
     protected function initSpecialHandlers()
     {
         $this->addTRAPHandlers();
+        $this->addCHKHandlers();
 
         $cUnhandled = function(int $iOpcode) {
             throw new LogicException(sprintf('Unhandled special operation 0x%4X (TODO)', $iOpcode));
@@ -131,19 +132,7 @@ trait TSpecial
                 if ($this->iConditionRegister & IRegister::CCR_OVERFLOW) {
                     $this->syncSupervisorState();
 
-                    // a7 is now SSP
-                    $this->oAddressRegisters->iReg7 -= ISize::LONG;
-                    $this->oOutside->writeLong(
-                        $this->oAddressRegisters->iReg7,
-                        $this->iProgramCounter
-                    );
-
-                    $this->oAddressRegisters->iReg7 -= ISize::WORD;
-                    $this->oOutside->writeWord(
-                        $this->oAddressRegisters->iReg7,
-                        ($this->iStatusRegister << 8) |
-                        ($this->iConditionRegister)
-                    );
+                    $this->beginStackFrame($this->iProgramCounter);
 
                     // Jump!
                     $this->iProgramCounter = $this->oOutside->readLong(
@@ -152,5 +141,51 @@ trait TSpecial
                 }
             }
         ]);
+    }
+
+    private function addCHKHandlers()
+    {
+        $aEAModes = $this->generateForEAModeList(IEffectiveAddress::MODE_ALL_EXCEPT_AREGS);
+        foreach(IRegister::DATA_REGS as $iReg) {
+            $this->addExactHandlers(
+
+                array_fill_keys(
+                    $this->mergePrefixForModeList(
+                        ISpecial::OP_CHK_W|($iReg << IOpcode::REG_UP_SHIFT),
+                        $aEAModes
+                    ),
+                    function (int $iOpcode) {
+                        $bTrap = false;
+                        $iCheck = ISize::MASK_WORD & $this->oDataRegisters->aIndex[
+                            $iOpcode & IOpcode::MASK_REG_UPPER
+                        ];
+
+                        $iBound = Sign::extWord(
+                            $this->aSrcEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]->readWord()
+                        );
+
+                        if ($iCheck & ISize::SIGN_BIT_WORD) {
+                            $this->iConditionRegister |= IRegister::CCR_NEGATIVE;
+                            $bTrap = true;
+                        } else if ($iCheck > $iBound) {
+                            $this->iConditionRegister &= IRegister::CCR_CLEAR_N;
+                            $bTrap = true;
+                        }
+
+                        if ($bTrap) {
+                            $this->iConditionRegister &= IRegister::CCR_CLEAR_ZVC;
+                            $this->syncSupervisorState();
+                            $this->beginStackFrame($this->iProgramCounter);
+
+                            // Jump!
+                            $this->iProgramCounter = $this->oOutside->readLong(
+                                $this->iVectorBaseRegister + IVector::VOFS_CHK_INSTRUCTION
+                            );
+                        }
+
+                    }
+                )
+            );
+        }
     }
 }

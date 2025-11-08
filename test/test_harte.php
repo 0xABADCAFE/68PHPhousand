@@ -34,6 +34,7 @@ $oTomHarte = (new TestHarness\TomHarte(
     ->declareUndefinedCCR('ABCD', IRegister::CCR_OVERFLOW)
     ->declareUndefinedCCR('NBCD', IRegister::CCR_OVERFLOW)
     ->declareUndefinedCCR('SBCD', IRegister::CCR_OVERFLOW)
+    ->declareUndefinedCCR('CHK',  IRegister::CCR_MASK_ZVC)
     ->includeSupervisorStateChangeCases()
     ->includeExceptionCases()
 
@@ -42,15 +43,13 @@ $oTomHarte = (new TestHarness\TomHarte(
     ->ignoreMemoryChanged(0x000007F3)
 ;
 
-//$oTomHarte->loadSuite('DIVS')->run();
-$oTomHarte->loadSuite('DIVU')->run();
+$oTomHarte->loadSuite('CHK')->run();
 
 exit;
 
 $oTomHarte->runAllExcept(
     [
         // Not implemented yet
-        'CHK',
         'MOVEtoUSP',   // needs supervisor
         'MOVEfromSR',  // needs supervisor
         'MOVEtoSR',    // needs supervisor

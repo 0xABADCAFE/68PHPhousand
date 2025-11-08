@@ -42,6 +42,11 @@ interface ISpecial
     //                                 AAA
     const OP_UNLK     = 0b0100111001011000;
 
+    //                        rrrss0EAEAEA - r is d0-d7, ss 11:word / 10:long (020+)
+    const OP_CHK_W    = 0b0100000110000000;
+
+    const OP_CHK_L    = 0b0100000100000000; // 020+
+
     // TODO - probably need to be in a different location
     const MASK_TRAP_NUM = 0xF; // 0-15
     const TRAP_USER_OFS = 32;  // 32-47
