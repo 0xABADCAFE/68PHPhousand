@@ -25,16 +25,16 @@ require 'bootstrap.php';
 const BASE_ADDRESS = 0x400;
 
 $oObjectCode = (new TestHarness\Assembler\Vasmm68k())->assemble('
-    movem.l d0/d2/d4/d6,$1234(a0)
 
-    nop
+    mc68010
 
-    movem.l d0/d2/d4/d6,($1234).w
+    move.l #$800,sp
 
-    nop
-;    move.b #127,d0
-;    move.b #-2,d1
-;    cmp.b d0,d1
+    move.l data,d0
+    movec d0,vbr
+    movec vbr,d1
+    move.l #$FFFFFFFF,d2
+    movec usp,d2
     stop #0
 data:
     dc.l $ABADCAFE
@@ -46,4 +46,7 @@ data:
 $oMemory = new Device\Memory\SparseWordRAM();
 
 $oTestCPU = new TestHarness\CPU($oMemory);
-$oTestCPU->executeVerbose($oObjectCode);
+$oTestCPU
+    ->asSupervisor()
+    ->setRegister('usp', 0x12345678)
+    ->executeVerbose($oObjectCode);

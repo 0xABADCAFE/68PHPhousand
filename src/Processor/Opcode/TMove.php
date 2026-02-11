@@ -485,6 +485,7 @@ trait TMove
                     $iExtension = $this->oOutside->readWord(
                         $this->iProgramCounter
                     );
+                    $this->iProgramCounter += ISize::WORD;
 
                     $iControlRegister = $this->aControlRegIndexes[
                         $iExtension & IMove::OP_MOVEC_CTRL_MASK
@@ -498,7 +499,6 @@ trait TMove
                     } else {
                         $this->oDataRegisters->aIndex[$iRegIndex] = $iControlRegister;
                     }
-                    $this->iProgramCounter += ISize::WORD;
                 } else {
                     $this->processPrivilegeViolation();
                 }
@@ -512,20 +512,20 @@ trait TMove
                     $iExtension = $this->oOutside->readWord(
                         $this->iProgramCounter
                     );
+                    $this->iProgramCounter += ISize::WORD;
 
                     $iControlRegister = &$this->aControlRegIndexes[
                         $iExtension & IMove::OP_MOVEC_CTRL_MASK
                     ] ?? throw new \Exception();
 
                     $iRegIndex = $iExtension >> IMove::OP_MOVEC_GPR_SHIFT;
-
+                    $this->syncSupervisorState();
                     if ($iRegIndex > 7) {
                         $iRegIndex &= 7;
                         $iControlRegister = $this->oAddressRegisters->aIndex[$iRegIndex];
                     } else {
                         $iControlRegister = $this->oDataRegisters->aIndex[$iRegIndex];
                     }
-                    $this->iProgramCounter += ISize::WORD;
                 } else {
                     $this->processPrivilegeViolation();
                 }

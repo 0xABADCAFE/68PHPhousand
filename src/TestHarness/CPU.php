@@ -46,6 +46,11 @@ class CPU extends Processor\Base
         return $this->oAddressRegisters;
     }
 
+    public function asSupervisor(): self
+    {
+        $this->syncSupervisorState();
+        return $this;
+    }
 
     public function executeAt(int $iAddress): void
     {
@@ -156,6 +161,15 @@ class CPU extends Processor\Base
             "\tCCR: %s\n",
             $this->formatCCR($this->iConditionRegister)
         );
+        printf(
+            "\tVBR: 0x%08X\n" .
+            "\tUSP: 0x%08X *\n" .
+            "\tSSP: 0x%08X *\n" .
+            "\t* May not yet have synced with active SP\n",
+            $this->iVectorBaseRegister,
+            $this->iUserStackPtrRegister,
+            $this->iSupervisorStackPtrRegister
+        );
     }
 
     public function formatCCR(int $iCC): string
@@ -192,7 +206,7 @@ class CPU extends Processor\Base
                     throw new \RuntimeException('No handler');
                 }
 
-                $sSourceLine = $oObjectCode->aSourceMap[$this->iProgramCounter]->sLineSrc;
+                $sSourceLine = $oObjectCode->aSourceMap[$this->iProgramCounter]->sLineSrc ?? '---';
 
                 printf("\nExecuted 0x%08X : %s\n\n", $this->iProgramCounter, $sSourceLine);
 
