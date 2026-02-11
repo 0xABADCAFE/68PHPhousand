@@ -37,10 +37,10 @@ trait TComparisonArithmetic
                     $aEAModes
                 ),
                 function(int $iOpcode) {
-                    $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
                     $this->updateNZByte(
                         $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]->readByte()
                     );
+                    $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
                 }
             )
         );
@@ -53,10 +53,10 @@ trait TComparisonArithmetic
                     $aEAModes
                 ),
                 function(int $iOpcode) {
-                    $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
                     $this->updateNZWord(
                         $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]->readWord()
                     );
+                    $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
                 }
             )
         );
@@ -69,10 +69,10 @@ trait TComparisonArithmetic
                     $aEAModes
                 ),
                 function(int $iOpcode) {
-                    $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
                     $this->updateNZLong(
                         $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]->readLong()
                     );
+                    $this->iConditionRegister &= IRegister::CCR_CLEAR_CV;
                 }
             )
         );

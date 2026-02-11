@@ -27,18 +27,32 @@ class TomHarte
     private string $sTestDir;
     private string $sSuite;
 
-    private Device\IMemory $oMemory;
+    private Device\IBus $oMemory;
     private CPU $oCPU;
+
+
+    private bool $bSkipSupervisorChange = true;
+    private bool $bSkipExceptionCases   = true;
 
     private array $aDeclaredBroken = [];
 
     private array $aDeclaredUndefinedCCR = [];
 
-    public function __construct(string $sTestDir)
+    private array $aRequireUSPCheck = [];
+
+    private array $aIgnoredMemoryChanges = [];
+
+    private array $aIgnoredMemoryBitMaskChanges = [];
+
+
+    /** @var array<int, stdClass> */
+    private array $aTestCases = [];
+
+    public function __construct(string $sTestDir, ?Device\IBus $oMemory = null)
     {
         assert(is_readable($sTestDir) & is_dir($sTestDir), new LogicException());
         $this->sTestDir = $sTestDir;
-        $this->oMemory = new Device\Memory\SparseRAM24();
+        $this->oMemory = $oMemory ?? new SparseRAM24();
         $this->oCPU    = new CPU($this->oMemory);
     }
 
@@ -48,8 +62,18 @@ class TomHarte
         return $this;
     }
 
-    /** @var array<int, stdClass> */
-    private array $aTestCases = [];
+    public function ignoreMemoryChanged(int $iAddress): self
+    {
+        $this->aIgnoredMemoryChanges[$iAddress] = 1;
+        return $this;
+    }
+
+    public function ignoreMemoryBitMask(int $iAddress, $iMask): self
+    {
+        $this->aIgnoredMemoryBitMaskChanges[$iAddress] = ~$iMask;
+        return $this;
+    }
+
 
     public function runAllExcept(array $aExclude)
     {
@@ -122,6 +146,38 @@ class TomHarte
         return $this;
     }
 
+
+    public function requireUSPCheck(string $sTestCase): self
+    {
+        $this->aRequireUSPCheck[$sTestCase] = 1;
+        return $this;
+    }
+
+    public function includeSupervisorStateChangeCases(): self
+    {
+        $this->bSkipSupervisorChange = false;
+        return $this;
+    }
+
+    public function includeExceptionCases(): self
+    {
+        $this->bSkipExceptionCases = false;
+        return $this;
+    }
+
+    public function excludeSupervisorStateChangeCases(): self
+    {
+        $this->bSkipSupervisorChange = true;
+        return $this;
+    }
+
+    public function excludeExceptionCases(): self
+    {
+        $this->bSkipExceptionCases = false;
+        return $this;
+    }
+
+
     public function run(): stdClass
     {
         $iErrored   = 0;
@@ -143,7 +199,7 @@ class TomHarte
 
             }
 
-            if ($this->changesSupervisorState($oTestCase)){
+            if ($this->bSkipSupervisorChange && $this->changesSupervisorState($oTestCase)){
                 printf(
                     "Skipping %s - triggers supervisor state change\n",
                     $oTestCase->name
@@ -151,7 +207,7 @@ class TomHarte
                 ++$iSkipped;
                 continue;
             }
-            if ($this->usesVectorTable($oTestCase)) {
+            if ($this->bSkipExceptionCases && $this->usesVectorTable($oTestCase)) {
                 printf(
                     "Skipping %s - requires exception vector\n",
                     $oTestCase->name
@@ -182,7 +238,6 @@ class TomHarte
                     foreach ($aFailures as $sMessage) {
                         printf("\t%s\n", $sMessage);
                     }
-                    //print(json_encode($oTestCase, JSON_PRETTY_PRINT));
                     ob_end_flush();
 
                 }
@@ -239,14 +294,19 @@ class TomHarte
             $this->oMemory->writeWord($iAddress, $iOpcode);
             $iAddress += ISize::WORD;
         }
-        foreach ($oTestCase->initial->ram as $aPair) {
+
+        $aMemory = array_column($oTestCase->initial->ram, 1, 0);
+        ksort($aMemory);
+
+
+        foreach ($aMemory as $iAddress => $iByte) {
             printf(
                 "\tSetting byte at 0x%08X to 0x%02X (%d)\n",
-                $aPair[0],
-                $aPair[1],
-                Sign::extByte($aPair[1])
+                $iAddress,
+                $iByte,
+                Sign::extByte($iByte)
             );
-            $this->oMemory->writeByte($aPair[0], $aPair[1]);
+            $this->oMemory->writeByte($iAddress, $iByte);
         }
 
         $iCCR   =  $oTestCase->initial->sr & 0xFF;
@@ -277,6 +337,9 @@ class TomHarte
         $this->oCPU->setRegister('a5',  $oTestCase->initial->a5);
         $this->oCPU->setRegister('a6',  $oTestCase->initial->a6);
         $this->oCPU->setRegister('a7',  $iStack);
+        $this->oCPU->setRegister('usp', $oTestCase->initial->usp);
+        $this->oCPU->setRegister('ssp', $oTestCase->initial->ssp);
+
     }
 
     public function checkTestResult(stdClass $oTestCase): array
@@ -355,8 +418,6 @@ class TomHarte
             }
         }
 
-
-
         if (
             ($iExpect = $iStack) !=
             ($iHave = $this->oCPU->getRegister('a7'))
@@ -369,17 +430,47 @@ class TomHarte
             );
         }
 
-        // Memory
-        foreach ($oTestCase->final->ram as $aPair) {
+        if (isset($this->aRequireUSPCheck[$this->sSuite])) {
             if (
-                ($iExpect = $aPair[1]) !=
-                ($iHave = $this->oMemory->readByte($aPair[0]))
+                ($iExpect = $oTestCase->final->usp) !=
+                ($iHave = $this->oCPU->getRegister('usp'))
             ) {
                 $aFailures[] = sprintf(
-                    'RAM mismatch: Expected 0x%02X (%d) at 0x%08X, got 0x%02X (%d) for test case %s',
+                    'USP mismatch: Expected 0x%08X, got 0x%08X for test case %s',
+                    $iExpect,
+                    $iHave,
+                    $oTestCase->name
+                );
+            }
+        }
+//         if (
+//             ($iExpect = $oTestCase->final->ssp) !=
+//             ($iHave = $this->oCPU->getRegister('ssp'))
+//         ) {
+//             $aFailures[] = sprintf(
+//                 'SSP mismatch: Expected 0x%08X, got 0x%08X for test case %s',
+//                 $iExpect,
+//                 $iHave,
+//                 $oTestCase->name
+//             );
+//         }
+
+        $aMemory = array_column($oTestCase->final->ram, 1, 0);
+        ksort($aMemory);
+
+        // Memory
+        foreach ($aMemory as $iAddress => $iByte) {
+            $iMask = $this->aIgnoredMemoryBitMaskChanges[$iAddress] ?? 0xFF;
+            if (
+                empty($this->aIgnoredMemoryChanges[$iAddress]) &&
+                ($iExpect = ($iByte & $iMask)) !=
+                ($iHave = ($this->oMemory->readByte($iAddress) & $iMask))
+            ) {
+                $aFailures[] = sprintf(
+                    'RAM mismatch: Expected 0x%02X (%4d) at 0x%08X, got 0x%02X (%4d) for test case %s',
                     $iExpect,
                     Sign::extByte($iExpect),
-                    $aPair[0],
+                    $iAddress,
                     $iHave,
                     Sign::extByte($iHave),
                     $oTestCase->name

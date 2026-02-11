@@ -28,6 +28,9 @@ interface ISpecial
     const OP_STOP     = 0b0100111001110010;
     const OP_RTE      = 0b0100111001110011;
     const OP_RTS      = 0b0100111001110101;
+
+    //                                vvvv - trap #<0-15>
+    const OP_TRAP     = 0b0100111001000000;
     const OP_TRAPV    = 0b0100111001110110;
     const OP_RTR      = 0b0100111001110111;
 
@@ -38,4 +41,24 @@ interface ISpecial
     const OP_LINK     = 0b0100111001010000;
     //                                 AAA
     const OP_UNLK     = 0b0100111001011000;
+
+    //                        rrrss0EAEAEA - r is d0-d7, ss 11:word / 10:long (020+)
+    const OP_CHK_W    = 0b0100000110000000;
+
+    const OP_CHK_L    = 0b0100000100000000; // 020+
+
+    // TODO - probably need to be in a different location
+    const MASK_TRAP_NUM = 0xF; // 0-15
+    const TRAP_USER_OFS = 32;  // 32-47
+
+    // Function Codes FC0-FC2
+    const EXCEPTION_FC_UNDEF_000  = 0b000;
+    const EXCEPTION_FC_USER_DATA  = 0b001;
+    const EXCEPTION_FC_USER_PROG  = 0b010;
+    const EXCEPTION_FC_UNDEF_011  = 0b011;
+    const EXCEPTION_FC_UNDEF_100  = 0b100;
+    const EXCEPTION_FC_SUPER_DATA = 0b101;
+    const EXCEPTION_FC_SUPER_PROG = 0b110;
+    const EXCEPTION_FC_CPU_SPACE  = 0b111;
+
 }

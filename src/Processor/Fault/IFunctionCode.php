@@ -12,41 +12,16 @@
 
 declare(strict_types=1);
 
-namespace ABadCafe\G8PHPhousand\Test;
+namespace ABadCafe\G8PHPhousand\Processor\Fault;
 
-use ABadCafe\G8PHPhousand\TestHarness;
-use ABadCafe\G8PHPhousand\Device;
-use Throwable;
-use LogicException;
-use ValueError;
-
-require 'bootstrap.php';
-
-const BASE_ADDRESS = 0x400;
-
-$oObjectCode = (new TestHarness\Assembler\Vasmm68k())->assemble('
-
-    mc68010
-
-    move.l #$800,sp
-
-    move.l data,d0
-    movec d0,vbr
-    movec vbr,d1
-    move.l #$FFFFFFFF,d2
-    movec usp,d2
-    stop #0
-data:
-    dc.l $ABADCAFE
-',
-    BASE_ADDRESS
-);
-
-
-$oMemory = new Device\Memory\SparseWordRAM();
-
-$oTestCPU = new TestHarness\CPU($oMemory);
-$oTestCPU
-    ->asSupervisor()
-    ->setRegister('usp', 0x12345678)
-    ->executeVerbose($oObjectCode);
+interface IFunctionCode
+{
+    const UNDEFINED_000 = 0b000;
+    const USER_DATA     = 0b001;
+    const USER_PROGRAM  = 0b010;
+    const UNDEFINED_011 = 0b011;
+    const UNDEFINED_100 = 0b100;
+    const SUPER_DATA    = 0b101;
+    const SUPER_PROGRAM = 0b110;
+    const CPU           = 0b111;
+}

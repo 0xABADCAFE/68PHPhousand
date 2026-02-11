@@ -12,28 +12,21 @@
 
 declare(strict_types=1);
 
-namespace ABadCafe\G8PHPhousand\Device;
+namespace ABadCafe\G8PHPhousand\Processor\Fault;
 
-use ABadCafe\G8PHPhousand\IDevice;
-
-use \LogicException;
-
-/**
- * Union interface for read/write
- */
-class PageMap implements IBus
+interface IVector
 {
-    private int $iPageSize;
+    const VOFS_RESET_INITIAL_INTERRUPT_SP = 0x000;
+    const VOFS_RESET_INITIAL_PC           = 0x004;
+    const VOFS_ACCESS_FAULT               = 0x008;
+    const VOFS_ADDRESS_ERROR              = 0x00C;
+    const VOFS_ILLEGAL_INSTRUCTION        = 0x010;
+    const VOFS_INTEGER_DIVIDE_BY_ZERO     = 0x014;
+    const VOFS_CHK_INSTRUCTION            = 0x018;
+    const VOFS_TRAPV_INSTRUCTION          = 0x01C;
+    const VOFS_PRIVILEGE_VIOLATION        = 0x020;
 
-    const MIN_SIZE_EXP = 8;
-    const MAX_SIZE_EXP = 16;
+    const VOFS_TRAP_USER                  = 0x080;
 
-    public function ___construct(int $iPageSizeExp)
-    {
-        assert($iPageSizeExp >= self::MIN_SIZE_EXP && $iPageSizeExp <= self::MAX_SIZE_EXP, new LogicException());
-
-        $this->iPageSize = 1 << $iPageSizeExp;
-    }
+    const MASK_TRAP_VECTOR_NUM            = 0x00F;
 }
-
-

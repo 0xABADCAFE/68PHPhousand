@@ -61,6 +61,7 @@ interface IRegister
     public const CCR_MASK_ZC   = 0b00000101;
     public const CCR_MASK_NZVC = 0b00001111;
     public const CCR_MASK_XC   = 0b00010001;
+    public const CCR_MASK_ZVC  = 0b00000111;
 
     //                                XNZVC
     public const CCR_CLEAR_N   = 0b00010111;
@@ -72,6 +73,7 @@ interface IRegister
     public const CCR_CLEAR_CV  = 0b00011100;
     public const CCR_CLEAR_XCV = 0b00001100;
     public const CCR_CLEAR_XC  = 0b00001110;
+    public const CCR_CLEAR_ZVC = 0b00011000;
 
 
     // SR Bits (upper byte of SR)
@@ -104,5 +106,20 @@ interface IRegister
     public const PC_NAME  = 'pc';
     public const SR_NAME  = 'sr';
     public const CCR_NAME = 'ccr';
+    public const USP_NAME = 'usp';
+    public const SSP_NAME = 'ssp';
+    public const VBR_NAME = 'vbr'; // 010+
+
+    // Control registers (010+)
+    public const CR_SFC = 0x000; // Source Function Code
+    public const CR_DFC = 0x001; // Destination Function Code
+    public const CR_USP = 0x800; // User Stack Pointer
+    public const CR_VBR = 0x801; // Vector Base Register
+
+    // 020+
+    public const CR_CACR = 0x002; // Cache Control Register
+    public const CR_CAAR = 0x802; // Cache Address Register
+    public const CR_MSP  = 0x803; // Master Stack Pointer
+    public const CR_ISP  = 0x804; // Interrupt Stack Pointer
 }
 

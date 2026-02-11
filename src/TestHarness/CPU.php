@@ -46,6 +46,11 @@ class CPU extends Processor\Base
         return $this->oAddressRegisters;
     }
 
+    public function asSupervisor(): self
+    {
+        $this->syncSupervisorState();
+        return $this;
+    }
 
     public function executeAt(int $iAddress): void
     {
@@ -55,7 +60,6 @@ class CPU extends Processor\Base
         $this->iProgramCounter += Processor\ISize::WORD;
 
         $cHandler = $this->aExactHandler[$iOpcode] ??
-            $this->aPrefixHandler[$iOpcode & Processor\IOpcode::MASK_OP_PREFIX] ??
             throw new LogicException(
                 sprintf(
                     'Unhandled Opcode 0x%04X [%s]',
@@ -64,7 +68,19 @@ class CPU extends Processor\Base
                 )
             );
 
-        $cHandler($iOpcode);
+        try {
+            $cHandler($iOpcode);
+        }
+        catch (Processor\Fault\Address $oFault) {
+            $this->processAddressError(
+                $oFault,
+                $this->iProgramCounter - Processor\ISize::WORD,
+                $iOpcode
+            );
+        }
+        catch (\DivisionByZeroError $oFault) {
+            $this->processZeroDivideError();
+        }
     }
 
     public function executeTimed(int $iAddress): \stdClass
@@ -111,8 +127,10 @@ class CPU extends Processor\Base
         for ($i = 7; $i >=0 ; --$i) {
             $oSourceInfo = $oObjectCode->aSourceMap[$iProgramCounter] ?? null;
 
+            // We have to access memory data as bytes just in case we have an alignment adaptor in place.
+
             printf(
-                "\td%d [0x%08X] %11d %6d %4d | a%d [0x%08X] | SP: %+3d [0x%08X] 0x%04X | PC: %+3d [0x%08X] 0x%04X %s %s\n",
+                "\td%d [0x%08X] %11d %6d %4d | a%d [0x%08X] | SP: %+3d [0x%08X] 0x%02X%02X | PC: %+3d [0x%08X] 0x%02X%02X %s %s\n",
                 $i,
                 $this->oDataRegisters->aIndex[$i],
                 Processor\Sign::extLong($this->oDataRegisters->aIndex[$i]),
@@ -122,10 +140,13 @@ class CPU extends Processor\Base
                 $this->oAddressRegisters->aIndex[$i],
                 $iStackOffset,
                 $iStackAddress,
-                $this->oOutside->readWord($iStackAddress),
+                $this->oOutside->readByte($iStackAddress),
+                $this->oOutside->readByte($iStackAddress + 1),
                 $iPCOffset,
                 $iProgramCounter,
-                $this->oOutside->readWord($iProgramCounter),
+                $this->oOutside->readByte($iProgramCounter),
+                $this->oOutside->readByte($iProgramCounter + 1),
+
                 $iPCOffset ? '   ' : '>>>',
                 $oSourceInfo ? $oSourceInfo->sLineSrc : ""
             );
@@ -139,6 +160,15 @@ class CPU extends Processor\Base
         printf(
             "\tCCR: %s\n",
             $this->formatCCR($this->iConditionRegister)
+        );
+        printf(
+            "\tVBR: 0x%08X\n" .
+            "\tUSP: 0x%08X *\n" .
+            "\tSSP: 0x%08X *\n" .
+            "\t* May not yet have synced with active SP\n",
+            $this->iVectorBaseRegister,
+            $this->iUserStackPtrRegister,
+            $this->iSupervisorStackPtrRegister
         );
     }
 
@@ -176,7 +206,7 @@ class CPU extends Processor\Base
                     throw new \RuntimeException('No handler');
                 }
 
-                $sSourceLine = $oObjectCode->aSourceMap[$this->iProgramCounter]->sLineSrc;
+                $sSourceLine = $oObjectCode->aSourceMap[$this->iProgramCounter]->sLineSrc ?? '---';
 
                 printf("\nExecuted 0x%08X : %s\n\n", $this->iProgramCounter, $sSourceLine);
 

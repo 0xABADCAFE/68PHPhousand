@@ -20,6 +20,7 @@ use ABadCafe\G8PHPhousand\Processor\IRegister;
 use ABadCafe\G8PHPhousand\Processor\ISize;
 use ABadCafe\G8PHPhousand\Processor\IEffectiveAddress;
 use ABadCafe\G8PHPhousand\Processor\Sign;
+use ABadCafe\G8PHPhousand\Processor\Fault\IVector;
 
 use LogicException;
 
@@ -29,6 +30,9 @@ trait TSpecial
 
     protected function initSpecialHandlers()
     {
+        $this->addTRAPHandlers();
+        $this->addCHKHandlers();
+
         $cUnhandled = function(int $iOpcode) {
             throw new LogicException(sprintf('Unhandled special operation 0x%4X (TODO)', $iOpcode));
         };
@@ -107,5 +111,81 @@ trait TSpecial
                 }
             )
         );
+    }
+
+    private function addTRAPHandlers()
+    {
+        $this->addExactHandlers(
+            array_fill_keys(
+                range(
+                    ISpecial::OP_TRAP|0,
+                    ISpecial::OP_TRAP|15
+                ),
+                function (int $iOpcode) {
+                    $this->prepareUserTrap($iOpcode & ISpecial::MASK_TRAP_NUM);
+                }
+            )
+        );
+
+        $this->addExactHandlers([
+            ISpecial::OP_TRAPV => function($iOpcode) {
+                if ($this->iConditionRegister & IRegister::CCR_OVERFLOW) {
+                    $this->syncSupervisorState();
+
+                    $this->beginStackFrame($this->iProgramCounter);
+
+                    // Jump!
+                    $this->iProgramCounter = $this->oOutside->readLong(
+                        $this->iVectorBaseRegister + IVector::VOFS_TRAPV_INSTRUCTION
+                    );
+                }
+            }
+        ]);
+    }
+
+    private function addCHKHandlers()
+    {
+        $aEAModes = $this->generateForEAModeList(IEffectiveAddress::MODE_ALL_EXCEPT_AREGS);
+        foreach(IRegister::DATA_REGS as $iReg) {
+            $this->addExactHandlers(
+
+                array_fill_keys(
+                    $this->mergePrefixForModeList(
+                        ISpecial::OP_CHK_W|($iReg << IOpcode::REG_UP_SHIFT),
+                        $aEAModes
+                    ),
+                    function (int $iOpcode) {
+                        $bTrap = false;
+                        $iCheck = ISize::MASK_WORD & $this->oDataRegisters->aIndex[
+                            $iOpcode & IOpcode::MASK_REG_UPPER
+                        ];
+
+                        $iBound = Sign::extWord(
+                            $this->aSrcEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]->readWord()
+                        );
+
+                        if ($iCheck & ISize::SIGN_BIT_WORD) {
+                            $this->iConditionRegister |= IRegister::CCR_NEGATIVE;
+                            $bTrap = true;
+                        } else if ($iCheck > $iBound) {
+                            $this->iConditionRegister &= IRegister::CCR_CLEAR_N;
+                            $bTrap = true;
+                        }
+
+                        if ($bTrap) {
+                            $this->iConditionRegister &= IRegister::CCR_CLEAR_ZVC;
+                            $this->syncSupervisorState();
+                            $this->beginStackFrame($this->iProgramCounter);
+
+                            // Jump!
+                            $this->iProgramCounter = $this->oOutside->readLong(
+                                $this->iVectorBaseRegister + IVector::VOFS_CHK_INSTRUCTION
+                            );
+                        }
+
+                    }
+                )
+            );
+        }
     }
 }

@@ -35,7 +35,6 @@ trait TFlow
         $this->addExactHandlers([
             IPrefix::OP_STOP     => $cUnhandled,
             IPrefix::OP_RTE      => $cUnhandled,
-            IPrefix::OP_TRAPV    => $cUnhandled,
             IPrefix::OP_RTR      => function (int $iOpcode) {
                 $iSP = &$this->oAddressRegisters->iReg7;
                 $this->iConditionRegister = $this->oOutside->readWord($iSP) & IRegister::CCR_MASK;

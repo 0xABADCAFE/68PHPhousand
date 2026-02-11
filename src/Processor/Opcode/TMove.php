@@ -437,7 +437,103 @@ trait TMove
                 }
             )
         );
+
+        // MOVE to USP
+        $this->addExactHandlers(
+            array_fill_keys(
+                range(
+                    IMove::OP_MOVE_A2USP|IRegister::A0,
+                    IMove::OP_MOVE_A2USP|IRegister::A7
+                ),
+                function (int $iOpcode) {
+                    if ($this->iStatusRegister & IRegister::SR_MASK_SUPER) {
+                        $this->iUserStackPtrRegister = $this->oAddressRegisters->aIndex[
+                            $iOpcode & IOpcode::MASK_EA_REG
+                        ];
+                    } else {
+                        $this->processPrivilegeViolation();
+                    }
+                }
+            )
+        );
+
+        // MOVE from USP
+        $this->addExactHandlers(
+            array_fill_keys(
+                range(
+                    IMove::OP_MOVE_USP2A|IRegister::A0,
+                    IMove::OP_MOVE_USP2A|IRegister::A7
+                ),
+                function (int $iOpcode) {
+                    if ($this->iStatusRegister & IRegister::SR_MASK_SUPER) {
+                        $iIndex = $iOpcode & IOpcode::MASK_EA_REG;
+                        $this->oAddressRegisters->aIndex[$iIndex] = $this->iUserStackPtrRegister;
+                        if (IRegister::A7 === $iIndex) {
+                            $this->iSupervisorStackPtrRegister = $this->iUserStackPtrRegister;
+                        }
+                    } else {
+                        $this->processPrivilegeViolation();
+                    }
+                }
+            )
+        );
+
+        // MOVEC <ctrl>,<reg>(010+)
+        $this->addExactHandlers([
+            IMove::OP_MOVEC_C2R => function (int $iOpcode) {
+                if ($this->iStatusRegister & IRegister::SR_MASK_SUPER) {
+                    $iExtension = $this->oOutside->readWord(
+                        $this->iProgramCounter
+                    );
+                    $this->iProgramCounter += ISize::WORD;
+
+                    $iControlRegister = $this->aControlRegIndexes[
+                        $iExtension & IMove::OP_MOVEC_CTRL_MASK
+                    ] ?? throw new \Exception();
+
+                    $iRegIndex = $iExtension >> IMove::OP_MOVEC_GPR_SHIFT;
+
+                    if ($iRegIndex > 7) {
+                        $iRegIndex &= 7;
+                        $this->oAddressRegisters->aIndex[$iRegIndex] = $iControlRegister;
+                    } else {
+                        $this->oDataRegisters->aIndex[$iRegIndex] = $iControlRegister;
+                    }
+                } else {
+                    $this->processPrivilegeViolation();
+                }
+            }]
+        );
+
+        // MOVEC <ctrl>,<reg>(010+)
+        $this->addExactHandlers([
+            IMove::OP_MOVEC_R2C => function (int $iOpcode) {
+                if ($this->iStatusRegister & IRegister::SR_MASK_SUPER) {
+                    $iExtension = $this->oOutside->readWord(
+                        $this->iProgramCounter
+                    );
+                    $this->iProgramCounter += ISize::WORD;
+
+                    $iControlRegister = &$this->aControlRegIndexes[
+                        $iExtension & IMove::OP_MOVEC_CTRL_MASK
+                    ] ?? throw new \Exception();
+
+                    $iRegIndex = $iExtension >> IMove::OP_MOVEC_GPR_SHIFT;
+                    $this->syncSupervisorState();
+                    if ($iRegIndex > 7) {
+                        $iRegIndex &= 7;
+                        $iControlRegister = $this->oAddressRegisters->aIndex[$iRegIndex];
+                    } else {
+                        $iControlRegister = $this->oDataRegisters->aIndex[$iRegIndex];
+                    }
+                } else {
+                    $this->processPrivilegeViolation();
+                }
+            }]
+        );
     }
+
+
 
     private function buildCLRHandlers()
     {
@@ -451,13 +547,13 @@ trait TMove
                     $aEAModes
                 ),
                 function(int $iOpcode) {
+                    $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]
+                        ->resetLatch()
+                        ->writeByte(0);
                     // Preserve X, clear NVC and set Z
                     $this->iConditionRegister = (
                         $this->iConditionRegister & IRegister::CCR_EXTEND
                     ) | IRegister::CCR_ZERO;
-                    $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]
-                        ->resetLatch()
-                        ->writeByte(0);
                 }
             )
         );
@@ -470,13 +566,13 @@ trait TMove
                     $aEAModes
                 ),
                 function(int $iOpcode) {
+                    $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]
+                        ->resetLatch()
+                        ->writeWord(0);
                     // Preserve X, clear NVC and set Z
                     $this->iConditionRegister = (
                         $this->iConditionRegister & IRegister::CCR_EXTEND
                     ) | IRegister::CCR_ZERO;
-                    $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]
-                        ->resetLatch()
-                        ->writeWord(0);
                 }
             )
         );
@@ -489,13 +585,13 @@ trait TMove
                     $aEAModes
                 ),
                 function(int $iOpcode) {
+                    $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]
+                        ->resetLatch()
+                        ->writeLong(0);
                     // Preserve X, clear NVC and set Z
                     $this->iConditionRegister = (
                         $this->iConditionRegister & IRegister::CCR_EXTEND
                     ) | IRegister::CCR_ZERO;
-                    $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]
-                        ->resetLatch()
-                        ->writeLong(0);
                 }
             )
         );
@@ -730,7 +826,5 @@ trait TMove
                 }
             )
         );
-
-
     }
 }
