@@ -109,5 +109,17 @@ interface IRegister
     public const USP_NAME = 'usp';
     public const SSP_NAME = 'ssp';
     public const VBR_NAME = 'vbr'; // 010+
+
+    // Control registers (010+)
+    public const CR_SFC = 0x000; // Source Function Code
+    public const CR_DFC = 0x001; // Destination Function Code
+    public const CR_USP = 0x800; // User Stack Pointer
+    public const CR_VBR = 0x801; // Vector Base Register
+
+    // 020+
+    public const CR_CACR = 0x002; // Cache Control Register
+    public const CR_CAAR = 0x802; // Cache Address Register
+    public const CR_MSP  = 0x803; // Master Stack Pointer
+    public const CR_ISP  = 0x804; // Interrupt Stack Pointer
 }
 

@@ -477,7 +477,65 @@ trait TMove
                 }
             )
         );
+
+        // MOVEC <ctrl>,<reg>(010+)
+        $this->addExactHandlers(
+            [IMove::OP_MOVEC_C2R],
+            function (int $iOpcode) {
+                if ($this->iStatusRegister & IRegister::SR_MASK_SUPER) {
+                    $iExtension = $this->oOutside->readWord(
+                        $this->iProgramCounter
+                    );
+
+                    $iControlRegister = $this->aControlRegIndexes[
+                        $iExtension & IMove::OP_MOVEC_CTRL_MASK
+                    ] ?? throw new \Exception();
+
+                    $iRegIndex = $iExtension >> IMove::OP_MOVEC_GPR_SHIFT;
+
+                    if ($iRegIndex > 7) {
+                        $iRegIndex &= 7;
+                        $this->oAddressRegisters->aIndex[$iRegIndex] = $iControlRegister;
+                    } else {
+                        $this->oDataRegisters->aIndex[$iRegIndex] = $iControlRegister;
+                    }
+                    $this->iProgramCounter += ISize::WORD;
+                } else {
+                    $this->processPrivilegeViolation();
+                }
+            }
+        );
+
+        // MOVEC <ctrl>,<reg>(010+)
+        $this->addExactHandlers(
+            [IMove::OP_MOVEC_R2C],
+            function (int $iOpcode) {
+                if ($this->iStatusRegister & IRegister::SR_MASK_SUPER) {
+                    $iExtension = $this->oOutside->readWord(
+                        $this->iProgramCounter
+                    );
+
+                    $iControlRegister = &$this->aControlRegIndexes[
+                        $iExtension & IMove::OP_MOVEC_CTRL_MASK
+                    ] ?? throw new \Exception();
+
+                    $iRegIndex = $iExtension >> IMove::OP_MOVEC_GPR_SHIFT;
+
+                    if ($iRegIndex > 7) {
+                        $iRegIndex &= 7;
+                        $iControlRegister = $this->oAddressRegisters->aIndex[$iRegIndex];
+                    } else {
+                        $iControlRegister = $this->oDataRegisters->aIndex[$iRegIndex];
+                    }
+                    $this->iProgramCounter += ISize::WORD;
+                } else {
+                    $this->processPrivilegeViolation();
+                }
+            }
+        );
     }
+
+
 
     private function buildCLRHandlers()
     {

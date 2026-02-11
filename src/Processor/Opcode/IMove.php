@@ -91,6 +91,11 @@ interface IMove
 
     // 010+
     const OP_MOVE_CCR    = 0b0100001011000000;
+    const OP_MOVEC_C2R   = 0b0100111001111010; // movec <ctrl>,<reg>
+    const OP_MOVEC_R2C   = 0b0100111001111011; // movec <reg>,<ctrl>
+
+    const OP_MOVEC_GPR_SHIFT = 12;
+    const OP_MOVEC_CTRL_MASK = 0xFFF;
 
     //                               rrr
     const OP_SWAP   = 0b0100100001000000;

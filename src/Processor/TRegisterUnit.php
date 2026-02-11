@@ -28,6 +28,8 @@ trait TRegisterUnit
     protected DataRegisterSet    $oDataRegisters;
     protected AddressRegisterSet $oAddressRegisters;
 
+    protected array $aControlRegIndexes;
+
     // Supervisor regs
     protected int $iStatusRegister             = 0;
     protected int $iUserStackPtrRegister       = 0;
@@ -84,6 +86,11 @@ trait TRegisterUnit
         foreach (IRegister::DATA_NAMES as $iIndex => $sName) {
             $this->aRegisterNames[$sName] = &$this->oDataRegisters->aIndex[$iIndex];
         }
+
+        $this->aControlRegIndexes = [
+            IRegister::CR_USP => &$this->iUserStackPtrRegister,
+            IRegister::CR_VBR => &$this->iVectorBaseRegister,
+        ];
     }
 
     protected function registerReset(): void
