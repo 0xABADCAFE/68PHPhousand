@@ -56,6 +56,7 @@ The following supervisor mode differces are intentional:
 
 - Vector Base Register:
     - Initially set to 0, this allows the relocation of the vector base for exception handling.
+    - The MOVEC instruction is implemented to facilitate management of the VBR. Also supports the USP.
 
 
 # Work In Progress
