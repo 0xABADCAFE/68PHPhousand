@@ -479,9 +479,8 @@ trait TMove
         );
 
         // MOVEC <ctrl>,<reg>(010+)
-        $this->addExactHandlers(
-            [IMove::OP_MOVEC_C2R],
-            function (int $iOpcode) {
+        $this->addExactHandlers([
+            IMove::OP_MOVEC_C2R => function (int $iOpcode) {
                 if ($this->iStatusRegister & IRegister::SR_MASK_SUPER) {
                     $iExtension = $this->oOutside->readWord(
                         $this->iProgramCounter
@@ -503,13 +502,12 @@ trait TMove
                 } else {
                     $this->processPrivilegeViolation();
                 }
-            }
+            }]
         );
 
         // MOVEC <ctrl>,<reg>(010+)
-        $this->addExactHandlers(
-            [IMove::OP_MOVEC_R2C],
-            function (int $iOpcode) {
+        $this->addExactHandlers([
+            IMove::OP_MOVEC_R2C => function (int $iOpcode) {
                 if ($this->iStatusRegister & IRegister::SR_MASK_SUPER) {
                     $iExtension = $this->oOutside->readWord(
                         $this->iProgramCounter
@@ -531,7 +529,7 @@ trait TMove
                 } else {
                     $this->processPrivilegeViolation();
                 }
-            }
+            }]
         );
     }
 
@@ -828,7 +826,5 @@ trait TMove
                 }
             )
         );
-
-
     }
 }
