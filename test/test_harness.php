@@ -16,37 +16,30 @@ namespace ABadCafe\G8PHPhousand\Test;
 
 use ABadCafe\G8PHPhousand\TestHarness;
 use ABadCafe\G8PHPhousand\Device;
-use Throwable;
-use LogicException;
-use ValueError;
 
 require 'bootstrap.php';
 
-const BASE_ADDRESS = 0x400;
+const BASE_ADDRESS = 0;
 
 $oObjectCode = (new TestHarness\Assembler\Vasmm68k())->assemble('
 
     mc68010
+    ; org 0
 
-    move.l #$800,sp
+    dc.l    $800     ; Initial Supervisor Stack Pointer
+    dc.l    BootCode ; Initial Program Counter
+    ds.l    254      ; (rest of) default vector table
 
-    move.l data,d0
-    movec d0,vbr
-    movec vbr,d1
-    move.l #$FFFFFFFF,d2
-    movec usp,d2
+Signature:
+    dc.l    $abadcafe
+
+BootCode:
+    move.l  Signature,d0
     stop #0
-data:
-    dc.l $ABADCAFE
-',
+
+    ',
     BASE_ADDRESS
 );
 
-
-$oMemory = new Device\Memory\SparseWordRAM();
-
-$oTestCPU = new TestHarness\CPU($oMemory);
-$oTestCPU
-    ->asSupervisor()
-    ->setRegister('usp', 0x12345678)
-    ->executeVerbose($oObjectCode);
+$oTestCPU = new TestHarness\CPU(new Device\Memory\SparseWordRAM());
+$oTestCPU->resetAndExecute($oObjectCode, true);
