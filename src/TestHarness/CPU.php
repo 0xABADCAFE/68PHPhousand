@@ -185,11 +185,24 @@ class CPU extends Processor\Base
 
     }
 
+    public function resetAndExecute(ObjectCode $oObjectCode, bool $bVerbose = false): int
+    {
+        Memory::loadObjectCode($this->oOutside, $oObjectCode);
+        $this->softReset();
+        return $bVerbose ?
+            $this->executeCodeVerbose($oObjectCode) :
+            $this->execute($this->iProgramCounter);
+    }
+
     public function executeVerbose(ObjectCode $oObjectCode): int
     {
         Memory::loadObjectCode($this->oOutside, $oObjectCode);
-
         $this->iProgramCounter = $oObjectCode->iBaseAddress;
+        return $this->executeCodeVerbose($oObjectCode);
+    }
+
+    protected function executeCodeVerbose(ObjectCode $oObjectCode): int
+    {
         $sSourceLine = $oObjectCode->aSourceMap[$this->iProgramCounter]->sLineSrc;
         $iCount = 0;
         printf(
@@ -222,5 +235,4 @@ class CPU extends Processor\Base
         }
         return $iCount;
     }
-
 }

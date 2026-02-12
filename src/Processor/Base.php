@@ -78,16 +78,35 @@ abstract class Base implements I68KProcessor, IOpcode, Opcode\IPrefix
 
     public function softReset(): self
     {
-        $this->registerReset();
         $this->oOutside->softReset();
+        $this->resetState();
         return $this;
     }
 
     public function hardReset(): self
     {
-        $this->registerReset();
         $this->oOutside->hardReset();
+        $this->resetState();
         return $this;
+    }
+
+    protected function resetState(): void
+    {
+        /**
+         * Simulate 68010 reset.
+         *   Registers d0-d7/a0-a6 are left in an undefined state.
+         *   VBR is set to zero
+         *   Status Register is set to supervisor mode, with highest priority interrupt mask.
+         *   Condition code register cleared.
+         *   SSP loaded from address 0
+         *   PC loaded from address 4
+         */
+        $this->iStatusRegister     = IRegister::SR_MASK_SUPER|IRegister::SR_MASK_INT_MASK;
+        $this->iConditionRegister  = 0;
+        $this->iVectorBaseRegister = 0;
+        $this->iSupervisorStackPtrRegister =
+        $this->oAddressRegisters->iReg7    = $this->oOutside->readLong(0);
+        $this->iProgramCounter             = $this->oOutside->readLong(4);
     }
 
     /**
