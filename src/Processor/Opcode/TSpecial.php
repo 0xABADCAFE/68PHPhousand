@@ -20,7 +20,7 @@ use ABadCafe\G8PHPhousand\Processor\IRegister;
 use ABadCafe\G8PHPhousand\Processor\ISize;
 use ABadCafe\G8PHPhousand\Processor\IEffectiveAddress;
 use ABadCafe\G8PHPhousand\Processor\Sign;
-use ABadCafe\G8PHPhousand\Processor\Fault\IVector;
+use ABadCafe\G8PHPhousand\Processor\IVector;
 
 use LogicException;
 

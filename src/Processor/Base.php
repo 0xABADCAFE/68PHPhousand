@@ -105,8 +105,12 @@ abstract class Base implements I68KProcessor, IOpcode, Opcode\IPrefix
         $this->iConditionRegister  = 0;
         $this->iVectorBaseRegister = 0;
         $this->iSupervisorStackPtrRegister =
-        $this->oAddressRegisters->iReg7    = $this->oOutside->readLong(0);
-        $this->iProgramCounter             = $this->oOutside->readLong(4);
+        $this->oAddressRegisters->iReg7    = $this->oOutside->readLong(
+            IVector::VOFS_RESET_INITIAL_INTERRUPT_SP
+        );
+        $this->iProgramCounter = $this->oOutside->readLong(
+            IVector::VOFS_RESET_INITIAL_PC
+        );
     }
 
     /**
