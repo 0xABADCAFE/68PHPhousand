@@ -12,7 +12,7 @@
 
 declare(strict_types=1);
 
-namespace ABadCafe\G8PHPhousand\Processor\Fault;
+namespace ABadCafe\G8PHPhousand\Processor;
 
 interface IVector
 {
