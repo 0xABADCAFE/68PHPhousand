@@ -26,11 +26,6 @@ use function str_repeat;
 interface IMemory extends IBus
 {
     /**
-     * Returns the base physical address of the memory block.
-     */
-    public function getBaseAddress(): int;
-
-    /**
      * Returns the length, in bytes, of the memory block.
      */
     public function getLength(): int;

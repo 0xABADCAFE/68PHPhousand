@@ -15,6 +15,8 @@ declare(strict_types=1);
 namespace ABadCafe\G8PHPhousand\Device;
 
 use ABadCafe\G8PHPhousand\IDevice;
+use ABadCafe\G8PHPhousand\Processor\ISize;
+use ABadCafe\G8PHPhousand\Processor\Fault;
 
 use \LogicException;
 
@@ -24,35 +26,51 @@ use \LogicException;
 class SimpleDeviceMap implements IBus
 {
     private int $iPageSizeExp;
+    private int $iPageMask;
     private int $iPageSize;
 
-    private array $aPageMap = [];
-
+    private array $aBaseAddressMap = [];
+    private array $aDeviceMap = [];
     private array $aDevices = [];
 
-    const MIN_SIZE_EXP = 8;
-    const MAX_SIZE_EXP = 16;
+    private Fault\Access $oFault;
 
-    public function ___construct(int $iPageSizeExp)
+    public const MIN_SIZE_EXP = 8;
+    public const MAX_SIZE_EXP = 20;
+    public const DEF_SIZE_EXP = 16;
+
+    public function __construct(int $iPageSizeExp = self::DEF_SIZE_EXP)
     {
-        assert($iPageSizeExp >= self::MIN_SIZE_EXP && $iPageSizeExp <= self::MAX_SIZE_EXP, new LogicException());
+        assert(
+            $iPageSizeExp >= self::MIN_SIZE_EXP &&
+            $iPageSizeExp <= self::MAX_SIZE_EXP,
+            new LogicException()
+        );
         $this->iPageSizeExp = $iPageSizeExp;
         $this->iPageSize = 1 << $iPageSizeExp;
+        $this->iPageMask = ~($this->iPageSize - 1) & ISize::MASK_LONG;
+        $this->oFault = new Fault\Access();
     }
 
-    public function addCodeROM(Memory\CodeROM $oRom): self
+    public function map(IBus $oDevice, int $iBaseAddress, int $iLength): void
     {
-        $iBaseAddress = $oRom->getBaseAddress();
-        if (($iBaseAddress & ($this>iPageSize - 1))) {
-            throw new LogicException('ROM Base Address is not aligned to a page boundary');
+        $this->aDevices[spl_object_id($oDevice)] = $oDevice;
+
+        $iPages = $iLength >> $this->iPageSizeExp;
+        $iPage  = $iBaseAddress & $this->iPageMask;
+        while ($iPages--) {
+            if (isset($this->aDeviceMap[$iPage])) {
+                throw new \LogicException(sprintf(
+                    'Cannot assign device %s to page 0x%08X, already allocated to %s',
+                    $oDevice->getName(),
+                    $iPage,
+                    $this->aDeviceMap[$iPage]->getName()
+                ));
+            }
+            $this->aBaseAddressMap[$iPage] = $iBaseAddress;
+            $this->aDeviceMap[$iPage] = $oDevice;
+            $iPage += $this->iPageSize;
         }
-        $this->map($oRom, $iBaseAddress, $oRom->getLength());
-        return $this;
-    }
-
-    private function resolve(int $iAddress): IBus
-    {
-        return $this->aPageMap[$iAddress >> $this->iPageSizeExp] ?? throw new \Exception();
     }
 
     /**
@@ -65,51 +83,63 @@ class SimpleDeviceMap implements IBus
 
     public function softReset(): self
     {
+        foreach ($this->aDevices as $oDevice) {
+            $oDevice->softReset();
+        }
         return $this;
     }
 
     public function hardReset(): self
     {
+        foreach ($this->aDevices as $oDevice) {
+            $oDevice->hardReset();
+        }
         return $this;
     }
 
     public function readByte(int $iAddress): int
     {
-        return 0;
+        $iPage = $iAddress & $this->iPageMask;
+        $iBase = $this->aBaseAddressMap[$iPage] ?? $this->oFault->raise($iAddress, ISize::BYTE, false);
+        return $this->aDeviceMap[$iPage]->readByte($iAddress - $iBase);
     }
 
     public function readWord(int $iAddress): int
     {
-        return 0;
+        $iPage = $iAddress & $this->iPageMask;
+        $iBase = $this->aBaseAddressMap[$iPage] ?? $this->oFault->raise($iAddress, ISize::WORD, false);
+        return $this->aDeviceMap[$iPage]->readWord($iAddress - $iBase);
     }
 
     public function readLong(int $iAddress): int
     {
-        return 0;
+        $iPage = $iAddress & $this->iPageMask;
+        $iBase = $this->aBaseAddressMap[$iPage] ?? $this->oFault->raise($iAddress, ISize::LONG, false);
+        return $this->aDeviceMap[$iPage]->readLong($iAddress - $iBase);
     }
 
     public function writeByte(int $iAddress, int $iValue): void
     {
+        $iPage = $iAddress & $this->iPageMask;
+        $iBase = $this->aBaseAddressMap[$iPage] ?? $this->oFault->raise($iAddress, ISize::BYTE, true);
+        $this->aDeviceMap[$iPage]->writeByte($iAddress - $iBase, $iValue);
     }
 
     public function writeWord(int $iAddress, int $iValue): void
     {
+        $iPage = $iAddress & $this->iPageMask;
+        $iBase = $this->aBaseAddressMap[$iPage] ?? $this->oFault->raise($iAddress, ISize::WORD, true);
+        $this->aDeviceMap[$iPage]->writeWord($iAddress - $iBase, $iValue);
     }
 
     public function writeLong(int $iAddress, int $iValue): void
     {
+        $iPage = $iAddress & $this->iPageMask;
+        $iBase = $this->aBaseAddressMap[$iPage] ?? $this->oFault->raise($iAddress, ISize::LONG, true);
+        $this->aDeviceMap[$iPage]->writeLong($iAddress - $iBase, $iValue);
     }
 
-    private function map(IBus $oBus, int $iBaseAddress, int $iLength): void
-    {
-        $aDevices[spl_object_id($oBus)] = $oBus;
 
-        $iPages = 1 + ($iLength >> $this->iPageSizeExp);
-        $iPage = $iBaseAddress >> $this->iPageSizeExp;
-        while ($iPages--) {
-            $this->aPageMap[$iPage] = $oBus;
-        }
-    }
 }
 
 

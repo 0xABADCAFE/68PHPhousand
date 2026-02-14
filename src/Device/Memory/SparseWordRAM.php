@@ -31,19 +31,17 @@ class SparseWordRAM implements Device\IMemory
 {
     protected array $aWords = [];
 
-    public function __construct()
+    protected int $iSize = 0;
+
+    public function __construct(int $iSize = (1 << 32))
     {
         $this->hardReset();
-    }
-
-    public function getBaseAddress(): int
-    {
-        return 0;
+        $this->iSize = $iSize;
     }
 
     public function getLength(): int
     {
-        return 1<<32;
+        return $this->iSize;
     }
 
     /**

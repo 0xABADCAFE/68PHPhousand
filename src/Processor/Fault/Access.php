@@ -20,7 +20,7 @@ use Exception;
  * This exception type is NOT intended for debugging, but rather as a mechanisn to abort the
  * regular fetch-execute cycle and put the CPU into an exception handling case.
  */
-class Address extends Exception
+class Access extends Exception
 {
     use TAccess;
 }
