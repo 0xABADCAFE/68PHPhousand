@@ -56,7 +56,7 @@ class SimpleDeviceMap implements IBus
     {
         $this->aDevices[spl_object_id($oDevice)] = $oDevice;
 
-        $iPages = $iLength >> $this->iPageSizeExp;
+        $iPages = ($iLength >> $this->iPageSizeExp) + ($iLength <= $this->iPageMask ? 1 : 0);
         $iPage  = $iBaseAddress & $this->iPageMask;
         while ($iPages--) {
             if (isset($this->aDeviceMap[$iPage])) {
