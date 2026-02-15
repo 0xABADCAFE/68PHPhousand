@@ -14,7 +14,7 @@ declare(strict_types=1);
 
 namespace ABadCafe\G8PHPhousand\Device\Adapter;
 
-use ABadCafe\G8PHPhousand\Device\IBus;
+use ABadCafe\G8PHPhousand\Device\IBusAccessible;
 use ABadCafe\G8PHPhousand\Processor\Fault;
 use ABadCafe\G8PHPhousand\Processor\ISize;
 
@@ -23,13 +23,13 @@ use ABadCafe\G8PHPhousand\Processor\ISize;
  * access but never triggers it, since it's not generally an issue for the emulation, other
  * than for formal correctness with badly-behaved code.
  */
-class WordAligned implements IBus
+class WordAligned implements IBusAccessible
 {
-    private IBus $oDevice;
+    private IBusAccessible $oDevice;
 
     protected Fault\Address  $oFault;
 
-    public function __construct(IBus $oDevice)
+    public function __construct(IBusAccessible $oDevice)
     {
         $this->oDevice = $oDevice;
         $this->oFault  = new Fault\Address();

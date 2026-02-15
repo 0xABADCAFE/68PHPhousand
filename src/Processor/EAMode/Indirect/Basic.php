@@ -29,7 +29,7 @@ class Basic extends EAMode\Direct\Register implements EAMode\IIndirect
     public function __construct(
         Processor\AddressRegisterSet $oRegisters,
         int $iBaseReg,
-        Device\IBus $oOutside
+        Device\IBusAccessible $oOutside
     ) {
         parent::__construct($oRegisters, $iBaseReg);
         $this->bindBus($oOutside);

@@ -23,13 +23,12 @@ use \LogicException;
 /**
  * Union interface for read/write
  */
-class SimpleDeviceMap implements IBus
+final class SimpleDeviceMap implements IBusAccessible
 {
     private int $iPageSizeExp;
     private int $iPageMask;
     private int $iPageSize;
 
-    private array $aBaseAddressMap = [];
     private array $aDeviceMap = [];
     private array $aDevices = [];
 
@@ -52,7 +51,16 @@ class SimpleDeviceMap implements IBus
         $this->oFault = new Fault\Access();
     }
 
-    public function map(IBus $oDevice, int $iBaseAddress, int $iLength): void
+    public function add(IAddressMapped $oDevice): void
+    {
+        $this->map(
+            $oDevice,
+            $oDevice->getBaseAddress(),
+            $oDevice->getLength()
+        );
+    }
+
+    public function map(IBusAccessible $oDevice, int $iBaseAddress, int $iLength): void
     {
         $this->aDevices[spl_object_id($oDevice)] = $oDevice;
 
@@ -67,7 +75,6 @@ class SimpleDeviceMap implements IBus
                     $this->aDeviceMap[$iPage]->getName()
                 ));
             }
-            $this->aBaseAddressMap[$iPage] = $iBaseAddress;
             $this->aDeviceMap[$iPage] = $oDevice;
             $iPage += $this->iPageSize;
         }
@@ -99,47 +106,51 @@ class SimpleDeviceMap implements IBus
 
     public function readByte(int $iAddress): int
     {
-        $iPage = $iAddress & $this->iPageMask;
-        $iBase = $this->aBaseAddressMap[$iPage] ?? $this->oFault->raise($iAddress, ISize::BYTE, false);
-        return $this->aDeviceMap[$iPage]->readByte($iAddress - $iBase);
+        return (
+            $this->aDeviceMap[$iAddress & $this->iPageMask] ??
+            $this->oFault->raise($iAddress, ISize::BYTE, false)
+        )->readByte($iAddress);
     }
 
     public function readWord(int $iAddress): int
     {
-        $iPage = $iAddress & $this->iPageMask;
-        $iBase = $this->aBaseAddressMap[$iPage] ?? $this->oFault->raise($iAddress, ISize::WORD, false);
-        return $this->aDeviceMap[$iPage]->readWord($iAddress - $iBase);
+        return (
+            $this->aDeviceMap[$iAddress & $this->iPageMask] ??
+            $this->oFault->raise($iAddress, ISize::WORD, false)
+        )->readWord($iAddress);
     }
 
     public function readLong(int $iAddress): int
     {
-        $iPage = $iAddress & $this->iPageMask;
-        $iBase = $this->aBaseAddressMap[$iPage] ?? $this->oFault->raise($iAddress, ISize::LONG, false);
-        return $this->aDeviceMap[$iPage]->readLong($iAddress - $iBase);
+        return (
+            $this->aDeviceMap[$iAddress & $this->iPageMask] ??
+            $this->oFault->raise($iAddress, ISize::LONG, false)
+        )->readLong($iAddress);
     }
 
     public function writeByte(int $iAddress, int $iValue): void
     {
-        $iPage = $iAddress & $this->iPageMask;
-        $iBase = $this->aBaseAddressMap[$iPage] ?? $this->oFault->raise($iAddress, ISize::BYTE, true);
-        $this->aDeviceMap[$iPage]->writeByte($iAddress - $iBase, $iValue);
+        (
+            $this->aDeviceMap[$iAddress & $this->iPageMask]
+            ?? $this->oFault->raise($iAddress, ISize::BYTE, true)
+        )->writeByte($iAddress, $iValue);
     }
 
     public function writeWord(int $iAddress, int $iValue): void
     {
-        $iPage = $iAddress & $this->iPageMask;
-        $iBase = $this->aBaseAddressMap[$iPage] ?? $this->oFault->raise($iAddress, ISize::WORD, true);
-        $this->aDeviceMap[$iPage]->writeWord($iAddress - $iBase, $iValue);
+        (
+            $this->aDeviceMap[$iAddress & $this->iPageMask] ??
+            $this->oFault->raise($iAddress, ISize::WORD, true)
+        )->writeWord($iAddress, $iValue);
     }
 
     public function writeLong(int $iAddress, int $iValue): void
     {
-        $iPage = $iAddress & $this->iPageMask;
-        $iBase = $this->aBaseAddressMap[$iPage] ?? $this->oFault->raise($iAddress, ISize::LONG, true);
-        $this->aDeviceMap[$iPage]->writeLong($iAddress - $iBase, $iValue);
+        (
+            $this->aDeviceMap[$iAddress & $this->iPageMask] ??
+            $this->oFault->raise($iAddress, ISize::LONG, true)
+        )->writeLong($iAddress, $iValue);
     }
-
-
 }
 
 

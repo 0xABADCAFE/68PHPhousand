@@ -23,15 +23,15 @@ use function str_repeat;
 /**
  * Raw Binary memory. Memory is implemented as a direct string
  */
-class BinaryRAM implements Device\IMemory
+class BinaryRAM implements Device\IAddressMapped
 {
+    use Device\TAddressMapped;
+
     public  const MIN_ALIGNMENT = 4;
 
     private const ALIGN_MASK    = (self::MIN_ALIGNMENT - 1);
 
-    private int    $iBaseAddress = 0;
     private int    $iTopAddress  = 0;
-    private int    $iLength      = 0;
     private string $sData        = '';
 
     public function __construct(int $iLength, int $iBaseAddress = 0)
@@ -50,16 +50,6 @@ class BinaryRAM implements Device\IMemory
         $this->iLength      = $iLength;
         $this->iTopAddress  = $iBaseAddress + $iLength - 1;
         $this->hardReset();
-    }
-
-    public function getBaseAddress(): int
-    {
-        return $this->iBaseAddress;
-    }
-
-    public function getLength(): int
-    {
-        return $this->iLength;
     }
 
     /**

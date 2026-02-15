@@ -21,9 +21,9 @@ use ABadCafe\G8PHPhousand\Device;
  */
 trait TWithBusAccess
 {
-    protected Device\IBus $oOutside;
+    protected Device\IBusAccessible $oOutside;
 
-    protected function bindBus(Device\IBus $oOutside)
+    protected function bindBus(Device\IBusAccessible $oOutside)
     {
         $this->oOutside = $oOutside;
     }

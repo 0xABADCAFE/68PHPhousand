@@ -21,9 +21,9 @@ use ValueError;
 use function str_repeat;
 
 /**
- * IBus extension interface for memory block implementations.
+ * IBusAccessible extension interface for memory block implementations.
  */
-interface IMemory extends IBus
+interface IMemory extends IBusAccessible
 {
     /**
      * Returns the length, in bytes, of the memory block.

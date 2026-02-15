@@ -23,23 +23,17 @@ use ValueError;
  * Sparse byte array implementation. This uses a regular PHP associative array of
  * byte values that are set on first access (zero if a read).
  */
-class SparseRAM implements Device\IMemory
+class SparseRAM implements Device\IAddressMapped
 {
+    use Device\TAddressMapped;
+
     protected array $aBytes = [];
 
-    public function __construct()
+    public function __construct(int $iLength = (1 << 32), int $iBaseAddress = 0)
     {
+        $this->iLength = $iLength;
+        $this->iBaseAddress = $iBaseAddress;
         $this->hardReset();
-    }
-
-    public function getBaseAddress(): int
-    {
-        return 0;
-    }
-
-    public function getLength(): int
-    {
-        return 1<<32;
     }
 
     /**

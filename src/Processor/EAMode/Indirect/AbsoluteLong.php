@@ -29,7 +29,7 @@ class AbsoluteLong implements EAMode\IIndirect
 
     public function __construct(
         int& $iProgramCounter,
-        Device\IBus $oOutside
+        Device\IBusAccessible $oOutside
     ) {
         $this->bindBus($oOutside);
         $this->bindProgramCounter($iProgramCounter);

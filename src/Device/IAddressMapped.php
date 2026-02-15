@@ -16,52 +16,15 @@ namespace ABadCafe\G8PHPhousand\Device;
 
 use ABadCafe\G8PHPhousand\IDevice;
 
+use DomainException;
+use ValueError;
+use function str_repeat;
+
 /**
- * Null device. All reads return zero, all writes are no-op
+ * IBusAccessible extension interface for address mapped devices.
  */
-class NullDevice implements IBusAccessible
+interface IAddressMapped extends IBusAccessible
 {
-    public function getName(): string
-    {
-        return 'Null Device';
-    }
-
-    public function softReset(): self
-    {
-        return $this;
-    }
-
-    public function hardReset(): self
-    {
-        return $this;
-    }
-
-    public function readByte(int $iAddress): int
-    {
-        return 0;
-    }
-
-    public function readWord(int $iAddress): int
-    {
-        return 0;
-    }
-
-    public function readLong(int $iAddress): int
-    {
-        return 0;
-    }
-
-    public function writeByte(int $iAddress, int $iValue): void
-    {
-    }
-
-    public function writeWord(int $iAddress, int $iValue): void
-    {
-    }
-
-    public function writeLong(int $iAddress, int $iValue): void
-    {
-    }
-
+    public function getBaseAddress(): int;
+    public function getLength(): int;
 }
-

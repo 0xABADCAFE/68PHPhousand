@@ -14,18 +14,18 @@ declare(strict_types=1);
 
 namespace ABadCafe\G8PHPhousand\Device\Adapter;
 
-use ABadCafe\G8PHPhousand\Device\IBus;
+use ABadCafe\G8PHPhousand\Device\IBusAccessible;
 
 /**
  * 24-bit address truncation
  */
-class Address24Bit implements IBus
+class Address24Bit implements IBusAccessible
 {
-    private IBus $oDevice;
+    private IBusAccessible $oDevice;
 
     private const ADDR_MASK = 0x00FFFFFF;
 
-    public function __construct(IBus $oDevice)
+    public function __construct(IBusAccessible $oDevice)
     {
         $this->oDevice = $oDevice;
     }

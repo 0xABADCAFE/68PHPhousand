@@ -27,7 +27,7 @@ class TomHarte
     private string $sTestDir;
     private string $sSuite;
 
-    private Device\IBus $oMemory;
+    private Device\IBusAccessible $oMemory;
     private CPU $oCPU;
 
 
@@ -48,7 +48,7 @@ class TomHarte
     /** @var array<int, stdClass> */
     private array $aTestCases = [];
 
-    public function __construct(string $sTestDir, ?Device\IBus $oMemory = null)
+    public function __construct(string $sTestDir, ?Device\IBusAccessible $oMemory = null)
     {
         assert(is_readable($sTestDir) & is_dir($sTestDir), new LogicException());
         $this->sTestDir = $sTestDir;

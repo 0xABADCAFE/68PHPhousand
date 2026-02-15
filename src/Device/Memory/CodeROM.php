@@ -25,8 +25,10 @@ use LogicException;
  *
  * Manages a read only set of data. Optimised for word access, data are assumed to be code.
  */
-class CodeROM implements Device\IMemory
+class CodeROM implements Device\IAddressMapped
 {
+    use Device\TAddressMapped;
+
     private array $aWords = [];
 
     public function __construct(string $sRomData, int $iBaseAddress = 0)
@@ -45,16 +47,8 @@ class CodeROM implements Device\IMemory
             range($iBaseAddress, $iBaseAddress + $iLength - ISize::WORD, ISize::WORD),
             array_values(unpack('n*', $sRomData))
         );
-    }
-
-    public function getBaseAddress(): int
-    {
-        return $this->iBaseAddress;
-    }
-
-    public function getLength(): int
-    {
-        return $this->iLength;
+        $this->iBaseAddress = $iBaseAddress;
+        $this->iLength      = $iLength;
     }
 
     /**

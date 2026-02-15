@@ -27,21 +27,16 @@ use ValueError;
  *
  * Alignment is silently enforced to word size.
  */
-class SparseWordRAM implements Device\IMemory
+class SparseWordRAM implements Device\IAddressMapped
 {
+    use Device\TAddressMapped;
     protected array $aWords = [];
 
-    protected int $iSize = 0;
-
-    public function __construct(int $iSize = (1 << 32))
+    public function __construct(int $iLength = (1 << 32), int $iBaseAddress = 0)
     {
+        $this->iLength = $iLength;
+        $this->iBaseAddress = $iBaseAddress;
         $this->hardReset();
-        $this->iSize = $iSize;
-    }
-
-    public function getLength(): int
-    {
-        return $this->iSize;
     }
 
     /**

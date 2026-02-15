@@ -16,11 +16,25 @@ namespace ABadCafe\G8PHPhousand\Device;
 
 use ABadCafe\G8PHPhousand\IDevice;
 
+use DomainException;
+use ValueError;
+use function str_repeat;
+
 /**
- * Union interface for read/write
+ * IBusAccessible implementation mixin
  */
-interface IBus extends IDevice, IReadable, IWriteable
+trait TAddressMapped
 {
+    protected int $iBaseAddress;
+    protected int $iLength;
 
+    public function getBaseAddress(): int
+    {
+        return $this->iBaseAddress;
+    }
+
+    public function getLength(): int
+    {
+        return $this->iLength;
+    }
 }
-
