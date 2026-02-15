@@ -76,6 +76,40 @@ trait TProcess
         );
     }
 
+    /**
+     * TODO - validate the expected frame format
+     */
+    protected function processAccessError(Access $oFault, int $iPCAddress, int $iOpcode)
+    {
+        $this->syncSupervisorState(); // Transition to supervisor mode
+
+        $this->beginStackFrame($iPCAddress);
+
+        // Extended frame data
+
+        // Faulting instruction
+        $this->oOutside->writeWord(
+            ($this->oAddressRegisters->iReg7 -= ISize::WORD),
+            $iOpcode
+        );
+
+        // Access address
+        $this->oOutside->writeLong(
+            ($this->oAddressRegisters->iReg7 -= ISize::LONG),
+            $oFault->iAddress
+        );
+
+        // Allocate Exception Frame (14 bytes)
+        $this->oAddressRegisters->iReg7 -= 2;
+
+        // TODO - populate it with the remaining
+
+        // Reload the PC from vector 0xC (AccessError), include VBR
+        $this->iProgramCounter = $this->oOutside->readLong(
+            $this->iVectorBaseRegister + IVector::VOFS_ACCESS_FAULT
+        );
+    }
+
     protected function processAddressError(Address $oFault, int $iPCAddress, int $iOpcode)
     {
         $this->syncSupervisorState(); // Transition to supervisor mode
