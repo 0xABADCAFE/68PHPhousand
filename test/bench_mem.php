@@ -24,7 +24,7 @@ const MEM_SIZE = 1 << 24; // 16MiB
 const MB_SCALE = 1.0 / (1 << 20);
 
 
-function benchmark(Device\IBus $oMemory) {
+function benchmark(Device\IBusAccessible $oMemory) {
 
     echo "Benchmarking ", $oMemory->getName(), "\n";
 
@@ -175,4 +175,6 @@ if (isset($aOpcacheStatus['jit'])) {
 benchmark(new Device\Memory\BinaryRAM(MEM_SIZE, 0));
 benchmark(new Device\Memory\SparseRAM());
 benchmark(new Device\Memory\SparseWordRAM());
+
+echo "With DeviceMap\n";
 

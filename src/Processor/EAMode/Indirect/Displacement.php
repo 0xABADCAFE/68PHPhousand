@@ -33,7 +33,7 @@ class Displacement extends Basic
         int& $iProgramCounter,
         Processor\AddressRegisterSet $oRegisters,
         int $iBaseReg,
-        Device\IBus $oOutside
+        Device\IBusAccessible $oOutside
     ) {
         parent::__construct($oRegisters, $iBaseReg, $oOutside);
         $this->bindProgramCounter($iProgramCounter);

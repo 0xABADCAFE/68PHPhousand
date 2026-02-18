@@ -42,7 +42,11 @@ $oObjectCode = (new TestHarness\Assembler\Vasmm68k())->assemble("
 
 $oMemory = new Device\Memory\CodeROM($oObjectCode->sCode, $oObjectCode->iBaseAddress);
 
-$oProcessor = new class($oMemory, true) extends Processor\Base
+$oDeviceMap = new Device\PagedMap(8);
+$oDeviceMap->map($oMemory, 0, strlen($oObjectCode->sCode));
+
+
+$oProcessor = new class($oDeviceMap, true) extends Processor\Base
 {
 
     public function getName(): string

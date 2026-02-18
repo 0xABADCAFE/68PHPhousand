@@ -26,8 +26,8 @@ interface ISpecial
     const OP_RESET    = 0b0100111001110000;
     const OP_NOP      = 0b0100111001110001;
     const OP_STOP     = 0b0100111001110010;
+    const OP_RTD      = 0b0100111001110100;
     const OP_RTE      = 0b0100111001110011;
-    const OP_RTS      = 0b0100111001110101;
 
     //                                vvvv - trap #<0-15>
     const OP_TRAP     = 0b0100111001000000;

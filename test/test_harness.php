@@ -26,20 +26,56 @@ $oObjectCode = (new TestHarness\Assembler\Vasmm68k())->assemble('
     mc68010
     ; org 0
 
-    dc.l    $800     ; Initial Supervisor Stack Pointer
-    dc.l    BootCode ; Initial Program Counter
-    ds.l    254      ; (rest of) default vector table
+SERIAL_OUT EQU $10000
 
-Signature:
-    dc.l    $abadcafe
+    dc.l    $800        ; Initial Supervisor Stack Pointer
+    dc.l    BootCode    ; Initial Program Counter
+    dc.l    AccessFault ; Bus access fault
+    ds.l    253         ; (rest of) default vector table
 
 BootCode:
-    move.l  Signature,d0
+    lea     hello_string,a0
+    bsr     WriteString
+
+    tst.w   $abadcafe ; this should trigger an access fault
+
     stop #0
 
+WriteString:
+    move.l #SERIAL_OUT,a1
+.write_serial:
+    move.b  (a0)+,(a1)
+    bne.b   .write_serial
+    rts
+
+AccessFault:
+    lea access_fault_string,a0
+    bsr WriteString;
+    rte
+    stop #1
+
+hello_string:
+    dc.b $a,"Hello 68K World!!",$a,0
+
+access_fault_string:
+    dc.b $a,"Access Fault Vector Taken!",$a,0
     ',
     BASE_ADDRESS
 );
 
-$oTestCPU = new TestHarness\CPU(new Device\Memory\SparseWordRAM());
-$oTestCPU->resetAndExecute($oObjectCode, true);
+$oDeviceMap = new Device\PagedMap(8); // 256 bytes
+
+$oDeviceMap->add(new Device\Memory\CodeROM($oObjectCode->sCode, $oObjectCode->iBaseAddress));
+$oDeviceMap->add(new Device\Memory\SparseWordRAM(1024, 1024+256));
+$oDeviceMap->add(new Device\SerialConsoleOutput(0x10000));
+
+$oTestCPU = new TestHarness\CPU($oDeviceMap);
+
+echo "Reset and execute. Emulation output follows\n";
+
+$oTestCPU->softReset();
+$oTestCPU->execute();
+
+echo "\nEmulation ended\n";
+
+$oTestCPU->dumpMachineState(null);

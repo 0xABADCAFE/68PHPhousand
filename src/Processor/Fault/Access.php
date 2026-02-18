@@ -12,15 +12,16 @@
 
 declare(strict_types=1);
 
-namespace ABadCafe\G8PHPhousand\Device;
+namespace ABadCafe\G8PHPhousand\Processor\Fault;
 
-use ABadCafe\G8PHPhousand\IDevice;
+use Exception;
 
 /**
- * Union interface for read/write
+ * This exception type is NOT intended for debugging, but rather as a mechanisn to abort the
+ * regular fetch-execute cycle and put the CPU into an exception handling case.
  */
-interface IBus extends IDevice, IReadable, IWriteable
+class Access extends Exception
 {
-
+    use TAccess;
 }
 

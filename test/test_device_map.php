@@ -12,16 +12,24 @@
 
 declare(strict_types=1);
 
-namespace ABadCafe\G8PHPhousand\Processor\Fault;
+namespace ABadCafe\G8PHPhousand;
 
-use Exception;
+use ABadCafe\G8PHPhousand\Device;
+use ABadCafe\G8PHPhousand\TestHarness;
+use Throwable;
 
-/**
- * This exception type is NOT intended for debugging, but rather as a mechanisn to abort the
- * regular fetch-execute cycle and put the CPU into an exception handling case.
- */
-class Address extends Exception
-{
-    use TAccess;
+require  __DIR__ . '/../src/bootstrap.php';
+
+$oDeviceMap = new Device\PagedMap(8); // 256 bytes
+
+$oSerialConsoleOutput = new Device\SerialConsoleOutput(0xFF0000);
+
+$oDeviceMap->add($oSerialConsoleOutput);
+
+$sMessage = "Hello World\n";
+
+$i = 0;
+
+while (isset($sMessage[$i])) {
+    $oDeviceMap->writeByte(0xFF0000, ord($sMessage[$i++]));
 }
-

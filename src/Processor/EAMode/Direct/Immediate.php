@@ -27,7 +27,7 @@ class Immediate implements EAMode\IReadOnly
     use EAMode\TWithBusAccess;
     use EAMode\TWithExtensionWords;
 
-    public function __construct(int& $iProgramCounter, Device\IBus $oOutside)
+    public function __construct(int& $iProgramCounter, Device\IBusAccessible $oOutside)
     {
         $this->bindProgramCounter($iProgramCounter);
         $this->bindBus($oOutside);

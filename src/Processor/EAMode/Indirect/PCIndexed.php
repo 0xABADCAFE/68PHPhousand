@@ -35,7 +35,7 @@ class PCIndexed implements EAMode\IIndirect
         int& $iProgramCounter,
         Processor\AddressRegisterSet $oAddressRegisters,
         Processor\DataRegisterSet    $oDataRegisters,
-        Device\IBus $oOutside
+        Device\IBusAccessible $oOutside
     ) {
         $this->bindBus($oOutside);
         $this->bindProgramCounter($iProgramCounter);

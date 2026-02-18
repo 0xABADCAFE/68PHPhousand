@@ -25,21 +25,15 @@ use ValueError;
  */
 class SparseRAM implements Device\IMemory
 {
+    use Device\TAddressMapped;
+
     protected array $aBytes = [];
 
-    public function __construct()
+    public function __construct(int $iLength = (1 << 32), int $iBaseAddress = 0)
     {
+        $this->iLength = $iLength;
+        $this->iBaseAddress = $iBaseAddress;
         $this->hardReset();
-    }
-
-    public function getBaseAddress(): int
-    {
-        return 0;
-    }
-
-    public function getLength(): int
-    {
-        return 1<<32;
     }
 
     /**

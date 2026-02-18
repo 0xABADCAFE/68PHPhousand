@@ -24,7 +24,7 @@ use LogicException;
  */
 abstract class Base implements I68KProcessor, IOpcode, Opcode\IPrefix
 {
-    protected Device\IBus $oOutside;
+    protected Device\IBusAccessible $oOutside;
 
     use TRegisterUnit;
     use TAddressUnit;
@@ -41,7 +41,7 @@ abstract class Base implements I68KProcessor, IOpcode, Opcode\IPrefix
     use Opcode\TFlow;
     use Opcode\TSpecial;
 
-    public function __construct(Device\IBus $oOutside, bool $bCache = false)
+    public function __construct(Device\IBusAccessible $oOutside, bool $bCache = false)
     {
         $this->oOutside  = $oOutside;
         $this->initRegIndexes();

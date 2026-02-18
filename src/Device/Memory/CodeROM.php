@@ -27,6 +27,8 @@ use LogicException;
  */
 class CodeROM implements Device\IMemory
 {
+    use Device\TAddressMapped;
+
     private array $aWords = [];
 
     public function __construct(string $sRomData, int $iBaseAddress = 0)
@@ -45,16 +47,8 @@ class CodeROM implements Device\IMemory
             range($iBaseAddress, $iBaseAddress + $iLength - ISize::WORD, ISize::WORD),
             array_values(unpack('n*', $sRomData))
         );
-    }
-
-    public function getBaseAddress(): int
-    {
-        return $this->iBaseAddress;
-    }
-
-    public function getLength(): int
-    {
-        return $this->iLength;
+        $this->iBaseAddress = $iBaseAddress;
+        $this->iLength      = $iLength;
     }
 
     /**

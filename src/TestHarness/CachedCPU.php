@@ -21,7 +21,7 @@ use LogicException;
 
 class CachedCPU extends CPU
 {
-    public function __construct(Device\IBus $oOutside)
+    public function __construct(Device\IBusAccessible $oOutside)
     {
         parent __construct($oOutside, true);
     }

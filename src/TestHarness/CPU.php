@@ -15,13 +15,14 @@ declare(strict_types=1);
 namespace ABadCafe\G8PHPhousand\TestHarness;
 
 use ABadCafe\G8PHPhousand\Processor;
+use ABadCafe\G8PHPhousand\Processor\Fault;
 use ABadCafe\G8PHPhousand\Device;
 
 use LogicException;
 
 class CPU extends Processor\Base
 {
-    public function __construct(Device\IBus $oOutside)
+    public function __construct(Device\IBusAccessible $oOutside)
     {
         parent::__construct($oOutside, false);
     }
@@ -31,7 +32,7 @@ class CPU extends Processor\Base
         return 'TestHarness CPU';
     }
 
-    public function getOutside(): Device\IBus
+    public function getOutside(): Device\IBusAccessible
     {
         return $this->oOutside;
     }
@@ -71,6 +72,13 @@ class CPU extends Processor\Base
         try {
             $cHandler($iOpcode);
         }
+        catch (Processor\Fault\Access $oFault) {
+            $this->processAccessError(
+                $oFault,
+                $this->iProgramCounter - Processor\ISize::WORD,
+                $iOpcode
+            );
+        }
         catch (Processor\Fault\Address $oFault) {
             $this->processAddressError(
                 $oFault,
@@ -94,20 +102,44 @@ class CPU extends Processor\Base
         ];
     }
 
-    public function execute(int $iAddress): int
+    public function execute(?int $iAddress = null): int
     {
-        $this->iProgramCounter = $iAddress;
+        if (null !== $iAddress) {
+            $this->iProgramCounter = $iAddress;
+        }
+
         $iCount = 0;
-
         try {
-            while(true) {
-                $iOpcode = $this->oOutside->readWord($this->iProgramCounter);
-                $this->iProgramCounter += Processor\ISize::WORD;
-                $this->aExactHandler[$iOpcode]($iOpcode);
-                ++$iCount;
-            };
-        } catch (LogicException $oError) {
-
+            while (true) {
+                try {
+                    while(true) {
+                        $iOpcode = $this->oOutside->readWord($this->iProgramCounter);
+                        $this->iProgramCounter += Processor\ISize::WORD;
+                        $this->aExactHandler[$iOpcode]($iOpcode);
+                        ++$iCount;
+                    };
+                }
+                catch (Fault\Access $oFault) {
+                    $this->processAccessError(
+                        $oFault,
+                        $this->iProgramCounter - Processor\ISize::WORD,
+                        $iOpcode
+                    );
+                }
+                catch (Fault\Address $oFault) {
+                    $this->processAddressError(
+                        $oFault,
+                        $this->iProgramCounter - Processor\ISize::WORD,
+                        $iOpcode
+                    );
+                }
+                catch (\DivisionByZeroError $oFault) {
+                    $this->processZeroDivideError();
+                }
+            }
+        }
+        catch (LogicException $oError) {
+            echo "Emulation terminated\n";
         }
         return $iCount;
     }
