@@ -16,18 +16,11 @@ namespace ABadCafe\G8PHPhousand\Device;
 
 use ABadCafe\G8PHPhousand\IDevice;
 
-use DomainException;
-use ValueError;
-use function str_repeat;
 
 /**
  * IBusAccessible extension interface for memory block implementations.
  */
-interface IMemory extends IBusAccessible
+interface IMemory extends IAddressMapped, IBusAccessible
 {
-    /**
-     * Returns the length, in bytes, of the memory block.
-     */
-    public function getLength(): int;
 
 }

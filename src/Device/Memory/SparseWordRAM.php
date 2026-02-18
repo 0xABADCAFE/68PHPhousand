@@ -27,7 +27,7 @@ use ValueError;
  *
  * Alignment is silently enforced to word size.
  */
-class SparseWordRAM implements Device\IAddressMapped
+class SparseWordRAM implements Device\IMemory
 {
     use Device\TAddressMapped;
     protected array $aWords = [];

@@ -16,14 +16,10 @@ namespace ABadCafe\G8PHPhousand\Device;
 
 use ABadCafe\G8PHPhousand\IDevice;
 
-use DomainException;
-use ValueError;
-use function str_repeat;
-
 /**
  * IBusAccessible extension interface for address mapped devices.
  */
-interface IAddressMapped extends IBusAccessible
+interface IAddressMapped
 {
     public function getBaseAddress(): int;
     public function getLength(): int;

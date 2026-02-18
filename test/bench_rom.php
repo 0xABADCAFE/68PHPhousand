@@ -42,7 +42,7 @@ $oObjectCode = (new TestHarness\Assembler\Vasmm68k())->assemble("
 
 $oMemory = new Device\Memory\CodeROM($oObjectCode->sCode, $oObjectCode->iBaseAddress);
 
-$oDeviceMap = new Device\SimpleDeviceMap(8);
+$oDeviceMap = new Device\PagedMap(8);
 $oDeviceMap->map($oMemory, 0, strlen($oObjectCode->sCode));
 
 

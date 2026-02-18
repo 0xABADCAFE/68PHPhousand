@@ -23,7 +23,7 @@ use ValueError;
  * Sparse byte array implementation. This uses a regular PHP associative array of
  * byte values that are set on first access (zero if a read).
  */
-class SparseRAM implements Device\IAddressMapped
+class SparseRAM implements Device\IMemory
 {
     use Device\TAddressMapped;
 

@@ -23,7 +23,7 @@ use \LogicException;
 /**
  * Union interface for read/write
  */
-final class SimpleDeviceMap implements IBusAccessible
+final class PagedMap implements IBusAccessible
 {
     private int $iPageSizeExp;
     private int $iPageMask;
@@ -62,6 +62,14 @@ final class SimpleDeviceMap implements IBusAccessible
 
     public function map(IBusAccessible $oDevice, int $iBaseAddress, int $iLength): void
     {
+        printf(
+            "Adding %s at 0x%08X [%d size]\n",
+            $oDevice->getName(),
+            $iBaseAddress,
+            $iLength
+        );
+
+
         $this->aDevices[spl_object_id($oDevice)] = $oDevice;
 
         $iPages = ($iLength >> $this->iPageSizeExp) + ($iLength <= $this->iPageMask ? 1 : 0);

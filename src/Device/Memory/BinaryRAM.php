@@ -23,7 +23,7 @@ use function str_repeat;
 /**
  * Raw Binary memory. Memory is implemented as a direct string
  */
-class BinaryRAM implements Device\IAddressMapped
+class BinaryRAM implements Device\IMemory
 {
     use Device\TAddressMapped;
 

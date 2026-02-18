@@ -101,11 +101,13 @@ class CPU extends Processor\Base
         ];
     }
 
-    public function execute(int $iAddress): int
+    public function execute(?int $iAddress = null): int
     {
-        $this->iProgramCounter = $iAddress;
-        $iCount = 0;
+        if (null !== $iAddress) {
+            $this->iProgramCounter = $iAddress;
+        }
 
+        $iCount = 0;
         try {
             while(true) {
                 $iOpcode = $this->oOutside->readWord($this->iProgramCounter);

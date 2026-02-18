@@ -20,18 +20,16 @@ use Throwable;
 
 require  __DIR__ . '/../src/bootstrap.php';
 
-$oDeviceMap = new Device\SimpleDeviceMap(8); // 256 bytes
+$oDeviceMap = new Device\PagedMap(8); // 256 bytes
 
-$oMemory = new Device\Memory\SparseWordRAM(512);
+$oSerialConsoleOutput = new Device\SerialConsoleOutput(0xFF0000);
 
-$oDeviceMap->map($oMemory, 256, $oMemory->getLength());
+$oDeviceMap->add($oSerialConsoleOutput);
 
-for ($iAddress = 0; $iAddress<1024; ++$iAddress) {
-    printf("Attempting readByte(0x%08X): ", $iAddress);
-    try {
-        $oDeviceMap->readByte($iAddress);
-        print("OK\n");
-    } catch (Processor\Fault\Access $oError) {
-        printf("Access fault\n");
-    }
+$sMessage = "Hello World\n";
+
+$i = 0;
+
+while (isset($sMessage[$i])) {
+    $oDeviceMap->writeByte(0xFF0000, ord($sMessage[$i++]));
 }

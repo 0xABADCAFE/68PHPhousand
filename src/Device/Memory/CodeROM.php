@@ -25,7 +25,7 @@ use LogicException;
  *
  * Manages a read only set of data. Optimised for word access, data are assumed to be code.
  */
-class CodeROM implements Device\IAddressMapped
+class CodeROM implements Device\IMemory
 {
     use Device\TAddressMapped;
 
