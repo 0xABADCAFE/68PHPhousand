@@ -28,24 +28,37 @@ $oObjectCode = (new TestHarness\Assembler\Vasmm68k())->assemble('
 
 SERIAL_OUT EQU $10000
 
-    dc.l    $800     ; Initial Supervisor Stack Pointer
-    dc.l    BootCode ; Initial Program Counter
-    ds.l    254      ; (rest of) default vector table
+    dc.l    $800        ; Initial Supervisor Stack Pointer
+    dc.l    BootCode    ; Initial Program Counter
+    dc.l    AccessFault ; Bus access fault
+    ds.l    253         ; (rest of) default vector table
 
 BootCode:
-    lea     hello,a0
-    move.l  #SERIAL_OUT,a1
+    lea     hello_string,a0
+    bsr     WriteString
 
-.write_serial:
-    addq    #1,d1
-    move.b  (a0)+,(a1)
-    bne.b   .write_serial
+    tst.w   $abadcafe ; this should trigger an access fault
 
     stop #0
 
-hello:
-    dc.b $a,"hello 68K world",$a,0
+WriteString:
+    move.l #SERIAL_OUT,a1
+.write_serial:
+    move.b  (a0)+,(a1)
+    bne.b   .write_serial
+    rts
 
+AccessFault:
+    lea access_fault_string,a0
+    bsr WriteString;
+    rte
+    stop #1
+
+hello_string:
+    dc.b $a,"Hello 68K World!!",$a,0
+
+access_fault_string:
+    dc.b $a,"Access Fault Vector Taken!",$a,0
     ',
     BASE_ADDRESS
 );

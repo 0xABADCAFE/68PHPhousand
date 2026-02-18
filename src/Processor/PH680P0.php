@@ -22,7 +22,7 @@ use LogicException;
 /**
  * Standard implementation
  */
-class Standard extends Base
+class PH680P0 extends Base
 {
     public function softReset(): self
     {
@@ -40,39 +40,43 @@ class Standard extends Base
 
     public function getName(): string
     {
-        return 'Standard 68K';
+        return 'PH680P0';
     }
 
     public function execute(): int
     {
         $iCount = 0;
         try {
-            while(true) {
-                $iOpcode = $this->oOutside->readWord($this->iProgramCounter);
-                $this->iProgramCounter += Processor\ISize::WORD;
-                $this->aExactHandler[$iOpcode]($iOpcode);
-                ++$iCount;
-            };
-        }
-        catch (Fault\Access $oFault) {
-            $this->processAccessError(
-                $oFault,
-                $this->iProgramCounter - Processor\ISize::WORD,
-                $iOpcode
-            );
-        }
-        catch (Fault\Address $oFault) {
-            $this->processAddressError(
-                $oFault,
-                $this->iProgramCounter - Processor\ISize::WORD,
-                $iOpcode
-            );
-        }
-        catch (\DivisionByZeroError $oFault) {
-            $this->processZeroDivideError();
+            while (true) {
+                try {
+                    while(true) {
+                        $iOpcode = $this->oOutside->readWord($this->iProgramCounter);
+                        $this->iProgramCounter += Processor\ISize::WORD;
+                        $this->aExactHandler[$iOpcode]($iOpcode);
+                        ++$iCount;
+                    };
+                }
+                catch (Fault\Access $oFault) {
+                    $this->processAccessError(
+                        $oFault,
+                        $this->iProgramCounter - Processor\ISize::WORD,
+                        $iOpcode
+                    );
+                }
+                catch (Fault\Address $oFault) {
+                    $this->processAddressError(
+                        $oFault,
+                        $this->iProgramCounter - Processor\ISize::WORD,
+                        $iOpcode
+                    );
+                }
+                catch (\DivisionByZeroError $oFault) {
+                    $this->processZeroDivideError();
+                }
+            }
         }
         catch (LogicException $oError) {
-
+            echo "Emulation terminated\n";
         }
         return $iCount;
     }

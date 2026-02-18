@@ -21,6 +21,7 @@ namespace ABadCafe\G8PHPhousand\Processor\Fault;
 
 use ABadCafe\G8PHPhousand\Processor\ISize;
 use ABadCafe\G8PHPhousand\Processor\IRegister;
+use ABadCafe\G8PHPhousand\Processor\IVector;
 
 /**
  * Mixin of helper logic for dealing with faults
