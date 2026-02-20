@@ -49,6 +49,9 @@ abstract class Base implements I68KProcessor, IOpcode, Opcode\IPrefix
 
         // Caching affects how some handlers are generated.
         if ($bCache) {
+            assert(
+                fprintf(STDERR, "CPU: Caching enabled\n") || true
+            );
             echo "Enable Caches\n";
             $this->enableJumpCache();
             $this->enableImmediateCache();
@@ -71,9 +74,14 @@ abstract class Base implements I68KProcessor, IOpcode, Opcode\IPrefix
         $fElapsed = microtime(true) - $fMark;
         $iUsedMem = memory_get_usage() - $iStartMem;
 
-        echo "Handler setup took ", $fElapsed, " seconds using ", $iUsedMem, " bytes\n";
-
-        $this->reportHandlerStats();
+        assert(
+            (fprintf(
+                STDERR,
+                "CPU: Handler creation took %.3s, using %d bytes\n",
+                $fElapsed,
+                $iUsedMem
+            ) && $this->reportHandlerStats() >= 0)
+        );
     }
 
     public function softReset(): self

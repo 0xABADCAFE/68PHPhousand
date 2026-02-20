@@ -58,7 +58,7 @@ hello_string:
     dc.b $a,"Hello 68K World!!",$a,0
 
 access_fault_string:
-    dc.b $a,"Access Fault Vector Taken!",$a,0
+    dc.b $a,"Guru Meditation: Access Fault",$a,0
     ',
     BASE_ADDRESS
 );

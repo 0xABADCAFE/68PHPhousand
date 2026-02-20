@@ -83,16 +83,19 @@ trait TOpcode
         }
     }
 
-    protected function reportHandlerStats()
+    protected function reportHandlerStats(): int
     {
-        printf(
-            "%d Exact and %d Prefix handlers defined\n",
+        $iCount = count($this->aExactHandler) + count($this->aPrefixHandler);
+        fprintf(
+            STDERR,
+            "CPU: %d Exact and %d Prefix handlers defined\n",
             count($this->aExactHandler),
             count($this->aPrefixHandler)
         );
 //         foreach ($this->aExactHandler as $iOpcode => $cHandler) {
 //             printf("\t%04X : %d\n", $iOpcode, spl_object_id($cHandler));
 //         }
+        return $iCount;
     }
 
     /**
