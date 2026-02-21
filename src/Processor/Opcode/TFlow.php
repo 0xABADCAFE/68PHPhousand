@@ -46,6 +46,7 @@ trait TFlow
                 $this->oHalt->raise($iStop);
             },
 
+            // This is the basic 68000 realisation. No stack frame type info.
             IPrefix::OP_RTE => function (int $iOpcode) {
                 $iSP = &$this->oAddressRegisters->iReg7;
                 $iStatusCCR = $this->oOutside->readWord(
