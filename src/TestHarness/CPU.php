@@ -89,6 +89,7 @@ class CPU extends Processor\Base
         catch (\DivisionByZeroError $oFault) {
             $this->processZeroDivideError();
         }
+
     }
 
     public function executeTimed(int $iAddress): \stdClass
@@ -138,21 +139,38 @@ class CPU extends Processor\Base
                 }
             }
         }
+        catch (Processor\Halted $oHalt) {
+            assert(
+                fprintf(
+                    STDERR,
+                    "CPU: Emulation halted by STOP #%d at 0x%08X\n",
+                    $oHalt->iImmediate,
+                    $this->iProgramCounter - Processor\ISize::WORD
+                ) || true
+            );
+        }
         catch (LogicException $oError) {
-            echo "Emulation terminated\n";
+            assert(
+                fprintf(
+                    STDERR,
+                    "CPU: Emulation terminated after %d instructions\n",
+                    $iCount
+                ) || true
+            );
         }
         return $iCount;
     }
 
     public function dumpMachineState(?ObjectCode $oObjectCode)
     {
-        $iStackOffset = 10;
+        $iStackOffset = 14;
         $iPCOffset    = -4;
         $iStackAddress = ($this->oAddressRegisters->iReg7 + $iStackOffset) & Processor\ISize::MASK_LONG;
 
         $iProgramCounter = ($this->iProgramCounter + $iPCOffset) & Processor\ISize::MASK_LONG;
 
-        printf(
+        fprintf(
+            STDERR,
             "\tData Regs                .l     .w   .b | Address Regs    | Stack Contents              | Program Contents\n"
         );
 
@@ -161,7 +179,8 @@ class CPU extends Processor\Base
 
             // We have to access memory data as bytes just in case we have an alignment adaptor in place.
 
-            printf(
+            fprintf(
+                STDERR,
                 "\td%d [0x%08X] %11d %6d %4d | a%d [0x%08X] | SP: %+3d [0x%08X] 0x%02X%02X | PC: %+3d [0x%08X] 0x%02X%02X %s %s\n",
                 $i,
                 $this->oDataRegisters->aIndex[$i],
@@ -189,11 +208,14 @@ class CPU extends Processor\Base
             $iProgramCounter += Processor\ISize::WORD;
             $iProgramCounter &= Processor\ISize::MASK_LONG;
         }
-        printf(
-            "\tCCR: %s\n",
+        fprintf(
+            STDERR,
+            "\t SR: %s | CCR: %s\n",
+            $this->formatSR($this->iStatusRegister),
             $this->formatCCR($this->iConditionRegister)
         );
-        printf(
+        fprintf(
+            STDERR,
             "\tVBR: 0x%08X\n" .
             "\tUSP: 0x%08X *\n" .
             "\tSSP: 0x%08X *\n" .
@@ -207,14 +229,25 @@ class CPU extends Processor\Base
     public function formatCCR(int $iCC): string
     {
         return sprintf(
-            "%s%s%s%s%s",
+            "%s%s%s%s%s [0x%02X]",
             $iCC & Processor\IRegister::CCR_EXTEND   ? 'X' : '-',
             $iCC & Processor\IRegister::CCR_NEGATIVE ? 'N' : '-',
             $iCC & Processor\IRegister::CCR_ZERO     ? 'Z' : '-',
             $iCC & Processor\IRegister::CCR_OVERFLOW ? 'V' : '-',
-            $iCC & Processor\IRegister::CCR_CARRY    ? 'C' : '-'
+            $iCC & Processor\IRegister::CCR_CARRY    ? 'C' : '-',
+            $iCC
         );
+    }
 
+    public function formatSR(int $iSR): string
+    {
+        return sprintf(
+            "%s%s|IM:%d [0x%02X]",
+            $iSR & Processor\IRegister::SR_MASK_TRACE ? 'T' : '-',
+            $iSR & Processor\IRegister::SR_MASK_SUPER ? 'S' : '-',
+            $iSR & Processor\IRegister::SR_MASK_INT_MASK,
+            $iSR
+        );
     }
 
     public function resetAndExecute(ObjectCode $oObjectCode, bool $bVerbose = false): int
@@ -237,7 +270,8 @@ class CPU extends Processor\Base
     {
         $sSourceLine = $oObjectCode->aSourceMap[$this->iProgramCounter]->sLineSrc;
         $iCount = 0;
-        printf(
+        fprintf(
+            STDERR,
             "\nBeginning Verbose Execution from 0x%08X : %s\n\n",
             $this->iProgramCounter,
             $sSourceLine
@@ -253,7 +287,12 @@ class CPU extends Processor\Base
 
                 $sSourceLine = $oObjectCode->aSourceMap[$this->iProgramCounter]->sLineSrc ?? '---';
 
-                printf("\nExecuted 0x%08X : %s\n\n", $this->iProgramCounter, $sSourceLine);
+                fprintf(
+                    STDERR,
+                    "\nExecuted 0x%08X : %s\n\n",
+                    $this->iProgramCounter,
+                    $sSourceLine
+                );
 
                 $this->iProgramCounter += Processor\ISize::WORD;
                 $this->aExactHandler[$iOpcode]($iOpcode);
@@ -262,7 +301,11 @@ class CPU extends Processor\Base
         } catch (LogicException $oError) {
 
         } finally {
-            printf("Execution halted at 0x%08X. Final state:\n", $this->iProgramCounter);
+            fprintf(
+                STDERR,
+                "Execution halted at 0x%08X. Final state:\n",
+                $this->iProgramCounter
+            );
             $this->dumpMachineState($oObjectCode);
         }
         return $iCount;

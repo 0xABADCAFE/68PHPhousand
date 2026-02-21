@@ -62,13 +62,15 @@ final class PagedMap implements IBusAccessible
 
     public function map(IBusAccessible $oDevice, int $iBaseAddress, int $iLength): void
     {
-        printf(
-            "Adding %s at 0x%08X [%d size]\n",
-            $oDevice->getName(),
-            $iBaseAddress,
-            $iLength
+        assert(
+            fprintf(
+                STDERR,
+                "PagedMap: Adding %s at 0x%08X [%d size]\n",
+                $oDevice->getName(),
+                $iBaseAddress,
+                $iLength
+            ) || true
         );
-
 
         $this->aDevices[spl_object_id($oDevice)] = $oDevice;
 
