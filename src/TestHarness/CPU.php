@@ -89,6 +89,7 @@ class CPU extends Processor\Base
         catch (\DivisionByZeroError $oFault) {
             $this->processZeroDivideError();
         }
+
     }
 
     public function executeTimed(int $iAddress): \stdClass
@@ -138,6 +139,16 @@ class CPU extends Processor\Base
                 }
             }
         }
+        catch (Processor\Halted $oHalt) {
+            assert(
+                fprintf(
+                    STDERR,
+                    "CPU: Emulation halted by STOP #%d at 0x%08X\n",
+                    $oHalt->iImmediate,
+                    $this->iProgramCounter - Processor\ISize::WORD
+                ) || true
+            );
+        }
         catch (LogicException $oError) {
             assert(
                 fprintf(
@@ -152,7 +163,7 @@ class CPU extends Processor\Base
 
     public function dumpMachineState(?ObjectCode $oObjectCode)
     {
-        $iStackOffset = 10;
+        $iStackOffset = 14;
         $iPCOffset    = -4;
         $iStackAddress = ($this->oAddressRegisters->iReg7 + $iStackOffset) & Processor\ISize::MASK_LONG;
 
@@ -199,9 +210,9 @@ class CPU extends Processor\Base
         }
         fprintf(
             STDERR,
-            "\tCCR: %s\n\t SR: %s\n",
-            $this->formatCCR($this->iConditionRegister),
-            $this->formatSR($this->iStatusRegister)
+            "\t SR: %s | CCR: %s\n",
+            $this->formatSR($this->iStatusRegister),
+            $this->formatCCR($this->iConditionRegister)
         );
         fprintf(
             STDERR,
@@ -218,22 +229,24 @@ class CPU extends Processor\Base
     public function formatCCR(int $iCC): string
     {
         return sprintf(
-            "%s%s%s%s%s",
+            "%s%s%s%s%s [0x%02X]",
             $iCC & Processor\IRegister::CCR_EXTEND   ? 'X' : '-',
             $iCC & Processor\IRegister::CCR_NEGATIVE ? 'N' : '-',
             $iCC & Processor\IRegister::CCR_ZERO     ? 'Z' : '-',
             $iCC & Processor\IRegister::CCR_OVERFLOW ? 'V' : '-',
-            $iCC & Processor\IRegister::CCR_CARRY    ? 'C' : '-'
+            $iCC & Processor\IRegister::CCR_CARRY    ? 'C' : '-',
+            $iCC
         );
     }
 
     public function formatSR(int $iSR): string
     {
         return sprintf(
-            "%s%s|IM:%d",
+            "%s%s|IM:%d [0x%02X]",
             $iSR & Processor\IRegister::SR_MASK_TRACE ? 'T' : '-',
             $iSR & Processor\IRegister::SR_MASK_SUPER ? 'S' : '-',
-            $iSR & Processor\IRegister::SR_MASK_INT_MASK
+            $iSR & Processor\IRegister::SR_MASK_INT_MASK,
+            $iSR
         );
     }
 

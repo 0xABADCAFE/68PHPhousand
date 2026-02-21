@@ -26,16 +26,38 @@ trait TFlow
 {
     use Processor\TOpcode;
 
+    private Processor\Halted $oHalt;
+
     protected function initFlowHandlers()
     {
+        $this->oHalt = new Processor\Halted();
+
         $cUnhandled = function(int $iOpcode) {
             throw new LogicException(sprintf('Unhandled flow operation 0x%4X (TODO)', $iOpcode));
         };
 
         $this->addExactHandlers([
-            IPrefix::OP_STOP     => $cUnhandled,
-            IPrefix::OP_RTE      => $cUnhandled,
-            IPrefix::OP_RTR      => function (int $iOpcode) {
+            IPrefix::OP_STOP => function(int $iOpcode) {
+                $iStatusCCR = $iStop = $this->oOutside->readWord(
+                    $this->iProgramCounter
+                ) & IRegister::SR_CCR_MASK;
+                $this->iConditionRegister = $iStatusCCR & 0xFF;
+                $this->iStatusRegister    = ($iStatusCCR >> 8);
+                $this->oHalt->raise($iStop);
+            },
+
+            IPrefix::OP_RTE => function (int $iOpcode) {
+                $iSP = &$this->oAddressRegisters->iReg7;
+                $iStatusCCR = $this->oOutside->readWord(
+                    $iSP
+                );
+                $this->iConditionRegister = $iStatusCCR & 0xFF;
+                $this->iStatusRegister    = ($iStatusCCR >> 8);
+                $this->iProgramCounter = $this->oOutside->readLong(($iSP + ISize::WORD) & ISize::MASK_LONG);
+                $iSP = ($iSP + 6) & ISize::MASK_LONG;
+            },
+
+            IPrefix::OP_RTR => function (int $iOpcode) {
                 $iSP = &$this->oAddressRegisters->iReg7;
                 $this->iConditionRegister = $this->oOutside->readWord($iSP) & IRegister::CCR_MASK;
                 $this->iProgramCounter    = $this->oOutside->readLong(($iSP + ISize::WORD) & ISize::MASK_LONG);

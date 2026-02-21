@@ -39,6 +39,9 @@ BootCode:
 
     tst.w   $abadcafe ; this should trigger an access fault
 
+    lea     revovery_string,a0
+    bsr     WriteString
+
     stop #0
 
 WriteString:
@@ -50,15 +53,23 @@ WriteString:
 
 AccessFault:
     lea access_fault_string,a0
-    bsr WriteString;
-    rte
-    stop #1
+    bsr WriteString
+
+    ; Brute force stack correction
+    ori.w  #$0700,sr    ; Disable all interrupts to prevent manipulation mishap.
+    addq.l #8,a7        ; Fix the stack offset to drop the extra data
+    addq.l #2,2(a7)     ; Step over the busted instruction
+    rte                 ; Fixes SR/CCR
 
 hello_string:
     dc.b $a,"Hello 68K World!!",$a,0
 
 access_fault_string:
     dc.b $a,"Guru Meditation: Access Fault",$a,0
+
+revovery_string:
+    dc.b $a,"Recovered. Well, as much as you can do after something that silly.",$a,0
+
     ',
     BASE_ADDRESS
 );

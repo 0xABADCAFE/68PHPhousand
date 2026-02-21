@@ -75,6 +75,16 @@ class PH680P0 extends Base
                 }
             }
         }
+        catch (Halted $oHalt) {
+            assert(
+                fprintf(
+                    STDERR,
+                    "CPU: Emulation halted by STOP #%d at 0x%08X\n",
+                    $oHalt->iImmediate,
+                    $this->iProgramCounter - Processor\ISize::WORD
+                ) || true
+            );
+        }
         catch (LogicException $oError) {
             echo "Emulation terminated\n";
         }
