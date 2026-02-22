@@ -9,7 +9,7 @@ _/    _/ _/    _/  _/       _/    _/  _/       _/    _/ _/    _/ _/    _/     _/
 ```
 # 68PHPhousand
 
-The world's least sensible 68000 emulator.
+The world's least sensible 68000 emulator, spiritual successor to [SixPHPhive02](https://github.com/0xABADCAFE/sixphphive02).
 
 ## Architecture
 
@@ -25,23 +25,93 @@ An internal array maps 68000 opcode words to specific closure handelers that exe
 
 The CPU class is rather monolithic and quite coupled internally for performance reasons. To make the code more manageable, logical areas of concern are separated out into traits that are composed together.
 
-## Intentional Differences from 68000
+## Design Decisions
+
+### Interpreter Model
+
+The basic operation of the interpreter is to fetch the next instruction word from the program counter, decode it then execute the logic, fetching any additional extension words needed along the way.
+
+- The original intent was to use a pretty simple nested `switch/case` approach to the decode stage. For example, the upper 4 bits of the word could be switched to choose the _instruction line_, which most 68000 instructions are grouped by. Next, another switch, performed on more specific bits in the word and calling out to specific reusable handlers where possible.
+- Experimentation with this approach quickly revealed that this approach was not particularly performant or simple.
+
+In the end, the solution adopted takes the entire instruction opcode word and uses it as a key to a map of closure functions, where each closure performs the complete operation indicated by the instruction word. This turned out to be much faster and more predictable:
+
+- The map lookup has constant time semantics because all instruction opcodes are the same length and map lookup scales with key length.
+- The function called can perform as much of the necessary logic as needed using simple imperative code.
+
+On the flip side, it's well known that indirections like this aren't free:
+
+- A simple test that creates an array of 32K empty closures and calls them 100,000,000 times gave a very repeatable througput of ~32M calls/sec on an old i7 7500U used as a reference.
+- This gave a theoretical light-speed of 32 MIPs for this solution on the hardware, but neglects the cost of any IO or logic.
+- Good enough and far more predictable than a tree of nested, conditional logic.
+
+The principle downside of this approach is that it requires potentially very many handler functions to be written, up to one for each supported opcode:
+
+- Many functions would differ ony by some minor detail, e.g. the operand size, addressing mode, small immediate value etc.
+- Manually writing that many would be tedious and error prone.
+
+To solve this issue, while allowing for each function to be tailored to the specific operand size and other concerns, handler functions are _templated_:
+
+- Leans into PHP's ability to rapidly process templates to generate output.
+- In this case, the output is the PHP code that defines a handler function.
+- Template processing is specialised to take care of operand sizes, etc. implicitly.
+- The generated functions are evaluated into existence on startup and assigned to their opcode indexes:
+    - Typically one generated handler is indexed to multiple opcodes that differ by addressing mode as this is already abstracted out.
+
+### Error Handling
+
+Lots of things can theoretically go wrong during the execution of an instruction. For example, a read from or write to some location could fail because nothing is configured to exist there.
+
+One approach would be to make read operations have nullable returns to indicate a problem like this and similarly a write operation could return a boolean. Aside from the asymmetry of this, it means that every access has to be specifically checked and in any well-behaved code that's a penalty. A tight interpreter loop benefits from not having to continuously check for errors.
+
+An obvious solition is to use Exceptions. However, exception construction is pretty expensive and we aren't really interested in the stack trace because we aren't actually dealing with a software exception in the traditional sense, we are looking for an alternative return path. To achieve this, the implementation actually instantiates a number of member exception instances that constructed at startup are thrown to initiate 68000 exception processing:
+
+```php
+        // Halting or actual interpreter errors
+        try {
+            while (true) {
+                // Interpreted 68000 errors
+                try {
+                    while(true) {
+                        $iOpcode = $this->oOutside->readWord($this->iProgramCounter);
+                        $this->iProgramCounter += ISize::WORD;
+                        $this->aHandler[$iOpcode]($iOpcode);
+                    };
+                }
+                catch (Fault\Access $oFault) {
+                    $this->processAccessError();
+                }
+                catch (Fault\Address $oFault) {
+                    $this->processAddressError();
+                }
+                catch (\DivisionByZeroError $oFault) {
+                    $this->processZeroDivideError();
+                }
+                // Other exception vector types
+            }
+        }
+        catch (Halted $oHalt) {
+           // bail
+        }
+
+```
+
+
+### Intentional User Mode Differences from 68000
 
 By design, there are some differences to the 68000 the emulation core does not specifically handle. The following divergences affect both user and supervisor mode:
 
-- 24-bit addressing:
-
-    - All 32 bits of the address are exposed to the IBus implementation.
-    - An IBus Address24Bit adapter is provided that masks off the upper 8 bits of an address to better simulate the original addressing behaviour.
+- Full 32-bit addressing:
+    - All 32 bits of the address are exposed to the _IBusAccessible_ implementation.
+    - An _IBusAccessible_ Address24Bit adapter is provided that masks off the upper 8 bits of an address to better simulate the original 24-bit addressing behaviour.
 
 - Bus width:
     - The original 68000 transfers 16-bit word at a time. For predecrement and postincrement addressing modes, this means that should an address or access fault occur for a long sized access, a given register may only have been half updated, e.g. adjusted by 2 and not 4.
-    - IBus accesses will always transfer a full byte, word or long and any registers affected by predecrement/postincrement updated accordingly.
+    - _IBusAccessible_ accesses will always transfer a full byte, word or long and any registers affected by predecrement/postincrement updated accordingly.
 
 - Misaligned accesses:
-
     - The original 68000 is incapable of accessing a word or long on an odd address boundary, triggering an access fault.
-    - This will not happen by default. An IBus WordAligned adapter is provided that will trigger an access fault for misalgned word/long accesses.
+    - This will not happen by default. An _IBusAccessible_ WordAligned adapter is provided that will trigger an access fault for misalgned word/long accesses.
 
 - Branch displacements:
     - Branch displacements recognise 0xFF in the short displacement field as indicating that a 32-bit long branch displacement follows, as per the 68020+
@@ -50,7 +120,7 @@ Using the WordAligned and Address24Bit adapters together more faithfully recreat
 
 Without these adapters, the normal user mode operation is more akin to a 68020 running 68000 object code.
 
-## Intentional Supervisor mode differences from the 68000
+### Intentional Supervisor Mode differences from the 68000
 
 The following supervisor mode differces are intentional:
 
@@ -82,17 +152,21 @@ Defines an entity that can be read from as byte, word (16-bit) or long (32-bit).
 
 Defines an entity that can be written to as byte, word (16-bit) or long (32-bit). All values written are considered to be raw/unsigned.
 
-## Device\IBus
+## Device\IBusAccessible
 
-Union inteface of IDevice, Device\IReadable and Device\IWriteable. Most devices will implement this interface.
+Union inteface of _IDevice_, _Device\IReadable_ and _Device\IWriteable_. Most devices will implement this interface.
+
+## Device\IAddressMapped
+
+Defines the position and size of an entity within the 68000 address map.
 
 ## Device\IMemory
 
-IBus extension for a potentially relocatable block of memory.
+Union of _IBusAccessible_ and _IAddressMapped_ for a potentially relocatable block of memory.
 
 ## Device\NullDevice
 
-IBus implementation that ignores all writes and returns zero for all reads.
+_IBusAccessible_ implementation that ignores all writes and returns zero for all reads.
 
 ## Processor\IRegister
 
@@ -112,29 +186,40 @@ Read-only interface for an Effective Address target, such as a specific register
 
 ## Processor\EAMode\IReadWrite
 
-Writeable extension of Processor\EATarget\IReadOnly
+Writeable extension of _Processor\EATarget\IReadOnly_.
 
 # Classes/Traits
 
+## Device\PageMapped
+
+_IBusAccessible_ implementation that manages a set of other _IBusAccessible_ instances that are placed at specific locations within a paged view of the address space to facilitate the wiring of virtual hardware.
+
+- The size of the pages are a power of 2, from 256 to 65536.
+- _IBusAccessible_ instances are expected to occupy a contiguous span of pages. However it is possible to add the same instance to different parts of the memory map for mirroring or other use cases.
+- No two _IBusAccessible_ instances may occupy the same page.
+- The upper bits of an address are used to identify the page and therefore the _IBusAccessible_ instance to route an IO request to.
+- No address translation is performed. An _IBusAccessible_ instance mapped to address 0x1000 will still see the address as 0x1000.
+
+
 ## Device\Memory\BinaryRAM
 
-Implementation of `Device\IMemory` that manages a block of memory of a given length, with some given start address. The length and start addresses must be divisible by 4. Memory is managed as a binary string with big-endian semantics for word/long accesses. There are no alignment assertions for the memory (these may be made by the CPU), but addresses are asserted to be within bounds and the values written are asserted to be within the unsigned limits implied by the access size.
+Implementation of _Device\IMemory_ that manages a block of memory of a given length, with some given start address. The length and start addresses must be divisible by 4. Memory is managed as a binary string with big-endian semantics for word/long accesses. There are no alignment assertions for the memory (these may be made by the CPU), but addresses are asserted to be within bounds and the values written are asserted to be within the unsigned limits implied by the access size.
 
 ## Device\Memory\SparseRAM
 
-Implementation of `Device\IMemory` that treats the memory as an associative array of address/value bytes. This covers the full address range.
+Implementation of _Device\IMemory_ that treats the memory as an associative array of address/value bytes. This covers the full address range.
 
 ## Device\Memory\SparseWordRAM
 
-Variant of SparseRAM that models the memory as 16-bit words. This is intended to have the fastest read performance for basic code.
+Variant of _SparseRAM_ that models the memory as 16-bit words. This is intended to have the fastest read performance for basic code.
 
 ## Device\Memory\CodeROM
 
-IMemory implementation as a sparse word-based ROM that accepts a raw binary image to load.
+_Device\IMemory_ implementation as a sparse word-based ROM that accepts a raw binary image to load.
 
 ## Processor\Base
 
-Abstract base implementation of the CPU, defining the main state and the basic IDevice requirements.
+Abstract base implementation of the CPU, defining the main state and the basic _IDevice_ requirements.
 
 ## Processor\RegisterSet
 
@@ -142,15 +227,15 @@ Simple structure type that manages a set of 8 explicit integer values and an ind
 
 ## Processor\DataRegisterSet
 
-Concretisation of RegisterSet specifically for the Data Registers. This assists with type safety to ensure the correct register sets are used by addressing mode implementations.
+Concretisation of +RegisterSet_ specifically for the Data Registers. This assists with type safety to ensure the correct register sets are used by addressing mode implementations.
 
 ## Processor\AddressRegisterSet
 
-Concretisation of RegisterSet specifically for the Address Registers. This assists with type safety to ensure the correct register sets are used by addressing mode implementations.
+Concretisation of _RegisterSet_ specifically for the Address Registers. This assists with type safety to ensure the correct register sets are used by addressing mode implementations.
 
 ## Processor\TRegisterUnit
 
-Implementation logic for maintaining the DataRegisterSet, AddressRegisterSet, Program Counter, Condition Code and Status Registers.
+Implementation logic for maintaining the _DataRegisterSet_, _AddressRegisterSet_, Program Counter, Condition Code and Status Registers.
 
 ## Processor\TAddressUnit
 
@@ -167,10 +252,10 @@ Implementations of addressing modes that directly access register values or imme
 ## Processor\EAMode\Indirect\*
 
 - Basic `(aN)`
-- Displacement `d16(aN)`
+- Displacement `d16(aN)`, `d16(pc)`
 - PostIncrement `(aN)+`
 - PreDecrement `-(aN)`
-- Indexed `d8(aN,xN.w|.l)`
+- Indexed `d8(aN,xN.w|.l)`, `d8(pc,xN.w|.l)`
 
 Implementations of addressing modes that use indirection to access values in memory. A specific concretisation exists for PostIncrement and PreDecrement for the A7 register, which maintains word alignment.
 
