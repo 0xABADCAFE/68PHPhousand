@@ -29,43 +29,68 @@ if (isset($aOpcacheStatus['jit'])) {
 
 class DBFBenchmark {
 
-    public const DEF_UNROLL   = 20;
+    public const DEF_UNROLL   = 10;
     public const DEF_LOOPS    = 65536;
-    public const DEF_SAMPLES  = 100;
+    public const DEF_SAMPLES  = 25;
 
     public const BASE_ADDRESS = 0x400;
 
-    private array $aInstructions;
     private int $iCountReg;
     private int $iUnroll;
     private int $iSamples;
 
     private float $fLoopTime;
+    private float $fUnitNOP;
 
     private TestHarness\Assembler\Vasmm68k $oAssembler;
 
     private TestHarness\CPU $oCPU;
 
     public function __construct(
-        array $aInstructions,
         int $iCountReg = 0,
         int $iUnroll   = self::DEF_UNROLL,
         int $iSamples  = self::DEF_SAMPLES
     ) {
-        $this->aInstructions = $aInstructions;
         $this->iCountReg     = $iCountReg;
         $this->iUnroll       = $iUnroll;
         $this->iSamples      = $iSamples;
         $this->oAssembler    = new TestHarness\Assembler\Vasmm68k();
-
         $this->oCPU = new TestHarness\CPU($this->generateROM(null));
-        $this->fLoopTime = $this->runSamples();
+        $this->calibrate();
     }
 
-
-    private function runSamples(): float
+    public function run(string $sOperation)
     {
-        echo "Timing samples\n";
+        $this->oCPU->replaceOutside($this->generateROM($sOperation));
+        $fOperationTime = $this->runSamples($sOperation) - $this->fLoopTime;
+        $fUnitOperation = $fOperationTime / (self::DEF_LOOPS * $this->iUnroll);
+        printf(
+            "\tUnit %s %.3f ns, %.3f NOP equivalent\n",
+            $sOperation,
+            $fUnitOperation * 1e9,
+            $fUnitOperation/$this->fUnitNOP
+        );
+    }
+
+    private function calibrate()
+    {
+        echo "Calibrating...\n";
+        $this->fLoopTime = $this->runSamples('<loop>');
+        $fUnitDBF = $this->fLoopTime / self::DEF_LOOPS;
+        $this->oCPU->replaceOutside($this->generateROM('nop'));
+        $fNopTime = $this->runSamples('nop') - $this->fLoopTime;
+        $this->fUnitNOP = $fNopTime / (self::DEF_LOOPS * $this->iUnroll);
+        printf(
+            "Calibration complete:\n\tUnit NOP %.3f ns\n\tUnit DBF %.3f ns, %.3f NOP equivalent\n",
+            $this->fUnitNOP * 1e9,
+            $fUnitDBF * 1e9,
+            $fUnitDBF/$this->fUnitNOP
+        );
+    }
+
+    private function runSamples(string $sWhat): float
+    {
+        echo "Running ", $sWhat, " samples";
         $aSamples = [];
         $i = $this->iSamples;
         while ($i--) {
@@ -73,9 +98,11 @@ class DBFBenchmark {
                 ->getDataRegisters()
                 ->aIndex[$this->iCountReg] = self::DEF_LOOPS - 1;
             $aSamples[] = $this->oCPU->benchmark(self::BASE_ADDRESS, false);
+            echo ".";
         }
+        echo "\n";
         $oStats = $this->computeStandardDeviation($aSamples);
-        echo "\tRemoving outliers...\n";
+        echo "Removing outliers...\n";
         $aSamples = array_filter(
             $aSamples,
             function (float $fTime) use ($oStats) {
@@ -115,7 +142,7 @@ class DBFBenchmark {
     public function generateROM(?string $sOperation): Device\Memory\CodeROM
     {
         $sSourceCode = sprintf(
-            "\n.loop:\n%s\n\tdbra d%d,.loop\n\tstop #0\n",
+            "\ndata: ds.l 256\n.loop:\n%s\n\tdbra d%d,.loop\n\tstop #0\n",
             $sOperation ? str_repeat("\t" . $sOperation . "\n", $this->iUnroll) : '',
             $this->iCountReg
         );
@@ -126,128 +153,7 @@ class DBFBenchmark {
     }
 }
 
-$oBenchmark = new DBFBenchmark([]);
+$oBenchmark = new DBFBenchmark();
 
-exit;
-
-const BASE_ADDRESS = 0x4;
-
-$oObjectCode = (new TestHarness\Assembler\Vasmm68k())->assemble("
-	move.w #-1,d0
-.loop:
-
-	dbra d0,.loop
-	stop #0
-
-",
-    BASE_ADDRESS
-);
-
-$oMemory = new Device\Memory\CodeROM($oObjectCode->sCode, $oObjectCode->iBaseAddress);
-
-$oProcessor = new class($oMemory, true) extends Processor\Base
-{
-
-    public function getName(): string
-    {
-        return 'Benchmark CPU';
-    }
-
-    public function getMemory(): Device\Memory
-    {
-        return $this->oOutside;
-    }
-
-    /** Expose the indexed data regs for testing */
-    public function getDataRegs(): Processor\RegisterSet
-    {
-        return $this->oDataRegisters;
-    }
-
-    /** Expose the indexed addr regs for testing */
-    public function getAddrRegs(): Processor\RegisterSet
-    {
-        return $this->oAddressRegisters;
-    }
-
-    public function executeUncached(int $iAddress): float
-    {
-        $this->iProgramCounter = $iAddress;
-        $iCount = 0;
-        $tStart = microtime(true);
-
-        try {
-            fetch:
-                $iOpcode = $this->oOutside->readWord($this->iProgramCounter);
-                $this->iProgramCounter += Processor\ISize::WORD;
-                $this->aExactHandler[$iOpcode]($iOpcode);
-                ++$iCount;
-            goto fetch;
-        } catch (Processor\Halted $oError) {
-
-        }
-        $fTime = microtime(true) - $tStart;
-
-        printf(
-            "Executed %d instructions in %.6f seconds: %.3f IPS\n",
-            $iCount,
-            $fTime,
-            $iCount / $fTime
-        );
-
-        return $iCount / $fTime;
-    }
-
-    public function executeCached(int $iAddress): float
-    {
-        $this->iProgramCounter = $iAddress;
-        $iCount = 0;
-        $tStart = microtime(true);
-
-        // Experimental opcode cache
-        $aInstCache = [];
-        try {
-            fetch:
-                $iOpcode = $aInstCache[$this->iProgramCounter] ?? (
-                    $aInstCache[$this->iProgramCounter] = $this->oOutside->readWord(
-                        $this->iProgramCounter
-                    )
-                );
-                $this->iProgramCounter += Processor\ISize::WORD;
-                $this->aExactHandler[$iOpcode]($iOpcode);
-                ++$iCount;
-            goto fetch;
-        } catch (Processor\Halted $oError) {
-
-        }
-        $fTime = microtime(true) - $tStart;
-
-        printf(
-            "Executed %d instructions in %.6f seconds: %.3f IPS\n",
-            $iCount,
-            $fTime,
-            $iCount / $fTime
-        );
-
-        return $iCount / $fTime;
-    }
-};
-
-$fTotal = 0;
-for ($i = 0; $i < 100; ++$i) {
-    //printf("Run %3d: ", $i + 1);
-    $oProcessor->getDataRegs()->iReg0 = 65535;
-    $fTotal += $oProcessor->executeUncached(0x4);
-}
-
-printf("Average (nocache) over 100 runs: %.3f IPS\n", 0.01 * $fTotal);
-
-$fTotal = 0;
-for ($i = 0; $i < 100; ++$i) {
-    //printf("Run %3d: ", $i + 1);
-    $oProcessor->getDataRegs()->iReg0 = 65535;
-    $fTotal += $oProcessor->executeCached(0x4);
-}
-
-printf("Average (opcode cache) over 100 runs: %.3f IPS\n", 0.01 * $fTotal);
+$oBenchmark->run('move.l $0,d2');
 

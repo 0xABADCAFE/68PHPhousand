@@ -37,6 +37,11 @@ class CPU extends Processor\Base
         return $this->oOutside;
     }
 
+    public function replaceOutside(Device\IBusAccessible $oOutside)
+    {
+        $this->oOutside = $oOutside;
+    }
+
     public function getDataRegisters(): Processor\DataRegisterSet
     {
         return $this->oDataRegisters;
