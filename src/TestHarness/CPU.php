@@ -22,11 +22,6 @@ use LogicException;
 
 class CPU extends Processor\Base
 {
-    public function __construct(Device\IBusAccessible $oOutside)
-    {
-        parent::__construct($oOutside, false);
-    }
-
     public function getName(): string
     {
         return 'TestHarness CPU';

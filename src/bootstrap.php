@@ -43,6 +43,7 @@ const CLASS_MAP = [
   'ABadCafe\\G8PHPhousand\\TestHarness\\CPU' => '/TestHarness/CPU.php',
   'ABadCafe\\G8PHPhousand\\TestHarness\\TomHarte' => '/TestHarness/TomHarte.php',
   'ABadCafe\\G8PHPhousand\\TestHarness\\ObjectCode' => '/TestHarness/ObjectCode.php',
+  'ABadCafe\\G8PHPhousand\\TestHarness\\SingleOperationBenchmark' => '/TestHarness/SingleOperationBenchmark.php',
   'ABadCafe\\G8PHPhousand\\TestHarness\\IAssembler' => '/TestHarness/IAssembler.php',
   'ABadCafe\\G8PHPhousand\\TestHarness\\Memory' => '/TestHarness/Memory.php',
   'ABadCafe\\G8PHPhousand\\TestHarness\\CachedCPU' => '/TestHarness/CachedCPU.php',
