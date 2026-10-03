@@ -14,7 +14,6 @@ use ABadCafe\G8PHPhousand\Processor\Opcode\IMove;
 assert(!empty($oParams), new \LogicException());
 
 $iDataReg = ($oParams->iOpcode & IOpcode::MASK_REG_UPPER) >> IOpcode::REG_UP_SHIFT;
-
 $iImmediate = $oParams->iOpcode & ISize::MASK_BYTE;
 
 ?>

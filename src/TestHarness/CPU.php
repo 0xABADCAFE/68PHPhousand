@@ -22,11 +22,6 @@ use LogicException;
 
 class CPU extends Processor\Base
 {
-    public function __construct(Device\IBusAccessible $oOutside)
-    {
-        parent::__construct($oOutside, false);
-    }
-
     public function getName(): string
     {
         return 'TestHarness CPU';
@@ -35,6 +30,11 @@ class CPU extends Processor\Base
     public function getOutside(): Device\IBusAccessible
     {
         return $this->oOutside;
+    }
+
+    public function replaceOutside(Device\IBusAccessible $oOutside)
+    {
+        $this->oOutside = $oOutside;
     }
 
     public function getDataRegisters(): Processor\DataRegisterSet
@@ -92,17 +92,6 @@ class CPU extends Processor\Base
 
     }
 
-    public function executeTimed(int $iAddress): \stdClass
-    {
-        $fTime = -microtime(true);
-        $iCount = $this->execute($iAddress);
-        $fTime += microtime(true);
-        return (object)[
-            'iCount' => $iCount,
-            'fTime'  => $fTime
-        ];
-    }
-
     public function execute(?int $iAddress = null): int
     {
         if (null !== $iAddress) {
@@ -111,7 +100,7 @@ class CPU extends Processor\Base
 
         $iCount = 0;
         try {
-            while (true) {
+            for (;;) {
                 try {
                     while(true) {
                         $iOpcode = $this->oOutside->readWord($this->iProgramCounter);
@@ -159,6 +148,36 @@ class CPU extends Processor\Base
             );
         }
         return $iCount;
+    }
+
+    public function benchmark(int $iAddress, bool $bWithICache): float
+    {
+        $this->iProgramCounter = $iAddress;
+        // Experimental opcode cache
+        $aInstCache = [];
+        $tStart = microtime(true);
+        try {
+            if ($bWithICache) {
+                for (;;) {
+                    $iOpcode = $aInstCache[$this->iProgramCounter] ?? (
+                        $aInstCache[$this->iProgramCounter] = $this->oOutside->readWord(
+                            $this->iProgramCounter
+                        )
+                    );
+                    $this->iProgramCounter += Processor\ISize::WORD;
+                    $this->aExactHandler[$iOpcode]($iOpcode);
+                }
+            } else {
+                for (;;) {
+                    $iOpcode = $this->oOutside->readWord($this->iProgramCounter);
+                    $this->iProgramCounter += Processor\ISize::WORD;
+                    $this->aExactHandler[$iOpcode]($iOpcode);
+                }
+            }
+        } catch (Processor\Halted $oError) {
+
+        }
+        return microtime(true) - $tStart;
     }
 
     public function dumpMachineState(?ObjectCode $oObjectCode)
@@ -277,7 +296,7 @@ class CPU extends Processor\Base
             $sSourceLine
         );
         try {
-            while(true) {
+            for (;;) {
                 $this->dumpMachineState($oObjectCode);
                 $iOpcode = $this->oOutside->readWord($this->iProgramCounter);
 
