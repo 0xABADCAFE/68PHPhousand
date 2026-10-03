@@ -48,14 +48,22 @@ trait TFlow
 
             // This is the basic 68000 realisation. No stack frame type info.
             IPrefix::OP_RTE => function (int $iOpcode) {
-                $iSP = &$this->oAddressRegisters->iReg7;
-                $iStatusCCR = $this->oOutside->readWord(
-                    $iSP
-                );
-                $this->iConditionRegister = $iStatusCCR & 0xFF;
-                $this->iStatusRegister    = ($iStatusCCR >> 8);
-                $this->iProgramCounter = $this->oOutside->readLong(($iSP + ISize::WORD) & ISize::MASK_LONG);
-                $iSP = ($iSP + 6) & ISize::MASK_LONG;
+                if ($this->iStatusRegister & IRegister::SR_MASK_SUPER) {
+
+                    $iSP = &$this->oAddressRegisters->iReg7;
+                    $iStatusCCR = $this->oOutside->readWord(
+                        $iSP
+                    );
+                    $this->iConditionRegister = $iStatusCCR & 0xFF;
+                    $this->iStatusRegister    = ($iStatusCCR >> 8);
+                    $this->iProgramCounter = $this->oOutside->readLong(($iSP + ISize::WORD) & ISize::MASK_LONG);
+                    $iSP = ($iSP + 6) & ISize::MASK_LONG;
+                    if (!($this->iStatusRegister & IRegister::SR_MASK_SUPER)) {
+                        $this->oAddressRegisters->iReg7 = $this->iUserStackPtrRegister;
+                    }
+                } else {
+                    $this->processPrivilegeViolation();
+                }
             },
 
             IPrefix::OP_RTR => function (int $iOpcode) {

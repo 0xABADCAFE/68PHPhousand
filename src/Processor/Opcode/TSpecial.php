@@ -41,8 +41,12 @@ trait TSpecial
             ISpecial::OP_ILLEGAL  => $cUnhandled,
 
             ISpecial::OP_RESET    => function() {
-                // TODO - probably needs to be a bit more specific than this
-                $this->reset();
+                // Reset external devices
+                if ($this->iStatusRegister & IRegister::SR_MASK_SUPER) {
+                    $this->oOutside->softReset();
+                } else {
+                    $this->processPrivilegeViolation();
+                }
             },
 
             ISpecial::OP_NOP      => function() {

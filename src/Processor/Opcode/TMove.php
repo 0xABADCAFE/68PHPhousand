@@ -409,6 +409,50 @@ trait TMove
 
     private function buildMoveSpecialHandlers()
     {
+        // Move to SR
+        $this->addExactHandlers(
+            array_fill_keys(
+                $this->generateForEAModeList(
+                    IEffectiveAddress::MODE_ALL_EXCEPT_AREGS,
+                    IMove::OP_MOVE_2_SR
+                ),
+                function (int $iOpcode) {
+                    if ($this->iStatusRegister & IRegister::SR_MASK_SUPER) {
+                        $iWord = $this->aSrcEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]->readWord();
+                        $this->iStatusRegister = (($iWord >> 8) & IRegister::SR_MASK);
+                        $this->iConditionRegister = $iWord & IRegister::CCR_MASK;
+                        if (!($this->iStatusRegister & IRegister::SR_MASK_SUPER)) {
+                            $this->oAddressRegisters->iReg7 = $this->iUserStackPtrRegister;
+                        }
+                    } else {
+                        $this->processPrivilegeViolation();
+                    }
+                }
+            )
+        );
+
+        // Move from SR
+        $this->addExactHandlers(
+            array_fill_keys(
+                $this->generateForEAModeList(
+                    IEffectiveAddress::MODE_DATA_ALTERABLE,
+                    IMove::OP_MOVE_SR
+                ),
+                function (int $iOpcode) {
+                    if ($this->iStatusRegister & IRegister::SR_MASK_SUPER) {
+                        $this->aDstEAModes[$iOpcode & IOpcode::MASK_OP_STD_EA]
+                            ->resetLatch()
+                            ->writeWord(
+                                (($this->iStatusRegister & IRegister::SR_MASK) << 8) |
+                                $this->iConditionRegister & IRegister::CCR_MASK
+                            );
+                    } else {
+                        $this->processPrivilegeViolation();
+                    }
+                }
+            )
+        );
+
         // Move to CCR
         $this->addExactHandlers(
             array_fill_keys(
