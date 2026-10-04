@@ -165,4 +165,6 @@ abstract class Base implements I68KProcessor, IOpcode, Opcode\IPrefix
             $this->iUserStackPtrRegister = $this->oAddressRegisters->iReg7;
         }
     }
+
+
 }

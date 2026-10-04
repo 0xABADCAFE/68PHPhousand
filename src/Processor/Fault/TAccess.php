@@ -18,6 +18,7 @@ trait TAccess
 {
     public int  $iAddress = 0;
     public int  $iSize    = 0;
+    public int  $iStatus  = 0;
     public bool $bWrite   = false;
 
     /**

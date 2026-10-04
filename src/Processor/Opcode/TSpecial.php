@@ -134,9 +134,8 @@ trait TSpecial
         $this->addExactHandlers([
             ISpecial::OP_TRAPV => function($iOpcode) {
                 if ($this->iConditionRegister & IRegister::CCR_OVERFLOW) {
-                    $this->syncSupervisorState();
-
                     $this->beginStackFrame($this->iProgramCounter);
+                    $this->syncSupervisorState();
 
                     // Jump!
                     $this->iProgramCounter = $this->oOutside->readLong(
@@ -178,8 +177,8 @@ trait TSpecial
 
                         if ($bTrap) {
                             $this->iConditionRegister &= IRegister::CCR_CLEAR_ZVC;
-                            $this->syncSupervisorState();
                             $this->beginStackFrame($this->iProgramCounter);
+                            $this->syncSupervisorState();
 
                             // Jump!
                             $this->iProgramCounter = $this->oOutside->readLong(

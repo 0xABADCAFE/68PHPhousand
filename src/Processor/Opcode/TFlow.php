@@ -19,6 +19,7 @@ use ABadCafe\G8PHPhousand\Processor\ISize;
 use ABadCafe\G8PHPhousand\Processor\IEffectiveAddress;
 use ABadCafe\G8PHPhousand\Processor\IOpcode;
 use ABadCafe\G8PHPhousand\Processor\IRegister;
+use ABadCafe\G8PHPhousand\Processor\Fault;
 
 use LogicException;
 
@@ -31,6 +32,7 @@ trait TFlow
     protected function initFlowHandlers()
     {
         $this->oHalt = new Processor\Halted();
+        $this->oAddressFault = new Fault\Address();
 
         $cUnhandled = function(int $iOpcode) {
             throw new LogicException(sprintf('Unhandled flow operation 0x%4X (TODO)', $iOpcode));
@@ -51,15 +53,42 @@ trait TFlow
                 if ($this->iStatusRegister & IRegister::SR_MASK_SUPER) {
 
                     $iSP = &$this->oAddressRegisters->iReg7;
-                    $iStatusCCR = $this->oOutside->readWord(
-                        $iSP
-                    );
-                    $this->iConditionRegister = $iStatusCCR & 0xFF;
-                    $this->iStatusRegister    = ($iStatusCCR >> 8);
-                    $this->iProgramCounter = $this->oOutside->readLong(($iSP + ISize::WORD) & ISize::MASK_LONG);
+
+// echo "SR/CCR Before: ", $this->formatSR($this->iStatusRegister), " : ", $this->formatCCR($this->iConditionRegister), "\n";
+// echo("\nSTACK DUMP\n");
+// for ($i = -8; $i <= 24; $i += ISize::WORD) {
+//     printf(
+//         "SP %3d [0x%08X]: 0x%04X\n",
+//         $i, ($iSP + $i),  $this->oOutside->readWord(($iSP + $i))
+//     );
+// }
+
+                   $iStatusCCR = $this->oOutside->readWord(
+                       $iSP
+                   );
+                   $this->iConditionRegister = $iStatusCCR & 0xFF;
+                   $this->iStatusRegister    = ($iStatusCCR >> 8);
+
+// echo "SR/CCR After: ", $this->formatSR($this->iStatusRegister), " : ", $this->formatCCR($this->iConditionRegister), "\n";
+
+                    $iProgramCounter = $this->oOutside->readLong(($iSP + ISize::WORD) & ISize::MASK_LONG);
                     $iSP = ($iSP + 6) & ISize::MASK_LONG;
-                    if (!($this->iStatusRegister & IRegister::SR_MASK_SUPER)) {
-                        $this->oAddressRegisters->iReg7 = $this->iUserStackPtrRegister;
+
+                    if ($iProgramCounter & 1) {
+                        $this->iSupervisorStackPtrRegister = $iSP;
+                        $this->oAddressFault->iAddress = $iProgramCounter;
+                        $this->oAddressFault->iSize    = ISize::LONG;
+                        $this->oAddressFault->bWrite   = false;
+                        $this->processAddressError($this->oAddressFault, $this->iProgramCounter, $iOpcode);
+                    } else {
+
+                        $this->iProgramCounter = $iProgramCounter;
+                        // Restore system state next?
+
+                        if (!($this->iStatusRegister & IRegister::SR_MASK_SUPER)) {
+                            $this->iSupervisorStackPtrRegister = $iSP;
+                            $iSP = $this->iUserStackPtrRegister;
+                        }
                     }
                 } else {
                     $this->processPrivilegeViolation();

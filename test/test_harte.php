@@ -47,13 +47,13 @@ $oTomHarte = (new TestHarness\TomHarte(
 ;
 
 // Last one to fix. Currently half working, likely due to stack frame format issues.
-$oTomHarte->loadSuite('RTE')->run();
+//$oTomHarte->loadSuite('RTE')->run();
 
 
 //$oTomHarte->loadSuite('MOVEfromSR')->run();
 //$oTomHarte->loadSuite('MOVEtoSR')->run();
 
-exit;
+//exit;
 
 $oTomHarte->runAllExcept(
     [
