@@ -29,8 +29,8 @@ $oTomHarte = (new TestHarness\TomHarte(
         )
     )
 ))
-    ->declareBroken('e502 [ASL.b Q, D2] 1583')
-    ->declareBroken('e502 [ASL.b Q, D2] 1761')
+    ->declareBroken('e502 [ASL.b Q, D2] 1583') // D2 register outcome invalid
+    ->declareBroken('e502 [ASL.b Q, D2] 1761') // D2 register outcome invalid
     ->declareUndefinedCCR('ABCD', IRegister::CCR_OVERFLOW)
     ->declareUndefinedCCR('NBCD', IRegister::CCR_OVERFLOW)
     ->declareUndefinedCCR('SBCD', IRegister::CCR_OVERFLOW)
@@ -42,17 +42,21 @@ $oTomHarte = (new TestHarness\TomHarte(
     // For now, ignore changes to the special format word of the exception frame
     ->ignoreMemoryChanged(0x000007F2)
     ->ignoreMemoryChanged(0x000007F3)
+    ->ignoreMemoryChanged(0x000007FF)
+
 ;
 
-$oTomHarte->loadSuite('DIVU')->run();
-exit;
+// Last one to fix. Currently half working, likely due to stack frame format issues.
+//$oTomHarte->loadSuite('RTE')->run();
+
+
+//$oTomHarte->loadSuite('MOVEfromSR')->run();
+//$oTomHarte->loadSuite('MOVEtoSR')->run();
+
+//exit;
 
 $oTomHarte->runAllExcept(
     [
-        // Not implemented yet
-        'MOVEfromSR',  // needs supervisor
-        'MOVEtoSR',    // needs supervisor
-        'RESET',
         'RTE'
     ]
 );

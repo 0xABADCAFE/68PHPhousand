@@ -239,7 +239,6 @@ class TomHarte
                         printf("\t%s\n", $sMessage);
                     }
                     ob_end_flush();
-
                 }
             } catch (\Throwable $oError) {
                 printf("ERRORED:\n\t%s\n%s\n", $oError->getMessage(), $oError->getTraceAsString());

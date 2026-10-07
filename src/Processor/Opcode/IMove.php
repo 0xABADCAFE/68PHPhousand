@@ -89,6 +89,9 @@ interface IMove
 
     const OP_MOVE_2_CCR  = 0b0100010011000000;
 
+    const OP_MOVE_SR     = 0b0100000011000000; // move sr,<ea> - all modes except An, #imm and PC relative.
+    const OP_MOVE_2_SR   = 0b0100011011000000; // move <ea>,sr - all modes except An
+
     // 010+
     const OP_MOVE_CCR    = 0b0100001011000000;
     const OP_MOVEC_C2R   = 0b0100111001111010; // movec <ctrl>,<reg>

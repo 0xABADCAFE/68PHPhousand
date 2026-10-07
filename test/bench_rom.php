@@ -34,6 +34,8 @@ const BASE_ADDRESS = 0x4;
 $oObjectCode = (new TestHarness\Assembler\Vasmm68k())->assemble("
 	move.w #-1,d0
 .loop:
+	add.w d1,d1
+	add.w d2,d2
 	dbra d0,.loop
 	stop #0
 ",
@@ -84,7 +86,7 @@ $oProcessor = new class($oDeviceMap, true) extends Processor\Base
                 $this->aExactHandler[$iOpcode]($iOpcode);
                 ++$iCount;
             };
-        } catch (LogicException $oError) {
+        } catch (LogicException|Processor\Halted $oError) {
 
         }
         $fTime = microtime(true) - $tStart;
@@ -118,7 +120,7 @@ $oProcessor = new class($oDeviceMap, true) extends Processor\Base
                 $this->aExactHandler[$iOpcode]($iOpcode);
                 ++$iCount;
             };
-        } catch (LogicException $oError) {
+        } catch (LogicException|Processor\Halted $oError) {
 
         }
         $fTime = microtime(true) - $tStart;

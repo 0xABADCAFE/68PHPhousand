@@ -28,17 +28,24 @@ use ABadCafe\G8PHPhousand\Processor\IVector;
  */
 trait TProcess
 {
+
     protected function beginStackFrame(int $iProgramCounter)
     {
-        $this->oAddressRegisters->iReg7 -= ISize::LONG;
+        if ($this->iStatusRegister & IRegister::SR_MASK_SUPER) {
+            $iSSP = &$this->oAddressRegisters->iReg7;
+        } else {
+            $iSSP = &$this->iSupervisorStackPtrRegister;
+        }
+
+        $iSSP -= ISize::LONG;
         $this->oOutside->writeLong(
-            $this->oAddressRegisters->iReg7,
+            $iSSP,
             $iProgramCounter
         );
 
-        $this->oAddressRegisters->iReg7 -= ISize::WORD;
+        $iSSP -= ISize::WORD;
         $this->oOutside->writeWord(
-            $this->oAddressRegisters->iReg7,
+            $iSSP,
             ($this->iStatusRegister << 8) |
             ($this->iConditionRegister)
         );
@@ -46,8 +53,8 @@ trait TProcess
 
     protected function processPrivilegeViolation()
     {
-        $this->syncSupervisorState();
         $this->beginStackFrame($this->iProgramCounter);
+        $this->syncSupervisorState();
         $this->iProgramCounter = $this->oOutside->readLong(
             $this->iVectorBaseRegister + IVector::VOFS_PRIVILEGE_VIOLATION
         );
@@ -55,9 +62,10 @@ trait TProcess
 
     protected function processZeroDivideError()
     {
-        $this->syncSupervisorState();
         $this->iConditionRegister &= IRegister::CCR_EXTEND;
         $this->beginStackFrame($this->iProgramCounter);
+
+        $this->syncSupervisorState();
         $this->iProgramCounter = $this->oOutside->readLong(
             $this->iVectorBaseRegister + IVector::VOFS_INTEGER_DIVIDE_BY_ZERO
         );
@@ -69,9 +77,8 @@ trait TProcess
             0 === ($iTrapNumber & ~0xF),
             new \LogicException('Invalid TRAP number')
         );
-
-        $this->syncSupervisorState();
         $this->beginStackFrame($this->iProgramCounter);
+        $this->syncSupervisorState();
         $this->iProgramCounter = $this->oOutside->readLong(
             $this->iVectorBaseRegister + ($iTrapNumber << 2) + IVector::VOFS_TRAP_USER
         );
@@ -82,9 +89,8 @@ trait TProcess
      */
     protected function processAccessError(Access $oFault, int $iPCAddress, int $iOpcode)
     {
-        $this->syncSupervisorState(); // Transition to supervisor mode
-
         $this->beginStackFrame($iPCAddress);
+        $this->syncSupervisorState(); // Transition to supervisor mode
 
         // Extended frame data
 
@@ -113,9 +119,8 @@ trait TProcess
 
     protected function processAddressError(Address $oFault, int $iPCAddress, int $iOpcode)
     {
-        $this->syncSupervisorState(); // Transition to supervisor mode
-
         $this->beginStackFrame($iPCAddress);
+        $this->syncSupervisorState(); // Transition to supervisor mode
 
         // Extended frame data
 

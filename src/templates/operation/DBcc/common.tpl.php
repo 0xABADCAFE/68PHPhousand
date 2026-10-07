@@ -21,23 +21,28 @@
 <?php
 if ($oParams->oAdditional->bUseJumpCache) {
 ?>
-            $this->iProgramCounter = $this->aJumpCache[$this->iProgramCounter] ?? (
-                $this->aJumpCache[$this->iProgramCounter] = (
-                    (
-                        $this->iProgramCounter + Sign::extWord(
-                            $this->oOutside->readWord($this->iProgramCounter)
-                        )
-                    ) & ISize::MASK_LONG
-                )
-            );
+            if (isset($this->aJumpCache[$this->iProgramCounter])) {
+                $this->iProgramCounter = $this->aJumpCache[$this->iProgramCounter];
+            } else {
+                $iSourceProgramCounter = $this->iProgramCounter;
+                if ($this->updatePC(
+                    $this->iProgramCounter + Sign::extWord(
+                        $this->oOutside->readWord($this->iProgramCounter)
+                    ),
+                    $iOpcode
+                )) {
+                    $this->aJumpCache[$iSourceProgramCounter] = $this->iProgramCounter;
+                }
+            }
 <?php
 } else {
 ?>
-            $this->iProgramCounter = (
+            $this->updatePC(
                 $this->iProgramCounter + Sign::extWord($this->oOutside->readWord(
                     $this->iProgramCounter
-                ))
-            ) & ISize::MASK_LONG;
+                )),
+                $iOpcode
+            );
 <?php
 }
 ?>

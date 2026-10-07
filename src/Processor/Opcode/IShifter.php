@@ -84,7 +84,7 @@ interface IShifter
     const OP_LSR_DD_L   = 0b1110000010101000;
 
     // LSR Mem
-    //                          001R11EAEAEA - lsr(.w) <eae
+    //                          001R11EAEAEA - lsr(.w) <ea>
     const OP_LSR_M_W    = 0b1110001011000000;
 
     // ROL immediate

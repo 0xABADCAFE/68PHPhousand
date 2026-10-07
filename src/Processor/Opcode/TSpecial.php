@@ -41,8 +41,12 @@ trait TSpecial
             ISpecial::OP_ILLEGAL  => $cUnhandled,
 
             ISpecial::OP_RESET    => function() {
-                // TODO - probably needs to be a bit more specific than this
-                $this->reset();
+                // Reset external devices
+                if ($this->iStatusRegister & IRegister::SR_MASK_SUPER) {
+                    $this->oOutside->softReset();
+                } else {
+                    $this->processPrivilegeViolation();
+                }
             },
 
             ISpecial::OP_NOP      => function() {
@@ -130,9 +134,8 @@ trait TSpecial
         $this->addExactHandlers([
             ISpecial::OP_TRAPV => function($iOpcode) {
                 if ($this->iConditionRegister & IRegister::CCR_OVERFLOW) {
-                    $this->syncSupervisorState();
-
                     $this->beginStackFrame($this->iProgramCounter);
+                    $this->syncSupervisorState();
 
                     // Jump!
                     $this->iProgramCounter = $this->oOutside->readLong(
@@ -174,8 +177,8 @@ trait TSpecial
 
                         if ($bTrap) {
                             $this->iConditionRegister &= IRegister::CCR_CLEAR_ZVC;
-                            $this->syncSupervisorState();
                             $this->beginStackFrame($this->iProgramCounter);
+                            $this->syncSupervisorState();
 
                             // Jump!
                             $this->iProgramCounter = $this->oOutside->readLong(

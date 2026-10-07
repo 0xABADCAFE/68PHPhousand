@@ -411,11 +411,14 @@ trait TLogical
             },
 
             ILogical::OP_ORI_SR => function() {
-                // TODO - Privilege checks, etc.
-                $iWord = $this->oOutside->readWord($this->iProgramCounter);
-                $this->iConditionRegister |= ($iWord & IRegister::CCR_MASK);
-                $this->iStatusRegister |= (($iWord >> 8) & IRegister::SR_MASK);
-                $this->iProgramCounter += ISize::WORD;
+                if ($this->iStatusRegister & IRegister::SR_MASK_SUPER) {
+                    $iWord = $this->oOutside->readWord($this->iProgramCounter);
+                    $this->iConditionRegister |= ($iWord & IRegister::CCR_MASK);
+                    $this->iStatusRegister |= (($iWord >> 8) & IRegister::SR_MASK);
+                    $this->iProgramCounter += ISize::WORD;
+                } else {
+                    $this->processPrivilegeViolation();
+                }
             },
 
             ILogical::OP_ANDI_CCR => function() {
@@ -425,11 +428,18 @@ trait TLogical
             },
 
             ILogical::OP_ANDI_SR => function() {
-                // TODO - Privilege checks, etc.
-                $iWord = $this->oOutside->readWord($this->iProgramCounter);
-                $this->iConditionRegister &= ($iWord & IRegister::CCR_MASK);
-                $this->iStatusRegister &= (($iWord >> 8) & IRegister::SR_MASK);
-                $this->iProgramCounter += ISize::WORD;
+                if ($this->iStatusRegister & IRegister::SR_MASK_SUPER) {
+                    $iWord = $this->oOutside->readWord($this->iProgramCounter);
+                    $this->iConditionRegister &= ($iWord & IRegister::CCR_MASK);
+                    $this->iStatusRegister &= (($iWord >> 8) & IRegister::SR_MASK);
+                    $this->iProgramCounter += ISize::WORD;
+                    // We might have lost the supervisor bit...
+                    if (!($this->iStatusRegister & IRegister::SR_MASK_SUPER)) {
+                        $this->oAddressRegisters->iReg7 = $this->iUserStackPtrRegister;
+                    }
+                } else {
+                    $this->processPrivilegeViolation();
+                }
             },
 
             ILogical::OP_EORI_CCR => function() {
@@ -439,11 +449,18 @@ trait TLogical
             },
 
             ILogical::OP_EORI_SR => function() {
-                // TODO - Privilege checks, etc.
-                $iWord = $this->oOutside->readWord($this->iProgramCounter);
-                $this->iConditionRegister ^= ($iWord & IRegister::CCR_MASK);
-                $this->iStatusRegister ^= (($iWord >> 8) & IRegister::SR_MASK);
-                $this->iProgramCounter += ISize::WORD;
+                if ($this->iStatusRegister & IRegister::SR_MASK_SUPER) {
+                    $iWord = $this->oOutside->readWord($this->iProgramCounter);
+                    $this->iConditionRegister ^= ($iWord & IRegister::CCR_MASK);
+                    $this->iStatusRegister ^= (($iWord >> 8) & IRegister::SR_MASK);
+                    $this->iProgramCounter += ISize::WORD;
+                    // We might have lost the supervisor bit...
+                    if (!($this->iStatusRegister & IRegister::SR_MASK_SUPER)) {
+                        $this->oAddressRegisters->iReg7 = $this->iUserStackPtrRegister;
+                    }
+                } else {
+                    $this->processPrivilegeViolation();
+                }
             },
         ]);
     }
