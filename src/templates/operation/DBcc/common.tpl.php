@@ -21,7 +21,7 @@
 <?php
 if ($oParams->oAdditional->bUseJumpCache) {
 ?>
-            if (isset($this->iProgramCounter = $this->aJumpCache[$this->iProgramCounter])) {
+            if (isset($this->aJumpCache[$this->iProgramCounter])) {
                 $this->iProgramCounter = $this->aJumpCache[$this->iProgramCounter];
             } else {
                 $iSourceProgramCounter = $this->iProgramCounter;
