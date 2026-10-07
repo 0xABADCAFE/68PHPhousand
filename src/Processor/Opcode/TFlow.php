@@ -28,11 +28,31 @@ trait TFlow
     use Processor\TOpcode;
 
     private Processor\Halted $oHalt;
+    private Fault\Address $oCodeAddressFault;
+
+    /**
+     * This is for internal code to update the PC or fault.
+     */
+    protected function updatePC(int $iProgramCounter, int $iOpcode): bool
+    {
+        $iProgramCounter &= ISize::MASK_LONG;
+        if ($iProgramCounter & 1) {
+            $this->iSupervisorStackPtrRegister = $this->oAddressRegisters->iReg7;
+            $this->oCodeAddressFault->iAddress = $iProgramCounter;
+            $this->oCodeAddressFault->iSize    = ISize::LONG;
+            $this->oCodeAddressFault->bWrite   = false;
+            $this->processAddressError($this->oCodeAddressFault, $this->iProgramCounter, $iOpcode);
+            return false;
+        }
+        $this->iProgramCounter = $iProgramCounter;
+        return true;
+    }
+
 
     protected function initFlowHandlers()
     {
         $this->oHalt = new Processor\Halted();
-        $this->oAddressFault = new Fault\Address();
+        $this->oCodeAddressFault = new Fault\Address();
 
         $cUnhandled = function(int $iOpcode) {
             throw new LogicException(sprintf('Unhandled flow operation 0x%4X (TODO)', $iOpcode));
@@ -74,17 +94,8 @@ trait TFlow
                     $iProgramCounter = $this->oOutside->readLong(($iSP + ISize::WORD) & ISize::MASK_LONG);
                     $iSP = ($iSP + 6) & ISize::MASK_LONG;
 
-                    if ($iProgramCounter & 1) {
-                        $this->iSupervisorStackPtrRegister = $iSP;
-                        $this->oAddressFault->iAddress = $iProgramCounter;
-                        $this->oAddressFault->iSize    = ISize::LONG;
-                        $this->oAddressFault->bWrite   = false;
-                        $this->processAddressError($this->oAddressFault, $this->iProgramCounter, $iOpcode);
-                    } else {
-
-                        $this->iProgramCounter = $iProgramCounter;
+                    if ($this->updatePC($iProgramCounter)) {
                         // Restore system state next?
-
                         if (!($this->iStatusRegister & IRegister::SR_MASK_SUPER)) {
                             $this->iSupervisorStackPtrRegister = $iSP;
                             $iSP = $this->iUserStackPtrRegister;

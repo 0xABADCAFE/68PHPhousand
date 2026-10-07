@@ -46,8 +46,15 @@ trait TGenerator
         if ($oParams->bDumpCode) {
             printf("\n%s()\n$%4X : %s => %s\n", __METHOD__, $oParams->iOpcode, $sHash, $sCode);
         }
-        return $this->aCompilerCache[$sHash] ?? ($this->aCompilerCache[$sHash] = eval(
-            "namespace " . Params::EXECUTION_NAMESPACE . ";\n" . $sCode)
-        );
+
+        try {
+            return $this->aCompilerCache[$sHash] ?? ($this->aCompilerCache[$sHash] = eval(
+                "namespace " . Params::EXECUTION_NAMESPACE . ";\n" . $sCode)
+            );
+        } catch (\Throwable $oError) {
+            print_r($oParams);
+            echo $sCode, "\n";
+            throw $oError;
+        }
     }
 }
